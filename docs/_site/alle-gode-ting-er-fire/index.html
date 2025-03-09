@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alle gode ting er fire (CLL24)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Alle gode ting er fire (CLL24)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/quaternion-algebra/" class="tag">Quaternion Algebra</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this challenge, we are provided with a challenge script which gives us the following information to work with:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Q</span> <span class="o">=</span> <span class="n">QuaternionAlgebra</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="n">flag_quaternion</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="n">flag_parts</span><span class="p">)</span>
+<span class="n">p_quaternion</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="n">four_squares</span><span class="p">(</span><span class="n">QQ</span><span class="p">(</span><span class="n">p</span><span class="p">)))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">flag_quaternion</span> <span class="o">*</span> <span class="n">p_quaternion</span>
+</code></pre></div></div>
+
+<p>where <code class="language-plaintext highlighter-rouge">flag_quaternion</code> is made up of the flag, split into 4, and converted to longs.
+We also get the following values for x:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">584210810594046517355452820113415197</span> <span class="o">+</span> <span class="mi">487268406469160255588161824266067879</span><span class="o">*</span><span class="n">i</span> <span class="o">-</span> <span class="mi">604670429592815531484994554730642919</span><span class="o">*</span><span class="n">j</span> <span class="o">+</span> <span class="mi">523176388428119814691754655613320989</span><span class="o">*</span><span class="n">k</span>
+</code></pre></div></div>
+
+<p>This is essentially all we have to work with. To recover the flag, we need to do find $p$, generate it’s quaternion, calculate the inverse, and perform $q_{x} \cdot q_{p}^{-1}$ , which will give us the flag quaternion $q_{flag}$. We can then reconstruct the flag from the quaternion and solve the challenge.</p>
+
+<h5 id="recovering-the-prime-p">Recovering the prime p</h5>
+
+<p>To find $p$, we have to take advantage of the following properties of quaternion algebra:</p>
+
+<p>The norm of quaternion $q$ is:</p>
+
+\[\large N(q) = \sqrt{a^2 + b^2 + c^2 + d^2}\]
+
+<p>which means:</p>
+
+\[\large N^2(q) = a^2 + b^2 + c^2 + d^2\]
+
+<p>And, we take note of the multiplicative norm property, where multiplication is preserved:</p>
+
+\[\large N(q_1 \cdot q_2) = N(q_1) \cdot N(q_2)\]
+
+<p>We will also take advantage of how the p quaternion is constructed using the four squares theorem:</p>
+
+\[\large p = a^2 + b^2 + c^2 + d^2 = N^2(q_{p})\]
+
+<p>Since $q_{x} = q_{p} \cdot q_{flag}$, we also know:</p>
+
+\[\large \begin{align} 
+\nonumber N^2(q_{x}) &amp;= N^2(q_{flag}) \cdot N^2(q_{p})  \\
+\nonumber a^2_x + b^2_x + c^2_x + d^2_x &amp;= N^2(q_{flag}) \cdot p
+\end{align}\]
+
+<p>Which means that $p$ is a factor of $q_{x}$’s squared norm!
+We can factor the squared norm and find the 64-bit factor. Then, finding the inverse of $q_{p}$ is easy, and we can thus find $q_{flag}$ to reconstruct the flag:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">long_to_bytes</span>
+
+<span class="c1"># Define the quaternion algebra over the rational numbers
+</span><span class="n">Q</span> <span class="o">=</span> <span class="n">QuaternionAlgebra</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Q</span><span class="p">([</span><span class="o">-</span><span class="mi">584210810594046517355452820113415197</span><span class="p">,</span> <span class="mi">487268406469160255588161824266067879</span><span class="p">,</span> <span class="o">-</span><span class="mi">604670429592815531484994554730642919</span><span class="p">,</span> <span class="mi">523176388428119814691754655613320989</span><span class="p">])</span>
+<span class="n">norm_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+
+<span class="n">factors</span> <span class="o">=</span> <span class="n">ECM</span><span class="p">().</span><span class="n">factor</span><span class="p">(</span><span class="n">norm_x</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">factor</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">:</span>
+	<span class="k">if</span> <span class="n">factor</span><span class="p">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
+		<span class="n">p</span> <span class="o">=</span> <span class="n">factor</span>
+
+<span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">four_squares</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">p_quaternion</span> <span class="o">=</span> <span class="n">Q</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">])</span>
+<span class="n">p_inv</span> <span class="o">=</span> <span class="o">~</span><span class="n">p_quaternion</span>
+
+<span class="n">flag_quaternion</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">p_inv</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="s">""</span>
+<span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">flag_quaternion</span><span class="p">:</span>
+	<span class="n">flag</span> <span class="o">+=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">part</span><span class="p">)).</span><span class="n">decode</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Flag: <code class="language-plaintext highlighter-rouge">flag{fire_kvadrater_og_en_pizza_er_du_snill}</code></p>
+
+<h5 id="sourcepy">source.py</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">getPrime</span>
+<span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="n">QuaternionAlgebra</span><span class="p">,</span> <span class="n">QQ</span><span class="p">,</span> <span class="n">four_squares</span>
+<span class="kn">from</span> <span class="nn">secret</span> <span class="kn">import</span> <span class="n">FLAG</span>
+
+
+<span class="c1"># Quaternion algebra over the rational numbers, i^2 = -1 and j^2 = -1
+</span><span class="n">Q</span> <span class="o">=</span> <span class="n">QuaternionAlgebra</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">FLAG</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="n">step</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">FLAG</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
+<span class="n">flag_parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">FLAG</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">step</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">FLAG</span><span class="p">),</span> <span class="n">step</span><span class="p">)]</span>
+<span class="n">flag_parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">flag_parts</span><span class="p">]</span>
+
+<span class="n">flag_quaternion</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="n">flag_parts</span><span class="p">)</span>
+<span class="n">p_quaternion</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="n">four_squares</span><span class="p">(</span><span class="n">QQ</span><span class="p">(</span><span class="n">p</span><span class="p">)))</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">flag_quaternion</span> <span class="o">*</span> <span class="n">p_quaternion</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"output.txt"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">x</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># x = -584210810594046517355452820113415197 + 487268406469160255588161824266067879*i - 604670429592815531484994554730642919*j + 523176388428119814691754655613320989*k
+</span></code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

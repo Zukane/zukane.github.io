@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connorsmith (CSCTF)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Connorsmith (CSCTF)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/coppersmith-small-roots/" class="tag">Coppersmith small roots</a>
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given a relatively standard RSA setup:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="sa">b</span><span class="s">'CSCTF{redacted}'</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">random_prime</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">random_prime</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">N</span><span class="o">**</span><span class="mf">0.35</span><span class="p">))</span>
+<span class="n">e</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">N</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">e</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'c = </span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'hint = </span><span class="si">{</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">795</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>However, this setup contains some noteworthy characteristics:</p>
+
+<p>First of all, $d$ is a random integer that is less than $N^{0.35}$. Despite it being a random integer, it is most certainly not less than the theoretical limit for $d$ in the boneh-durfee attack.</p>
+
+<p>We are also given a hint for this challenge: <code class="language-plaintext highlighter-rouge">p+q &gt;&gt; 795</code>. This means we have some of the most significant bits of $p + q$.
+Other than that, not much else! $p$ and $q$ are of course too large to brute-force, so we have to come up with a specific attack.</p>
+
+<h5 id="identifying-the-attack-vector">Identifying the attack vector</h5>
+
+<p>The only hint for the challenge is that we have the most significant bits of $p + q$. This means we could potentially perform some stereotyped message attack, which means its coppersmith time.</p>
+
+<p>To do this, we need to set up a function $f$ where we can solve for the unknown values. Since we are given a portion of $p+q$, our function should include this and solve for the lesser bits of $p+q$ using coppersmith.</p>
+
+<p>Interestingly enough, we can take inspiration from the boneh-durfee attack since d is small and the expression contains a variation of $p+q$.
+We remember the following:</p>
+
+\[\large\begin{aligned}
+e d &amp; \equiv1 \quad(\bmod \varphi(N)) \\
+\Longrightarrow e d &amp; =1+k(N-p-q+1) \\
+\Longrightarrow 1+k(N-p-q+1) &amp; \equiv0 \quad(\bmod e) \\
+\Longrightarrow 1+2 k\left(\frac{N+1}{2}-\frac{p+q}{2}\right) &amp; \equiv0 \quad(\bmod e)
+\end{aligned}\]
+
+<p>Since we don’t know the value for $k$, we let $k = x$. 
+Also, we can say that $p+q = hint \cdot 2^{795} + y$. We essentially bit-shift back 795 bits and we let y represent the root.
+This gives us the function:</p>
+
+\[\large f(x, y) = 1+2 x\left(\frac{N+1}{2}-\frac{hint \cdot 2^{795} + y}{2}\right) \equiv0 \quad(\bmod e)\]
+
+<p>To find the roots, we can use a bivariate coppersmith algorithm since we have two unknowns. After finding the roots $(x, y)$, we can evaluate $f(x, y) = ed$ and divide by $e$ to recover the secret key.</p>
+
+<p>From there, it is as simple as decrypting: $m = c^d \mod N$</p>
+
+<h5 id="implementing-the-solution">Implementing the solution</h5>
+
+<p>We first of all define our values $N, e, c, hint$ from the challenge source code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">7552253013225223212686972759229408890943243937848116869511428282592494711559240135372705736006054353083281103140787662239958191241833157109597880624454796412006762881501916845155158694626704629051045217266597685547634722763704638532067409306181328833329683262904207364205190648604464680961179156366009048508124744257064547090561236984730817200175311749708243086463240602718911105727107075971987228340827791295829216059926076767577606528647738447725195880791137450082195604212374273765390335921438605358227547423468794396280894150559661664635540689602987474623120205743645087417873312711804245504568677508120251077973</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mi">3972273176912267799970180147678020025192175195982968793722693097132970664724388722714705209022371322943558028173459714967997171817396680330435643595109433373306392229639747130134793710239081601404067602930871254806754684103349829634489509031907387929080189489106215966862642406152181674399593026117258657690036458955106821789654735855538375273851668820461621159458690509295524433242439365251850800232909323376356116251835554606066609685882803255427299046970093232995420925951786433206910901590576814359503385919307570360242528454529766855342865079257244016304989185569117193284115242278439808082079787893597831292429</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mi">6722063431743120124281037577917473736384734002344400102535470664988199976365033546621632487383386053044468700113542626459908567596300577088705896140930724832695917664482501591801075560437336915520962349830960551339852803481367045861684404716913927870231244602348980596739084252620702852351036834534769613031735817640709051052713694452907186969900542466747407949270228341375666775282809021111998328175103742416108902755346724742467339317044645243210574003890806923017769148711785248795287760426567277473640239499920974270994457112678786022613046685998793486144172215215581287541508145268729387185453679039441575292812</span>
+<span class="n">hint</span> <span class="o">=</span> <span class="mi">891237814844096809623936988168241703768093224718029580247856301709140</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="mi">795</span>
+</code></pre></div></div>
+
+<p>and we let <code class="language-plaintext highlighter-rouge">b = 795</code> be a value for our bit-shift.</p>
+
+<p>Then, before we proceed, we need to find a suitable algorithm for finding the roots. I will utilize the <code class="language-plaintext highlighter-rouge">small_roots.sage</code> script from the following repository: https://github.com/josephsurin/lattice-based-cryptanalysis</p>
+
+<p>The function <code class="language-plaintext highlighter-rouge">small_roots</code> requires a function $f$, an upper bound for the roots, a specified algorithm, and some other values $m$ and $d$.</p>
+
+<p>We can define our function $f$ over the integers:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span> <span class="o">*</span> <span class="p">((</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">hint</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="n">b</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>After defining the function, we can change it’s ring to <code class="language-plaintext highlighter-rouge">Zmod(e)</code> because remember, this function is congruent to $0 \mod e$</p>
+
+<p>To determine the bounds, we can remember that $p+q$ was shifted $795$ bits, which means $y &lt; 2^{795}$, hence our upper bound for y is $2^{795}$.
+To determine the bound for $x$, we remember that $x = k$ and:</p>
+
+\[\large\begin{aligned}
+e d &amp; \equiv1 \quad(\bmod \varphi(N)) \\
+\Longrightarrow e d &amp; =1 + k \times \varphi(N) \\
+\Longrightarrow e d &amp;\approx k \times \varphi(N) \\
+\end{aligned}\]
+
+<p>and since $e$ has almost the same bit-size as $N$ and hence $\varphi(N)$, that must mean $k$ is almost the same bit-size as $d$. Since we know $d \leq N^{0.35}$, then $k$ must be upper bounded by $N^{0.35}$ as well.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bounds</span> <span class="o">=</span> <span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="n">N</span><span class="o">**</span><span class="mf">0.35</span><span class="p">),</span> <span class="mi">2</span><span class="o">**</span><span class="n">b</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>for the specified algorithm, the <code class="language-plaintext highlighter-rouge">small_roots</code> function supports the <code class="language-plaintext highlighter-rouge">groebner</code>, <code class="language-plaintext highlighter-rouge">msolve</code>, <code class="language-plaintext highlighter-rouge">resultants</code>, and <code class="language-plaintext highlighter-rouge">jacobian</code> algorithms. Generally speaking, the <code class="language-plaintext highlighter-rouge">resultants</code> algorithm is the best for bivariate problems.</p>
+
+<p>We can also optionally specify a <code class="language-plaintext highlighter-rouge">lattice_reduction</code> algorithm. I choose to use <code class="language-plaintext highlighter-rouge">flatter</code> from the same repo.</p>
+
+<p>From here, we just need to tweak the values <code class="language-plaintext highlighter-rouge">m</code> and <code class="language-plaintext highlighter-rouge">d</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">roots</span> <span class="o">=</span> <span class="n">small_roots</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">e</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"resultants"</span><span class="p">,</span> <span class="n">lattice_reduction</span><span class="o">=</span><span class="n">flatter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And after finding the roots, we can change the function $f$ back to the ring of integers, evaluate the function with the roots, and divide by $e$ to find the private key $d$ before we finally decrypt the ciphertext!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">solx</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">soly</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">soly</span><span class="p">)</span> <span class="o">/</span> <span class="n">e</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<h5 id="solve-script">Solve script</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/problems/small_roots.sage'</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/common/flatter.sage'</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/common/systems_solvers.sage'</span><span class="p">)</span>
+
+<span class="n">N</span> <span class="o">=</span> <span class="mi">7552253013225223212686972759229408890943243937848116869511428282592494711559240135372705736006054353083281103140787662239958191241833157109597880624454796412006762881501916845155158694626704629051045217266597685547634722763704638532067409306181328833329683262904207364205190648604464680961179156366009048508124744257064547090561236984730817200175311749708243086463240602718911105727107075971987228340827791295829216059926076767577606528647738447725195880791137450082195604212374273765390335921438605358227547423468794396280894150559661664635540689602987474623120205743645087417873312711804245504568677508120251077973</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mi">3972273176912267799970180147678020025192175195982968793722693097132970664724388722714705209022371322943558028173459714967997171817396680330435643595109433373306392229639747130134793710239081601404067602930871254806754684103349829634489509031907387929080189489106215966862642406152181674399593026117258657690036458955106821789654735855538375273851668820461621159458690509295524433242439365251850800232909323376356116251835554606066609685882803255427299046970093232995420925951786433206910901590576814359503385919307570360242528454529766855342865079257244016304989185569117193284115242278439808082079787893597831292429</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mi">6722063431743120124281037577917473736384734002344400102535470664988199976365033546621632487383386053044468700113542626459908567596300577088705896140930724832695917664482501591801075560437336915520962349830960551339852803481367045861684404716913927870231244602348980596739084252620702852351036834534769613031735817640709051052713694452907186969900542466747407949270228341375666775282809021111998328175103742416108902755346724742467339317044645243210574003890806923017769148711785248795287760426567277473640239499920974270994457112678786022613046685998793486144172215215581287541508145268729387185453679039441575292812</span>
+<span class="n">hint</span> <span class="o">=</span> <span class="mi">891237814844096809623936988168241703768093224718029580247856301709140</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="mi">795</span>
+<span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span> <span class="o">*</span> <span class="p">((</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">hint</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="n">b</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="n">N</span><span class="o">**</span><span class="mf">0.35</span><span class="p">),</span> <span class="mi">2</span><span class="o">**</span><span class="n">b</span><span class="p">)</span>
+<span class="n">roots</span> <span class="o">=</span> <span class="n">small_roots</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">e</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"resultants"</span><span class="p">,</span> <span class="n">lattice_reduction</span><span class="o">=</span><span class="n">flatter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">solx</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">soly</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">soly</span><span class="p">)</span> <span class="o">/</span> <span class="n">e</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>This gives us the flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CSCTF{37c37f30fc67f98f376a1c30b25b3969}
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

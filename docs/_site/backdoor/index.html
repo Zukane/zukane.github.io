@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backdoor (ironCTF)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Backdoor (ironCTF)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/prng/" class="tag">PRNG</a>
+            
+            <a href="/tags/elliptic-curve/" class="tag">Elliptic Curve</a>
+            
+            <a href="/tags/nodal-curve/" class="tag">Nodal Curve</a>
+            
+            <a href="/tags/ecdlp/" class="tag">ECDLP</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-introduction">Challenge Introduction</h5>
+
+<p>In this CTF challenge we are given the following python script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">curve_operations</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span><span class="n">Curve</span>    <span class="c1"># Custom module
+</span><span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span>
+
+<span class="k">class</span> <span class="nc">Dual_EC</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="mi">229054522729978652250851640754582529779</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">75</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="mi">250</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">curve</span> <span class="o">=</span> <span class="n">Curve</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">P</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">97396093570994028423863943496522860154</span> <span class="p">,</span> <span class="mi">2113909984961319354502377744504238189</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">Q</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">137281564215976890139225160114831726699</span> <span class="p">,</span> <span class="mi">111983247632990631097104218169731744696</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">set_initial_state</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="err">???</span><span class="n">SECRET</span><span class="err">🤫???</span>
+
+    <span class="k">def</span> <span class="nf">set_next_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">scalar_multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">state</span><span class="p">).</span><span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">gen_rand_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rand_point</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">scalar_multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">Q</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">rand_num</span> <span class="o">=</span> <span class="n">rand_point</span><span class="p">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">set_next_state</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">rand_num</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">prng</span> <span class="o">=</span> <span class="n">Dual_EC</span><span class="p">()</span>
+    <span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'flag{test}'</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"My PRNG has passed International Standards!!!"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Here is a Sample Random Number to prove it to you : "</span><span class="p">,</span> <span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">((</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="mi">128</span><span class="p">)</span> <span class="o">+</span> <span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+    <span class="n">iv</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+    <span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+    <span class="n">encrypted_bytes</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">block_size</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Encrypted bytes : '</span><span class="p">,</span><span class="n">encrypted_bytes</span><span class="p">)</span>
+
+<span class="k">if</span><span class="p">(</span><span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">):</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>and the out.txt:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>My PRNG has passed International Standards!!!
+Here is a Sample Random Number to prove it to you :  222485190245526863452994827085862802196
+Encrypted bytes :  b'BI\xd5\xfd\x8e\x1e(s\xb3vUhy\x96Y\x8f\xceRr\x0c\xe6\xf0\x1a\x88x\xe2\xe9M#]\xad\x99H\x13+\x9e5\xfd\x9b \xe6\xf0\xe10w\x80q\x8d'
+</code></pre></div></div>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>In the source code, an elliptic curve with the following parameters is declared:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">229054522729978652250851640754582529779</span>
+<span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">75</span>
+<span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="mi">250</span>
+</code></pre></div></div>
+
+<p>The script also declares an initial state, or an initial seed for the PRNG. However, it is secret.</p>
+
+<p>For generating random numbers, the script computes the scalar multiplication of Q and the state, and uses the x value as the rand_num
+Then, the next state is generated as the x value of $state \cdot  P$</p>
+
+<p>We are given the first prng number $R.x = (Q \cdot state0).x$ which means we have to solve the discrete logarithm problem to recover state0</p>
+
+<p>When we have state0, we can generate the next numbers and then get the value for the key and iv:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">((</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="mi">128</span><span class="p">)</span> <span class="o">+</span> <span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+</code></pre></div></div>
+
+<h5 id="recovering-state0">Recovering state0</h5>
+
+<p>It turns out the curve defined by these parameters</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">229054522729978652250851640754582529779</span>
+<span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">75</span>
+<span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="mi">250</span>
+</code></pre></div></div>
+
+<p>is not an elliptic curve after all. This is because the delta is equal to 0:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">delta</span> <span class="o">=</span> <span class="o">-</span><span class="mi">16</span><span class="o">*</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">a</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">27</span><span class="o">*</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"delta: </span><span class="si">{</span><span class="n">delta</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="c1"># delta: 0
+</span></code></pre></div></div>
+
+<p>This is actually good news, because we can map the points to the multiplicative group and solve the discrete logarithm a lot easier.</p>
+
+<p>First, we have to define our parameters, our points, our curve and lift the point R:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">229054522729978652250851640754582529779</span>
+<span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">75</span>
+<span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="mi">250</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="c1"># Known points P and Q
+</span><span class="n">P</span> <span class="o">=</span> <span class="p">(</span><span class="mi">97396093570994028423863943496522860154</span> <span class="p">,</span> <span class="mi">2113909984961319354502377744504238189</span><span class="p">)</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="p">(</span><span class="mi">137281564215976890139225160114831726699</span> <span class="p">,</span> <span class="mi">111983247632990631097104218169731744696</span><span class="p">)</span>
+
+<span class="n">R_x</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">222485190245526863452994827085862802196</span><span class="p">)</span>
+<span class="n">rhs</span> <span class="o">=</span> <span class="n">R_x</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="n">R_x</span> <span class="o">+</span> <span class="n">b</span>
+<span class="n">R_y</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">sqrt</span><span class="p">()</span>
+<span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="n">R_x</span><span class="p">,</span> <span class="n">R_y</span><span class="p">)</span>
+
+<span class="c1"># define the curve / function
+</span><span class="n">A</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span> 
+<span class="n">f</span> <span class="o">=</span> <span class="n">x</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span>
+</code></pre></div></div>
+
+<p>Then, we have to find the singularity of the curve. This is the point of intersection on the nodal curve, and it is where both partial derivatives are equal to 0:</p>
+
+\[\large \begin{flalign} \nonumber   &amp;&amp; \frac{dy^2}{dx} &amp;=  3x^2 + a = 0 &amp;&amp; \text{mod } p \end{flalign}\]
+
+\[\large \begin{flalign} \nonumber   &amp;&amp; \frac{dxy}{dy} &amp;= 2y = 0 &amp;&amp; \text{mod } p \end{flalign}\]
+
+<p>For $2y = 0$, it is easy. The y coordinate will be 0. However, to find x, we will have:</p>
+
+\[\large \begin{flalign} \nonumber   &amp;&amp; \frac{dy^2}{dx} &amp;=  3x^2 + a = 0 &amp;&amp; \text{mod } p \end{flalign}\]
+
+\[\large \begin{flalign} \nonumber   &amp;&amp; x^2  = - \frac{a}{3} &amp;&amp; \text{mod } p \end{flalign}\]
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a_over_3</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span>
+<span class="n">x_0</span> <span class="o">=</span> <span class="o">-</span><span class="n">F</span><span class="p">(</span><span class="n">a_over_3</span><span class="p">).</span><span class="n">sqrt</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>We now have to shift x with this large value, so that we can have the singularity located at (0, 0). This is as simple as substituting for x. We don’t have to substitute for y, because the “shift” for y is 0.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f_</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">subs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span> <span class="o">+</span> <span class="n">x_0</span><span class="p">)</span>
+<span class="n">P_</span> <span class="o">=</span> <span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">P</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">Q_</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">Q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">R_</span> <span class="o">=</span> <span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>The shifted function f_ is equal to:</p>
+
+\[\large x^3 + 229054522729978652250851640754582529764*x^2\]
+
+<p>or rather (factored_f):</p>
+
+\[\large x^2(229054522729978652250851640754582529764 + x)\]
+
+<p>Which accurately describes an elliptic node:</p>
+
+\[\large x^2(\alpha + x)\]
+
+<p>Since we are working with a nodal curve, we know it will map to the multiplicative group. However, we need to figure out which field it maps to. What we can do is investigate whether there exists some integer $\beta$ which, when squared and under modulus p, equals the value $\alpha$. To clarify:</p>
+
+\[\large \begin{flalign} \nonumber   &amp;&amp; \alpha = \beta^2 &amp;&amp; \text{mod } p \end{flalign}\]
+
+<p>The value $\beta$ can then be used to map to the multiplicative group $\mathbb{F}^*_p$</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">factored_f</span> <span class="o">=</span> <span class="n">f_</span><span class="p">.</span><span class="n">factor</span><span class="p">()</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">factored_f</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">].</span><span class="n">constant_coefficient</span><span class="p">()</span>
+
+<span class="c1"># Calculate beta such that beta^2 ≡ alpha mod p
+</span><span class="n">beta</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)(</span><span class="n">alpha</span><span class="p">).</span><span class="n">square_root</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>And we can now perform the map to the multiplicative group. The map is:</p>
+
+\[\large (x, y) \large\mapsto \frac{y \;+\; \beta x}{y \;-\; \beta x}\]
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">P_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">P_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">P_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">P_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">P_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">p</span>
+<span class="n">Q_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">Q_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">Q_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">Q_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">p</span>
+<span class="n">R_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">R_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">R_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">R_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">R_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">p</span>
+</code></pre></div></div>
+
+<p>We can now calculate the discrete log of R_map and Q_map to find state0! Remember, $R.x = (Q \cdot state0).x$</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">state_0</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">R_map</span><span class="p">,</span> <span class="n">Q_map</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"State 0: </span><span class="si">{</span><span class="n">state_0</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1">#State 0: 23936863590183712869017528905910138331
+</span></code></pre></div></div>
+
+<h5 id="breaking-the-prng-and-decrypting-the-flag">Breaking the PRNG and decrypting the flag</h5>
+
+<p>Now that we have the initial state, we can easily recover the iv and the key. However, we will have to implement some custom functions and classes for our curves and such (because sagemath refuses to instantiate a super-singular curve). I will omit the explanation of the classes, but you can check [[#Solve.sage]] for the code.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">prng</span> <span class="o">=</span> <span class="n">Dual_EC_PRNG</span><span class="p">(</span><span class="n">state_0</span><span class="p">,</span> <span class="n">curve</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">((</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="mi">128</span><span class="p">)</span> <span class="o">+</span> <span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+
+<span class="n">ciphertext</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'BI</span><span class="se">\xd5\xfd\x8e\x1e</span><span class="s">(s</span><span class="se">\xb3</span><span class="s">vUhy</span><span class="se">\x96</span><span class="s">Y</span><span class="se">\x8f\xce</span><span class="s">Rr</span><span class="se">\x0c\xe6\xf0\x1a\x88</span><span class="s">x</span><span class="se">\xe2\xe9</span><span class="s">M#]</span><span class="se">\xad\x99</span><span class="s">H</span><span class="se">\x13</span><span class="s">+</span><span class="se">\x9e</span><span class="s">5</span><span class="se">\xfd\x9b</span><span class="s"> </span><span class="se">\xe6\xf0\xe1</span><span class="s">0w</span><span class="se">\x80</span><span class="s">q</span><span class="se">\x8d</span><span class="s">'</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">plaintext_padded</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span>
+
+<span class="n">plaintext</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">plaintext_padded</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">block_size</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">plaintext</span><span class="p">)</span>
+
+<span class="c1"># b'ironCTF{5h0uld_h4v3_1is7en3d_t0_d4v1d_a1r34dy}'
+</span></code></pre></div></div>
+
+<p>And there is our flag!</p>
+
+<h5 id="solvesage">Solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">unpad</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span>
+
+<span class="c1"># Define the finite field and parameters
+</span><span class="n">p</span> <span class="o">=</span> <span class="mi">229054522729978652250851640754582529779</span>
+<span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">75</span>
+<span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="mi">250</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="c1"># Known points P and Q
+</span><span class="n">P</span> <span class="o">=</span> <span class="p">(</span><span class="mi">97396093570994028423863943496522860154</span> <span class="p">,</span> <span class="mi">2113909984961319354502377744504238189</span><span class="p">)</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="p">(</span><span class="mi">137281564215976890139225160114831726699</span> <span class="p">,</span> <span class="mi">111983247632990631097104218169731744696</span><span class="p">)</span>
+
+<span class="n">R_x</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">222485190245526863452994827085862802196</span><span class="p">)</span>
+<span class="n">rhs</span> <span class="o">=</span> <span class="n">R_x</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="n">R_x</span> <span class="o">+</span> <span class="n">b</span>
+<span class="n">R_y</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">sqrt</span><span class="p">()</span>
+<span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="n">R_x</span><span class="p">,</span> <span class="n">R_y</span><span class="p">)</span>
+
+<span class="c1"># Define the elliptic curve equation y^2 = x^3 + ax + b
+</span><span class="n">A</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span> 
+<span class="n">f</span> <span class="o">=</span> <span class="n">x</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="c1"># x_0, the x-coordinate of the singularity
+</span><span class="n">a_over_3</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span>
+<span class="n">x_0</span> <span class="o">=</span> <span class="o">-</span><span class="n">F</span><span class="p">(</span><span class="n">a_over_3</span><span class="p">).</span><span class="n">sqrt</span><span class="p">()</span>
+
+<span class="c1"># Shift the curve by x_0 to move the singularity to (0, 0)
+</span><span class="n">f_</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">subs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span> <span class="o">+</span> <span class="n">x_0</span><span class="p">)</span>
+<span class="n">P_</span> <span class="o">=</span> <span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">P</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">Q_</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">Q</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">R_</span> <span class="o">=</span> <span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">factored_f</span> <span class="o">=</span> <span class="n">f_</span><span class="p">.</span><span class="n">factor</span><span class="p">()</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">factored_f</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">].</span><span class="n">constant_coefficient</span><span class="p">()</span>
+
+<span class="c1"># Calculate beta such that beta^2 ≡ alpha mod p
+</span><span class="n">beta</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)(</span><span class="n">alpha</span><span class="p">).</span><span class="n">square_root</span><span class="p">()</span>
+
+<span class="c1"># Map shifted points to the multiplicative group F*_p
+</span><span class="n">P_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">P_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">P_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">P_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">P_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">p</span>
+<span class="n">Q_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">Q_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">Q_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">Q_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">p</span>
+<span class="n">R_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">R_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">R_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">R_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">R_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">p</span>
+
+<span class="c1">#state_0 = discrete_log(R_map, Q_map)
+#print(f"State 0: {state_0}")
+</span>
+<span class="n">state_0</span> <span class="o">=</span> <span class="mi">23936863590183712869017528905910138331</span>
+
+<span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">curve</span><span class="p">,</span> <span class="n">is_infinity</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">curve</span> <span class="o">=</span> <span class="n">curve</span>  <span class="c1"># Reference to the curve
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">is_infinity</span> <span class="o">=</span> <span class="n">is_infinity</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">is_infinity</span> <span class="ow">and</span> <span class="n">other</span><span class="p">.</span><span class="n">is_infinity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">is_infinity</span> <span class="ow">or</span> <span class="n">other</span><span class="p">.</span><span class="n">is_infinity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">other</span><span class="p">.</span><span class="n">x</span> <span class="ow">and</span> <span class="bp">self</span><span class="p">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">other</span><span class="p">.</span><span class="n">y</span> <span class="ow">and</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span> <span class="o">==</span> <span class="n">other</span><span class="p">.</span><span class="n">curve</span>
+
+    <span class="k">def</span> <span class="nf">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">is_infinity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="p">.</span><span class="n">y</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">if</span> <span class="n">P</span><span class="p">.</span><span class="n">is_infinity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Q</span>
+        <span class="k">if</span> <span class="n">Q</span><span class="p">.</span><span class="n">is_infinity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">P</span>
+
+        <span class="k">if</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">Q</span><span class="p">.</span><span class="n">x</span> <span class="ow">and</span> <span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">y</span> <span class="o">!=</span> <span class="n">Q</span><span class="p">.</span><span class="n">y</span> <span class="ow">or</span> <span class="n">P</span><span class="p">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">infinity</span>
+
+        <span class="k">if</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">Q</span><span class="p">.</span><span class="n">x</span><span class="p">:</span>
+            <span class="c1"># Point doubling
+</span>            <span class="n">lam_num</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span>
+            <span class="n">lam_den</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">P</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Point addition
+</span>            <span class="n">lam_num</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">P</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span>
+            <span class="n">lam_den</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span>
+
+        <span class="c1"># Compute the slope (lambda)
+</span>        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lam</span> <span class="o">=</span> <span class="p">(</span><span class="n">lam_num</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">lam_den</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span><span class="p">))</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span>
+        <span class="k">except</span> <span class="nb">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">infinity</span>
+
+        <span class="c1"># Compute the new point coordinates
+</span>        <span class="n">x_r</span> <span class="o">=</span> <span class="p">(</span><span class="n">lam</span> <span class="o">*</span> <span class="n">lam</span> <span class="o">-</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">Q</span><span class="p">.</span><span class="n">x</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span>
+        <span class="n">y_r</span> <span class="o">=</span> <span class="p">(</span><span class="n">lam</span> <span class="o">*</span> <span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_r</span><span class="p">)</span> <span class="o">-</span> <span class="n">P</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">p</span>
+
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x_r</span><span class="p">,</span> <span class="n">y_r</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">curve</span><span class="p">.</span><span class="n">infinity</span>
+        <span class="n">addend</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="k">while</span> <span class="n">k</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">addend</span>
+            <span class="n">addend</span> <span class="o">=</span> <span class="n">addend</span> <span class="o">+</span> <span class="n">addend</span>
+            <span class="n">k</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">is_infinity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">"Point(infinity)"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s">"Point(</span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">x</span><span class="si">}</span><span class="s">, </span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">y</span><span class="si">}</span><span class="s">)"</span>
+
+<span class="k">class</span> <span class="nc">Curve</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>  <span class="c1"># Prime modulus
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">infinity</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">is_infinity</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">is_on_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">P</span><span class="p">.</span><span class="n">is_infinity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">P</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">a</span> <span class="o">*</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">b</span><span class="p">))</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">p</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="k">class</span> <span class="nc">Dual_EC_PRNG</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">curve</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">initial_state</span>  <span class="c1"># Initial state (integer)
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">curve</span> <span class="o">=</span> <span class="n">curve</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">P</span> <span class="o">=</span> <span class="n">P</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">Q</span> <span class="o">=</span> <span class="n">Q</span>
+
+    <span class="k">def</span> <span class="nf">set_next_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Scalar multiply P by the current state and take the x-coordinate as the next state
+</span>        <span class="n">new_point</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">P</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">new_point</span><span class="p">.</span><span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">gen_rand_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Scalar multiply Q by the current state and take the x-coordinate as the random number
+</span>        <span class="n">rand_point</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">Q</span>
+        <span class="n">rand_num</span> <span class="o">=</span> <span class="n">rand_point</span><span class="p">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">set_next_state</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">rand_num</span>
+
+<span class="c1"># Initialize the curve
+</span><span class="n">curve</span> <span class="o">=</span> <span class="n">Curve</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># Define points P and Q
+</span><span class="n">P</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span>
+    <span class="mi">97396093570994028423863943496522860154</span><span class="p">,</span>
+    <span class="mi">2113909984961319354502377744504238189</span><span class="p">,</span>
+    <span class="n">curve</span>
+<span class="p">)</span>
+
+<span class="n">Q</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span>
+    <span class="mi">137281564215976890139225160114831726699</span><span class="p">,</span>
+    <span class="mi">111983247632990631097104218169731744696</span><span class="p">,</span>
+    <span class="n">curve</span>
+<span class="p">)</span>
+
+<span class="c1"># Verify that points are on the curve
+</span><span class="k">assert</span> <span class="n">curve</span><span class="p">.</span><span class="n">is_on_curve</span><span class="p">(</span><span class="n">P</span><span class="p">),</span> <span class="s">"Point P is not on the curve"</span>
+<span class="k">assert</span> <span class="n">curve</span><span class="p">.</span><span class="n">is_on_curve</span><span class="p">(</span><span class="n">Q</span><span class="p">),</span> <span class="s">"Point Q is not on the curve"</span>
+
+<span class="c1"># Initialize PRNG
+</span><span class="n">prng</span> <span class="o">=</span> <span class="n">Dual_EC_PRNG</span><span class="p">(</span><span class="n">state_0</span><span class="p">,</span> <span class="n">curve</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"leaked prng value: </span><span class="si">{</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># Generate rand1, rand2, rand3
+</span><span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">((</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="mi">128</span><span class="p">)</span> <span class="o">+</span> <span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Derived AES Key (hex): </span><span class="si">{</span><span class="n">key</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Derived AES IV (hex): </span><span class="si">{</span><span class="n">iv</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># Encrypted bytes from the challenge
+</span><span class="n">ciphertext</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'BI</span><span class="se">\xd5\xfd\x8e\x1e</span><span class="s">(s</span><span class="se">\xb3</span><span class="s">vUhy</span><span class="se">\x96</span><span class="s">Y</span><span class="se">\x8f\xce</span><span class="s">Rr</span><span class="se">\x0c\xe6\xf0\x1a\x88</span><span class="s">x</span><span class="se">\xe2\xe9</span><span class="s">M#]</span><span class="se">\xad\x99</span><span class="s">H</span><span class="se">\x13</span><span class="s">+</span><span class="se">\x9e</span><span class="s">5</span><span class="se">\xfd\x9b</span><span class="s"> </span><span class="se">\xe6\xf0\xe1</span><span class="s">0w</span><span class="se">\x80</span><span class="s">q</span><span class="se">\x8d</span><span class="s">'</span>
+
+<span class="c1"># Initialize AES cipher in CBC mode
+</span><span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+
+<span class="c1"># Decrypt and unpad the plaintext
+</span><span class="n">plaintext_padded</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">plaintext</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">plaintext_padded</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">block_size</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Decrypted Flag:"</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">)</span>
+<span class="k">except</span> <span class="nb">ValueError</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Incorrect decryption. Possible wrong key/IV."</span><span class="p">)</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

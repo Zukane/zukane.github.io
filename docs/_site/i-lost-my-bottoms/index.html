@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Lost my Bottoms (H7CTF)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">I Lost my Bottoms (H7CTF)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/coppersmith-small-roots/" class="tag">Coppersmith small roots</a>
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are given an <code class="language-plaintext highlighter-rouge">enc.py</code> file:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">bits</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="sa">b</span><span class="s">"REDACTED"</span><span class="p">)</span>
+<span class="n">hints</span> <span class="o">=</span> <span class="p">[</span><span class="nb">pow</span><span class="p">(</span><span class="n">m</span> <span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="p">,</span> <span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span> <span class="p">,</span> <span class="o">-</span><span class="mi">2</span> <span class="p">,</span> <span class="n">p</span><span class="p">)]</span>
+<span class="n">hints_leak</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="o">&gt;&gt;</span><span class="n">bits</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">bits</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">hints</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'p = </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'hints_leak = </span><span class="si">{</span><span class="n">hints_leak</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>as well as the output <code class="language-plaintext highlighter-rouge">p</code> and <code class="language-plaintext highlighter-rouge">hints_leak</code> in the file <code class="language-plaintext highlighter-rouge">out.txt</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">117593624298425786343779158012820875154822864368382625245527483403432934003483945150470206407456758951269631159296406949363530801144116051024607996020606008637719420473508584102759537549869268380832507998189573147118724711583890139172725884196595640384171883519174624232176171861648257367040001679671930516257</span>
+<span class="n">hints_leak</span> <span class="o">=</span> <span class="p">[</span><span class="mi">29532884859848451807856040503801489793449597914559835640013346371615282769039782729995651472190910037139963402884437232479340276830952204736162501040446353868183083550897609990419665664218203589490798227152745073916743432546774880541751765375202866498878181362239845800024263833214003957243156923484070739968</span><span class="p">,</span> <span class="mi">2240800030522719831440690213801032993267721517756450944809696773586000818511688287641493847808933201477652660185925436211555966348047610258375098042072112054000315861147846986256701531141306392153787106580833282665986451952386428424060514960239609554280495803294023792016130151761105191792899173791341477888</span><span class="p">]</span>
+</code></pre></div></div>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>In <code class="language-plaintext highlighter-rouge">enc.py</code>, the flag <code class="language-plaintext highlighter-rouge">m</code> is turned into bytes and then into a long. The script then generates two hints for us:</p>
+
+\[\large\begin{aligned}
+\text{Hint1} &amp;=  m^{-1} &amp;\mod p \\
+\text{Hint2} &amp;= (m+1)^{-2} &amp;\mod p \\
+\end{aligned}\]
+
+<p>These hints are then shifted 128 bits, then shifted back. This essentially zeroes out the lower 128 bits for both hints.
+We are then given these <code class="language-plaintext highlighter-rouge">hints_leak</code> values along with <code class="language-plaintext highlighter-rouge">p</code>
+Our goal is to use these hints to recover <code class="language-plaintext highlighter-rouge">m</code></p>
+
+<h5 id="recovering-the-hints">Recovering the hints</h5>
+
+<p>Since we are missing the lower bits, this seems like a classic coppersmith challenge. We can represent <code class="language-plaintext highlighter-rouge">hint1</code> and <code class="language-plaintext highlighter-rouge">hint2</code> as <code class="language-plaintext highlighter-rouge">hint1_leak + x</code> and <code class="language-plaintext highlighter-rouge">hint2_leak + y</code> We can rewrite the <code class="language-plaintext highlighter-rouge">hint1</code> and <code class="language-plaintext highlighter-rouge">hint2</code> equations to isolate m like so:</p>
+
+\[\large\begin{aligned}
+\text{Hint1} &amp;=  m^{-1} &amp;\mod p \\
+Hint1\_leak + x &amp;=  m^{-1} &amp;\mod p \\
+(Hint1\_leak + x)^{-1} &amp;=  m &amp;\mod p \\
+\end{aligned}\]
+
+<p>and</p>
+
+\[\large\begin{aligned}
+\text{Hint2} &amp;= (m+1)^{-2} &amp;\mod p \\
+Hint2\_leak + y &amp;= (m+1)^{-2} &amp;\mod p \\
+(Hint2\_leak + y)^{-2} &amp;= m+1 &amp;\mod p \\
+(Hint2\_leak + y)^{-2} - 1 &amp;= m &amp;\mod p \\
+\end{aligned}\]
+
+<p>Since both are equal to m, we can do one minus the other to get a zero polynomial. We begin by denoting the hints as <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code></p>
+
+\[\large
+\begin{aligned}
+ A=H 1 \_l e a k+x &amp;= m^{-1} &amp; \mod p\\
+ B=H 2 \_l e a k+y &amp;= (m+1)^{-2} &amp; \mod p\\
+ A^{-1} &amp;= m &amp; \mod p\\
+ (m+1)^2 &amp;= B^{-1} &amp; \mod p\\
+ (A^{-1}+1)^2 &amp;= B^{-1} &amp; \mod p\\
+ (\frac{A+1}{A})^2 &amp;= B^{-1} &amp; \mod p\\
+ \frac{(A+1)^2}{A^2} &amp;= B^{-1} &amp; \mod p\\
+ (A + 1)^2 \cdot A^{-2} &amp;= B^{-1} &amp; \mod p\\
+ (A + 1)^2 &amp;= A^2 \cdot B^{-1} &amp; \mod p\\
+ B \cdot (A + 1)^2 &amp;= A^2 &amp; \mod p\\
+ B \cdot (A + 1)^2 - A^2 &amp;= 0 &amp; \mod p\\
+\end{aligned}\]
+
+<p>Which finally gives us:</p>
+
+\[\large f = (H 2 \_l e a k+y) \cdot(H 1 \_l e a k+x+1)^2-(H 1 \_l e a k+x)^2 \equiv 0 \quad \bmod p\]
+
+<p>We can now use this polynomial $f$ and use bivariate coppersmith’s theorem to solve for the roots x and y. With x and y, we can reconstruct <code class="language-plaintext highlighter-rouge">hint1</code>, compute the modular inverse, and we will have m!</p>
+
+<h5 id="implementing-the-solution">Implementing the solution</h5>
+
+<p>We first of all define our values $p,\; hint1\_leak,\; hint2\_leak$ from the challenge source code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">117593624298425786343779158012820875154822864368382625245527483403432934003483945150470206407456758951269631159296406949363530801144116051024607996020606008637719420473508584102759537549869268380832507998189573147118724711583890139172725884196595640384171883519174624232176171861648257367040001679671930516257</span>
+<span class="n">hint1_leak</span> <span class="o">=</span> <span class="mi">29532884859848451807856040503801489793449597914559835640013346371615282769039782729995651472190910037139963402884437232479340276830952204736162501040446353868183083550897609990419665664218203589490798227152745073916743432546774880541751765375202866498878181362239845800024263833214003957243156923484070739968</span>
+<span class="n">hint2_leak</span> <span class="o">=</span> <span class="mi">2240800030522719831440690213801032993267721517756450944809696773586000818511688287641493847808933201477652660185925436211555966348047610258375098042072112054000315861147846986256701531141306392153787106580833282665986451952386428424060514960239609554280495803294023792016130151761105191792899173791341477888</span>
+</code></pre></div></div>
+
+<p>Then, before we proceed, we need to find a suitable algorithm for finding the roots. I will utilize the <code class="language-plaintext highlighter-rouge">small_roots.sage</code> script from the following repository: https://github.com/josephsurin/lattice-based-cryptanalysis</p>
+
+<p>The function <code class="language-plaintext highlighter-rouge">small_roots</code> requires a function $f$, an upper bound for the roots, a specified algorithm, and some other values $m$ and $d$.</p>
+
+<p>We can define our function $f$ over the integers:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="n">hint2_leak</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+</code></pre></div></div>
+
+<p>We know <code class="language-plaintext highlighter-rouge">x</code> and <code class="language-plaintext highlighter-rouge">y</code> are less than 128 bits, meaning our upper bound for the roots are $2^{128}$</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bounds</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">128</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">128</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>for the specified algorithm, the <code class="language-plaintext highlighter-rouge">small_roots</code> function supports the <code class="language-plaintext highlighter-rouge">groebner</code>, <code class="language-plaintext highlighter-rouge">msolve</code>, <code class="language-plaintext highlighter-rouge">resultants</code>, and <code class="language-plaintext highlighter-rouge">jacobian</code> algorithms. Generally speaking, the <code class="language-plaintext highlighter-rouge">resultants</code> algorithm is the best for bivariate problems.</p>
+
+<p>We can also optionally specify a <code class="language-plaintext highlighter-rouge">lattice_reduction</code> algorithm. I choose to use <code class="language-plaintext highlighter-rouge">flatter</code> from the same repo. In addition to this, we change the ring of $f$ to <code class="language-plaintext highlighter-rouge">Zmod(p)</code> because the function is congruent to 0 mod p.</p>
+
+<p>From here, we just need to tweak the values <code class="language-plaintext highlighter-rouge">m</code> and <code class="language-plaintext highlighter-rouge">d</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">roots</span> <span class="o">=</span> <span class="n">small_roots</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"resultants"</span><span class="p">,</span> <span class="n">lattice_reduction</span><span class="o">=</span><span class="n">flatter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And after finding the roots, we can change the function $f$ back to the ring of integers, retrieve <code class="language-plaintext highlighter-rouge">x</code> to recover <code class="language-plaintext highlighter-rouge">hint1</code>, and calculate the modular inverse to find m!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">solx</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">soly</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">invmod_leak</span> <span class="o">=</span> <span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">solx</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">invmod_leak</span> <span class="o">^</span> <span class="o">-</span><span class="mi">1</span> <span class="o">%</span> <span class="n">p</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>After converting from long to hex, we get our flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>b'H7CTF{thx_for_finding!!}'
+</code></pre></div></div>
+
+<p>Note, this script takes a couple of minutes to run. This is because <code class="language-plaintext highlighter-rouge">m</code> and <code class="language-plaintext highlighter-rouge">d</code> are relatively high, but it is needed to recover the roots.</p>
+
+<h5 id="solvesage">Solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/problems/small_roots.sage'</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/common/flatter.sage'</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/common/systems_solvers.sage'</span><span class="p">)</span>
+
+<span class="c1"># Given values from out.txt
+</span><span class="n">p</span> <span class="o">=</span> <span class="mi">117593624298425786343779158012820875154822864368382625245527483403432934003483945150470206407456758951269631159296406949363530801144116051024607996020606008637719420473508584102759537549869268380832507998189573147118724711583890139172725884196595640384171883519174624232176171861648257367040001679671930516257</span>
+<span class="n">hint1_leak</span> <span class="o">=</span> <span class="mi">29532884859848451807856040503801489793449597914559835640013346371615282769039782729995651472190910037139963402884437232479340276830952204736162501040446353868183083550897609990419665664218203589490798227152745073916743432546774880541751765375202866498878181362239845800024263833214003957243156923484070739968</span>
+<span class="n">hint2_leak</span> <span class="o">=</span> <span class="mi">2240800030522719831440690213801032993267721517756450944809696773586000818511688287641493847808933201477652660185925436211555966348047610258375098042072112054000315861147846986256701531141306392153787106580833282665986451952386428424060514960239609554280495803294023792016130151761105191792899173791341477888</span>
+
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">128</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">128</span><span class="p">)</span>
+
+<span class="c1"># Define the polynomial ring
+</span><span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="n">hint2_leak</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">small_roots</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"resultants"</span><span class="p">,</span> <span class="n">lattice_reduction</span><span class="o">=</span><span class="n">flatter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">solx</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">soly</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">invmod_leak</span> <span class="o">=</span> <span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">solx</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">invmod_leak</span> <span class="o">^</span> <span class="o">-</span><span class="mi">1</span> <span class="o">%</span> <span class="n">p</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">))</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

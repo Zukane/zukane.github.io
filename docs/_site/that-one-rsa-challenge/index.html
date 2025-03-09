@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>That one RSA challenge (TCP1P)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">That one RSA challenge (TCP1P)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/coppersmith-small-roots/" class="tag">Coppersmith small roots</a>
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following python source code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">secret</span> <span class="kn">import</span> <span class="n">flag</span>
+<span class="n">z</span> <span class="o">=</span> <span class="mi">567</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
+<span class="n">c</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">),</span> <span class="mi">65537</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">tot</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="mi">65537</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">tot</span><span class="p">))</span>
+<span class="n">dinv</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+
+<span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dinv</span> <span class="o">&gt;&gt;</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">hpq</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span><span class="o">&gt;&gt;</span> <span class="n">z</span><span class="p">))</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'out.txt'</span><span class="p">,</span> <span class="s">'w+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">n</span><span class="o">=</span><span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">h</span><span class="o">=</span><span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">hpq</span><span class="o">=</span><span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">c</span><span class="o">=</span><span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>as well as the file out.txt
+We are given the typical n, e and c parameters, as well as two hints h and hpq.</p>
+
+<h5 id="deriving-the-solution">Deriving the solution</h5>
+
+<p>We are given two hints for this RSA challenge; <code class="language-plaintext highlighter-rouge">h</code> and <code class="language-plaintext highlighter-rouge">hpq</code>.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">h</code> is the most significant bits of <code class="language-plaintext highlighter-rouge">dinv</code> where <code class="language-plaintext highlighter-rouge">dinv</code> is equal to $d^{-1} \mod N$</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">hpq</code> is the most significant bits of the sum of the modulus factors $p+q$</p>
+  </li>
+</ul>
+
+<p>These kinds of challenges can usually be solved using coppersmith lattice attacks.
+We have to derive some function $f$ that contains the hints with roots $x, y$. Solving for the roots, we can recover $d^{-1}\mod N$ and $p+q$.</p>
+
+<p>for <code class="language-plaintext highlighter-rouge">hpq</code>, we can expand $\varphi(N)$ in the following equation:</p>
+
+\[\large\begin{aligned}
+e \cdot d &amp;\equiv 1 \mod \varphi (N) \\
+e \cdot d &amp;= 1 + k \cdot (N + 1 - (p+q)) \\
+d &amp;= \frac{1 + k \cdot (N + 1 - (p+q))}{e}
+\end{aligned}\]
+
+<p>Here we can see the term $p+q$ appear after expanding $\varphi(N)$. We also find an equation for $d$.
+We can then substitute $d$ into the following equation:</p>
+
+\[\large\begin{aligned}
+d \cdot d^{-1} &amp;\equiv 1 \mod N \\
+d^{-1} \cdot d - 1 &amp;\equiv 0 \mod N \\
+d^{-1} \cdot\frac{1 + k \cdot (N + 1 - (p+q))}{e} - 1 &amp;\equiv 0 \mod N \\
+d^{-1} \cdot (1 + k \cdot (N + 1 - (p+q))) - e &amp;\equiv 0 \mod N
+\end{aligned}\]
+
+<p>We can now substitute $p+q$ and $d^{-1}$ for our hints:</p>
+
+\[\large\begin{aligned}
+d^{-1} \cdot (1 + k \cdot (N + 1 - (p+q))) - e &amp;\equiv 0 \mod N \\
+((h&lt;&lt;z) + x) \cdot (1 + k \cdot (N + 1 - ((hpq&lt;&lt;z)+y))) - e &amp;\equiv 0 \mod N
+\end{aligned}\]
+
+<p>We can use this as our function $f$ and solve for the roots. We have the roots $k,x,y$ so we will have to use multivariate coppersmith.</p>
+
+<p>For the bounds, we know $x$ and $y$ are both upper bounded by $2^z$, but $k$ is different. We can take into consideration this equation:</p>
+
+\[\large\begin{aligned}
+e \cdot d &amp; \equiv1 \quad(\bmod \varphi(N)) \\
+\Longrightarrow e \cdot d &amp; =1 + k \cdot \varphi(N) \\
+\Longrightarrow e \cdot d &amp;\approx k \cdot \varphi(N)
+\end{aligned}\]
+
+<p>Since $d$ and $\varphi(N)$ have almost the same bit-size, it must mean that $e$ and $k$ also have almost the same bit-size. We can use $e$ as the upper bound for $k$.</p>
+
+<h5 id="implementing-the-solution">Implementing the solution</h5>
+
+<p>Since this is a multivariate coppersmith problem, I will take in use the useful scripts from <code class="language-plaintext highlighter-rouge">kiona</code>’s git repo. Specifically, I will use the <code class="language-plaintext highlighter-rouge">coppersmith_multivariate_heuristic</code> function.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/kiona/coppersmith_multivariate_heuristic.py'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We can load in our values</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span><span class="o">=</span><span class="mi">13986357905153484822874300783445968480194277882812317554826224241536479785567487956712558237728345348661360577246137576216953724039680969623887884690471844396542763308129517234365819619617071449273126659007918716307793788623728052337632935762139796688014791419718949572448772521789488223910450877828732015095423443037519388747356327730350934152781671783952028215703864406564741666179193772037496984854699143314813242721157017296866888522135989818414587193505121794302821401677072507471357592358012342178011963104524959087968374300060349343826214249928530346877968114749229074874962737714935221065368318487049394644831</span>
+<span class="n">h</span><span class="o">=</span><span class="mi">10474216468878927114435400909130676124750910912012236182806861194655854223324539867768381265996955193355030239325750528328250897464859373863289680002879536341349759323910048168674147097644573874679268018966497862685092382336865554114348153248267599439087357199554652601126191061921516650448119261614064051599968120061991607030873881013657693987836636730528537557619595799676312850875727477092697270452300532360780188724484703363561848754770976459</span>
+<span class="n">hpq</span><span class="o">=</span><span class="mi">492124417091708682668644108145880307537308922842816506360717440112116492381514432506339907757228214359689270777951081610062506962769167209</span>
+<span class="n">c</span><span class="o">=</span><span class="mi">4715651972688371479449666526727240348158670108161494767004202259402013317642418593561463200947908841531208327599049414587586292570298317049448560403558027904798159589477994992384199008976859139072407664659830448866472863679123027179516506312536814186903687358198847465706108667279355674105689763404474207340186200156662095468249081142604074167178023479657021133754055107459927667597604156397468414872149353231061997958301747136265344906296373544580143870450924707559398134384774201700278038470171319329716930036843839101955981274793386611943442507144153946307781795085665793554799349509983282980591388585613674226899</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mi">65537</span>
+<span class="n">z</span> <span class="o">=</span> <span class="mi">567</span>
+</code></pre></div></div>
+
+<p>and set up our function $f$ with roots $k,x,y$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+<span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="p">((</span><span class="n">hpq</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span><span class="o">+</span><span class="n">y</span><span class="p">)))</span><span class="o">*</span><span class="p">((</span><span class="n">h</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span><span class="o">+</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="n">e</span>
+</code></pre></div></div>
+
+<p>Using kiona’s multivariate heuristic function, we can recover the roots:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">roots</span> <span class="o">=</span> <span class="n">coppersmith_multivariate_heuristic</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">z</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">z</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And lastly, we can take the modular inverse $d^{-1}$ to derive the private key $d$ and decrypt the ciphertext $c$</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(((</span><span class="n">h</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span><span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>This gives us our flag: <code class="language-plaintext highlighter-rouge">TCP1P{AmEeeeeEE33333eeee333_T_T_8883938ef7571cc2}</code></p>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/kiona/coppersmith_multivariate_heuristic.py'</span><span class="p">)</span>
+
+<span class="n">n</span><span class="o">=</span><span class="mi">13986357905153484822874300783445968480194277882812317554826224241536479785567487956712558237728345348661360577246137576216953724039680969623887884690471844396542763308129517234365819619617071449273126659007918716307793788623728052337632935762139796688014791419718949572448772521789488223910450877828732015095423443037519388747356327730350934152781671783952028215703864406564741666179193772037496984854699143314813242721157017296866888522135989818414587193505121794302821401677072507471357592358012342178011963104524959087968374300060349343826214249928530346877968114749229074874962737714935221065368318487049394644831</span>
+<span class="n">h</span><span class="o">=</span><span class="mi">10474216468878927114435400909130676124750910912012236182806861194655854223324539867768381265996955193355030239325750528328250897464859373863289680002879536341349759323910048168674147097644573874679268018966497862685092382336865554114348153248267599439087357199554652601126191061921516650448119261614064051599968120061991607030873881013657693987836636730528537557619595799676312850875727477092697270452300532360780188724484703363561848754770976459</span>
+<span class="n">hpq</span><span class="o">=</span><span class="mi">492124417091708682668644108145880307537308922842816506360717440112116492381514432506339907757228214359689270777951081610062506962769167209</span>
+<span class="n">c</span><span class="o">=</span><span class="mi">4715651972688371479449666526727240348158670108161494767004202259402013317642418593561463200947908841531208327599049414587586292570298317049448560403558027904798159589477994992384199008976859139072407664659830448866472863679123027179516506312536814186903687358198847465706108667279355674105689763404474207340186200156662095468249081142604074167178023479657021133754055107459927667597604156397468414872149353231061997958301747136265344906296373544580143870450924707559398134384774201700278038470171319329716930036843839101955981274793386611943442507144153946307781795085665793554799349509983282980591388585613674226899</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mi">65537</span>
+<span class="n">z</span> <span class="o">=</span> <span class="mi">567</span>
+
+<span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+<span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="p">((</span><span class="n">hpq</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span><span class="o">+</span><span class="n">y</span><span class="p">)))</span><span class="o">*</span><span class="p">((</span><span class="n">h</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span><span class="o">+</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="n">e</span>
+<span class="n">roots</span> <span class="o">=</span> <span class="n">coppersmith_multivariate_heuristic</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">z</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">z</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(((</span><span class="n">h</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span><span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

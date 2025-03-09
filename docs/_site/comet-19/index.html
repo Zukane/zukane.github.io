@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comet19 (Jul25)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Comet19 (Jul25)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/ecdsa/" class="tag">ECDSA</a>
+            
+            <a href="/tags/reused-nonce/" class="tag">Reused Nonce</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this challenge, we are given a zip file containing 10 <code class="language-plaintext highlighter-rouge">.png</code> images.</p>
+
+<p>By opening the images, we can tell that these are some form of QR-codes.</p>
+
+<p>I began by scanning them with the command-line tool <code class="language-plaintext highlighter-rouge">zbarimg</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ zbarimg *.png      
+QR-Code:HC1:NCFOXN*TS0BIO DQP4FWRAN9I6T5XH4PIQJAZGA+1V2:U:PI/E2$4JY/K:*K9OV$/G0NN7Y4HBT*Q0ROFRW0:Q89Y431TSGO/UI2YUJ12ZD5CC9G%85$0CPN-XIN6R%E5IWMAK8S16A65K342/4N7MW84-C6W47E16O47D280DNIZ6$S4L35BD7UJ8+YMHBQ:YM/D7JSPAEQLD4RCH+SGU.SKV9KDC.A5:S9395F48V+H0 28X2+36R/S09T./0LWTKD3323EJ0SU9ZIEQKERQ8IY1I$HH%U8 9PS5TK96L6SR9MU9DV5 R13PI%F1PN1/T1%%HN9GQWU-:0Z0OTNJI+AR$C66P-7P*3G64SQJIQ3LB$FI2DQTQXJ24GB3HVR$9HLLK2NPCKIUSEFO/P3WCW/BJEQO.HQK6D +SM1N.2IK2S9493H0$8M3BF
+[...]
+QR-Code:HC1:NCFOXN*TS0BIO DQP4$VQAN9I6T5XH4PIQJAZGA+1V2:U:PI/E2$4JY/KT-K-EFEHN7Y4HBT*Q0ROFRW0:Q89Y431TR58/UI2YUF52ZD5CC9G%85$0CPN-XIN6R%E5IWMAK8S16A65K342/4N7MW84-C6W47E16O47D280DNZV2ZH91JAA/CHLFEEA+ZA%DBU2LKHG3ZA5N0:BCYE9.OVMBEIMI4UUIMI$I9XZ2ZA8DS9++9LK9Q$95:UENEUW6646936ORPC-4A+2XEN QT QTHC31M3+E35S4CZKHKB-43.E3KD3OAJ5%IKTCMD3QHBZQJLIF172*VPZAOZGT52J-42ED6++F-8KNOV-OE$-EGUMBDW$B71RCOSPY%N9Z37 93%8V7WGYF*.7.YMGL9SS3Y:NMZPBE9HJ6OMIHGR2RRDF7-201:3I1
+scanned 10 barcode symbols from 10 images in 0.41 seconds
+</code></pre></div></div>
+
+<p>This output data seemed rather peculiar. Noticing every line of output started with <code class="language-plaintext highlighter-rouge">HC1:NCFOXN...</code>, I googled the prefix and was then led to <code class="language-plaintext highlighter-rouge">EU Green Pass QR Codes</code>. This site was particularly helpful: https://gir.st/blog/greenpass.html.</p>
+
+<p>The challenge title is a play on Covid19.</p>
+
+<h5 id="handling-the-data">Handling the data</h5>
+
+<p>With the help of ChatGPT, I generated a script that performed the Base45 -&gt; Zlib -&gt; CBOR -&gt; COSE -&gt; JSON decoding. I got the following output:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"QR_1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"-260"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"ver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.3.0"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"nam"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"fn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BLITZEN"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"gn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"REINSDYR"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"fnt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BLITZEN"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"gnt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"REINSDYR"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nl">"dob"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2001-01-01"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"v"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"is"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nordpolens Vaksinasjonssenter"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"ci"</span><span class="p">:</span><span class="w"> </span><span class="s2">"urn:uvci:01:XX:XXXXXXXXXXXXXXXXXXXXXXXX"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"co"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nordpolen"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"dn"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"dt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-01"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"sd"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"ma"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ORG-100030215"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"mp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EU/1/20/1528"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"tg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"840539006"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"vp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1119349007"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
+    </span><span class="nl">"QR_10"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"-260"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"ver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.3.0"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"nam"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"fn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VIXEN"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"gn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"REINSDYR"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"fnt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VIXEN"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"gnt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"REINSDYR"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nl">"dob"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2001-01-01"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"v"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"is"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nordpolens Vaksinasjonssenter"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"ci"</span><span class="p">:</span><span class="w"> </span><span class="s2">"urn:uvci:01:XX:XXXXXXXXXXXXXXXXXXXXXXXX"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"co"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nordpolen"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"dn"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"dt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-01"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"sd"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"ma"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ORG-100030215"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"mp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EU/1/20/1528"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"tg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"840539006"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"vp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1119349007"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">       
+</span></code></pre></div></div>
+
+<p>The data was all-round rather unassuming.</p>
+
+<p>However, in addition to the data from the payload, we had a corresponding signature for each pass.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>--- Signatur 1 for QR-kode 1 ---
+Heksadesimal: 23bdbe836ca88268155e7f5e63f3c78691093c7f87b3097062ddc8226ad60fb2956c7fb6b710829195519108a5fcd09a3401c1414cbb935a86760883bb27c4df
+--- Signatur 1 for QR-kode 2 ---
+Heksadesimal: ae05c829232f7f9c4be40bbf9ae92d92cf6e1e483f423747125adbdba6d18430cc9639a59fdb38815c5113fe28085e4b4db08060d5bca30d1c5f515579e5847b
+--- Signatur 1 for QR-kode 3 ---
+Heksadesimal: 2cf43577802efec717ba36a1ec214391fbc4e5eaf241824e0bfed80273e9f9de220b580ee62ae4df76c7d9a6fbf47011647816c9d4c87fd08fdd7240d3fbdd35
+--- Signatur 1 for QR-kode 4 ---
+Heksadesimal: a9ab217770dc137843b7fe30de77b5dda4d289add8e2611a610615985423d9afac5f1e7a531afba8f875590b59b8256112e41c021a2b84a0d5a9d5f4640fd15a
+--- Signatur 1 for QR-kode 5 ---
+Heksadesimal: e92eb0b92f8211dbaaa99de8a446a723dd000b076a9b1705b9274b9e1802be15786fd8a554b0fd6a17fbfafe30ff23df61b0a67918098fd5fcfbab6d0c5be8d3
+--- Signatur 1 for QR-kode 6 ---
+Heksadesimal: 220145e1b4e58078246fe52f03e3adb0b6faabced8ad20948f4b8a0f24d0118929f5dd561419dd30dd5d32e2f43ae8f3a8f6678b40f4159dd028d6d2b82b6a98
+--- Signatur 1 for QR-kode 7 ---
+Heksadesimal: 7db8336ca9b5d0421bf4cd890052592608ce0ddf989e836835931166bd01dc5a64a1e5950bd5525105cc206eff545b34820075f6b435c0209f947caed5c3f398
+--- Signatur 1 for QR-kode 8 ---
+Heksadesimal: 69c971efe85e4f84f80fd116652d04b1279529cd46fa20f80cae55defa31d27ba228071fffa61cd0147710e1240bfcc99376bc56f6e44ed35987275aa3e1efbe
+--- Signatur 1 for QR-kode 9 ---
+Heksadesimal: 7db8336ca9b5d0421bf4cd890052592608ce0ddf989e836835931166bd01dc5a0275047d4b104e071211fa1f22c32134cc524cdfcd5c13b96f150c4757741a41
+--- Signatur 1 for QR-kode 10 ---
+Heksadesimal: a785f6e888a665205f289647bafca36f319de1883304d7f2d369b15d24d16efd88af3433150efd48f43bc142aa5a19ce00deb3a6fe190501da18a182cb351b6e
+</code></pre></div></div>
+
+<p>One thing I noticed is that the first half of the signature for QR-code 7 and QR-code 9 are identical:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>7db8336ca9b5d0421bf4cd890052592608ce0ddf989e836835931166bd01dc5a64a1e5950bd5525105cc206eff545b34820075f6b435c0209f947caed5c3f398
+7db8336ca9b5d0421bf4cd890052592608ce0ddf989e836835931166bd01dc5a0275047d4b104e071211fa1f22c32134cc524cdfcd5c13b96f150c4757741a41
+</code></pre></div></div>
+
+<p>Also, the codes correspond to Santa and Rudolph, the two most important characters of the bunch.</p>
+
+<p>During some earlier research, I found this GitHub issue addressing the private key leak of the Covid19 Green Pass codes: https://github.com/ehn-dcc-development/eu-dcc-hcert-spec/issues/103</p>
+
+<p>This tells me that we are working with the Elliptic Curve Digital Signing Algorithm (ECDSA), and that we are most likely working with the curve <code class="language-plaintext highlighter-rouge">secp256r1</code>.</p>
+
+<p>This is very interesting, because the signatures consist of two values, <code class="language-plaintext highlighter-rouge">r</code> and <code class="language-plaintext highlighter-rouge">s</code>. Since the value <code class="language-plaintext highlighter-rouge">r</code> is identical for codes, it means the nonce has been reused. In ECDSA, the private key can be recovered if two different messages are signed with the same nonce!</p>
+
+<h5 id="recovering-the-private-key">Recovering the private key</h5>
+
+<p>With the identification of QR-code 7 and QR-code 9 sharing the same <code class="language-plaintext highlighter-rouge">r</code> value, we can exploit the nonce reuse vulnerability in ECDSA to recover the private key. In ECDSA, each signature is generated using a unique nonce <code class="language-plaintext highlighter-rouge">k</code>. The signature consists of two components, <code class="language-plaintext highlighter-rouge">r</code> and <code class="language-plaintext highlighter-rouge">s</code>, who are generated in the following fashion:</p>
+
+\[\large r = k \cdot G\]
+
+\[\large s = k^{-1}(Sha256(M)+r\cdot privkey)\]
+
+<p>If two messages $m_1$ and $m_2$ are signed with the same private key and the same nonce, then we can recover the private key with:</p>
+
+\[\large privkey = \frac{s_2 \cdot Sha256(m_1) - s_1 \cdot Sha256(m_2)}{r(s_1-s_2)}\]
+
+<p>We already have the values for $r$, $s_1$ and $s_2$, but we need to find the exact values for $m_1$ and $m_2$. We can recover the exact payloads based on the standard for COSE (RFC8152)</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Sig_structure = [
+   context : "Signature" / "Signature1" / "CounterSignature",
+   body_protected : empty_or_serialized_map,
+   ? sign_protected : empty_or_serialized_map,
+   external_aad : bstr,
+   payload : bstr
+]
+</code></pre></div></div>
+
+<p>We will use Signature1, the protected header <code class="language-plaintext highlighter-rouge">\xa1\x01&amp;</code> (retrieved from CBORTag dump), no external_aad and the main payload</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sig_struct7</span> <span class="o">=</span> <span class="n">cbor2</span><span class="p">.</span><span class="n">dumps</span><span class="p">([</span><span class="s">"Signature1"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\xa1\x01</span><span class="s">&amp;'</span><span class="p">,</span> <span class="sa">b</span><span class="s">''</span><span class="p">,</span> <span class="n">payload1</span><span class="p">])</span>
+<span class="n">sig_struct9</span> <span class="o">=</span> <span class="n">cbor2</span><span class="p">.</span><span class="n">dumps</span><span class="p">([</span><span class="s">"Signature1"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\xa1\x01</span><span class="s">&amp;'</span><span class="p">,</span> <span class="sa">b</span><span class="s">''</span><span class="p">,</span> <span class="n">payload2</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>These values can then be hashed to get $h_1$ and $h_2$.</p>
+
+<p>We can then recover the private key $d$ using the equation above, but we have to calculate the modular inverse instead of performing division:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">s2</span><span class="o">*</span><span class="n">h1</span> <span class="o">-</span> <span class="n">s1</span><span class="o">*</span><span class="n">h2</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">((</span><span class="n">r</span><span class="o">*</span><span class="p">(</span><span class="n">s1</span><span class="o">-</span><span class="n">s2</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+</code></pre></div></div>
+
+<h5 id="solvepy">Solve.py</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">base45</span><span class="p">,</span> <span class="n">zlib</span><span class="p">,</span> <span class="n">cbor2</span><span class="p">,</span> <span class="n">hashlib</span>
+
+<span class="c1"># Order of P-256 curve
+</span><span class="n">n</span> <span class="o">=</span> <span class="mh">0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551</span>
+
+<span class="n">qr_codes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">"HC1:NCFOXN*TS0BIO DF+O/*G:ZH6I1$4JV7J$%25I3KC3183/9TL4T.B9NVPBLUD1VVY9C9Q $UQN1X1FIN9 UP.509Y4KCTSGO*LAHRIU-HOV1TU1+ZELX9JUPY0B3ZCH4BEWVN:2%S2ZCT-3TPM5YW46/2C4TK$2+2T:T27ALD-I:Z2ZW4:.AN4JX:S:+IZW4PHBO332Y8H00M:EJZIX4K*/6395J4I-B5ET42HPPEP58R8YG-LH/CJ/IE%TE6UG+ZEAT1HQ1:EG:0LPHN6D7LLK*2HG%89UV-0LZ 2UZ4+FJE 4Y3LL/II 0OC9JU0D0HT0HB2PR78DGFJQ8V*1ZZJXNB957Y3GFZRL12$KL0GE FV6YHZ-PS2L6X0Q5V:5S/H9JIVJJ5D0R%88GK61JFYO8L 983309O5A6DBK64GG0Q UL038000*DC .E"</span><span class="p">,</span>
+    <span class="s">"HC1:NCFOXN*TS0BIO DQP4EVPAN9I6T5XH4PIQJAZGA+1V2:U:PI/E2$4JY/KZ%KY+GJLVQCN /KUYC7KNFRVFUN/Y06AL3*I+*GYZQFG9RQS7NV*CBCY0K1HJ9CHABVCNAC5ADNL3RL7OH*KC:7IZ6G6BIQ53UN8L68IM1L5T9MY47G6MQ+MN95ZTM9:N7755QLQQ5%YQ+GOVE5IE07EM2%KD+V-DN9B92FF9B9-V4WK1WAKT 456LQZ4D-4HRVUMNMD3323R13C C SI5K1*TB3:U-1VVS1UU15%HAMI PQVW5/O16%HAT1Z%PHOP+MMBT16Y5+Z9XV7N31$PRU2PVN5B.BAQIQME0RIH458.HRT3%:V$ZU$L65.4S4LY%CLM2GWAWLA:Z558PEU4YN9JOT3QK5GJ5AK73DQXGO6T UUG6H*59HB0:DCMHE"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">signatures</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">qr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">qr_codes</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">decoded</span> <span class="o">=</span> <span class="n">cbor2</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">zlib</span><span class="p">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">base45</span><span class="p">.</span><span class="n">b45decode</span><span class="p">(</span><span class="n">qr</span><span class="p">[</span><span class="mi">4</span><span class="p">:])))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="n">cbor2</span><span class="p">.</span><span class="n">CBORTag</span><span class="p">)</span> <span class="ow">and</span> <span class="n">decoded</span><span class="p">.</span><span class="n">tag</span> <span class="o">==</span> <span class="mi">18</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">decoded</span><span class="p">.</span><span class="n">value</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sig</span><span class="p">.</span><span class="nb">hex</span><span class="p">()[:</span><span class="mi">64</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sig</span><span class="p">.</span><span class="nb">hex</span><span class="p">()[</span><span class="mi">64</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="n">signatures</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">'r'</span><span class="p">:</span> <span class="n">r</span><span class="p">,</span> <span class="s">'s'</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s">'payload'</span><span class="p">:</span> <span class="n">payload</span><span class="p">}</span>
+
+<span class="n">qr_items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">signatures</span><span class="p">.</span><span class="n">items</span><span class="p">())</span>
+<span class="n">r1</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">payload1</span> <span class="o">=</span> <span class="n">qr_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s">'r'</span><span class="p">],</span> <span class="n">qr_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s">'s'</span><span class="p">],</span> <span class="n">qr_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s">'payload'</span><span class="p">]</span>
+<span class="n">r2</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">payload2</span> <span class="o">=</span> <span class="n">qr_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s">'r'</span><span class="p">],</span> <span class="n">qr_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s">'s'</span><span class="p">],</span> <span class="n">qr_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s">'payload'</span><span class="p">]</span>
+
+<span class="c1"># Reconstruct Sig_structure based on RFC8152
+</span><span class="n">sig_struct7</span> <span class="o">=</span> <span class="n">cbor2</span><span class="p">.</span><span class="n">dumps</span><span class="p">([</span><span class="s">"Signature1"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\xa1\x01</span><span class="s">&amp;'</span><span class="p">,</span> <span class="sa">b</span><span class="s">''</span><span class="p">,</span> <span class="n">payload1</span><span class="p">])</span>
+<span class="n">sig_struct9</span> <span class="o">=</span> <span class="n">cbor2</span><span class="p">.</span><span class="n">dumps</span><span class="p">([</span><span class="s">"Signature1"</span><span class="p">,</span> <span class="sa">b</span><span class="s">'</span><span class="se">\xa1\x01</span><span class="s">&amp;'</span><span class="p">,</span> <span class="sa">b</span><span class="s">''</span><span class="p">,</span> <span class="n">payload2</span><span class="p">])</span>
+
+<span class="c1"># hash payloads (m1, m2)
+</span><span class="n">h1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">sig_struct7</span><span class="p">).</span><span class="n">digest</span><span class="p">(),</span> <span class="s">'big'</span><span class="p">)</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">sig_struct9</span><span class="p">).</span><span class="n">digest</span><span class="p">(),</span> <span class="s">'big'</span><span class="p">)</span>
+
+<span class="c1"># Recover  d
+</span><span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">s2</span><span class="o">*</span><span class="n">h1</span> <span class="o">-</span> <span class="n">s1</span><span class="o">*</span><span class="n">h2</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">((</span><span class="n">r</span><span class="o">*</span><span class="p">(</span><span class="n">s1</span><span class="o">-</span><span class="n">s2</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Flag: </span><span class="si">{</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">d</span><span class="p">)[</span><span class="mi">2</span><span class="si">:</span><span class="p">]).</span><span class="n">decode</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
