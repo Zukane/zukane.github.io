@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backdoor (ironCTF)</title>
+    <title>Backdoor (ironCTF 2024)</title>
     <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
     <!-- MathJax configuration -->
     <script>
@@ -35,7 +35,7 @@
     <div class="container">
       <!-- Display post title from front matter -->
       
-        <h2 class="post-title">Backdoor (ironCTF)</h2>
+        <h2 class="post-title">Backdoor (ironCTF 2024)</h2>
       
       
         <div class="post-tags">
@@ -193,7 +193,7 @@ Then, the next state is generated as the x value of $state \cdot  P$</p>
 
 <p>The shifted function f_ is equal to:</p>
 
-\[\large x^3 + 229054522729978652250851640754582529764*x^2\]
+\[\large x^3 + 229054522729978652250851640754582529764 \cdot x^2\]
 
 <p>or rather (factored_f):</p>
 
@@ -235,7 +235,7 @@ Then, the next state is generated as the x value of $state \cdot  P$</p>
 
 <h5 id="breaking-the-prng-and-decrypting-the-flag">Breaking the PRNG and decrypting the flag</h5>
 
-<p>Now that we have the initial state, we can easily recover the iv and the key. However, we will have to implement some custom functions and classes for our curves and such (because sagemath refuses to instantiate a super-singular curve). I will omit the explanation of the classes, but you can check [[#Solve.sage]] for the code.</p>
+<p>Now that we have the initial state, we can easily recover the iv and the key. However, we will have to implement some custom functions and classes for our curves and such (because sagemath refuses to instantiate a super-singular curve). I will omit the explanation of the classes, but you can check the solve script below for the code.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">prng</span> <span class="o">=</span> <span class="n">Dual_EC_PRNG</span><span class="p">(</span><span class="n">state_0</span><span class="p">,</span> <span class="n">curve</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span>
 <span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">((</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="mi">128</span><span class="p">)</span> <span class="o">+</span> <span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>

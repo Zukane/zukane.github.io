@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "I Lost my Bottoms (H7CTF)"
+title: "I Lost my Bottoms (H7CTF 2024)"
 date: 2025-03-09 10:00:00 -0000
 categories: writeups
 tags: [Coppersmith small roots, RSA]

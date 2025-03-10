@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Alle gode ting er fire (CLL24)"
+title: "Alle gode ting er fire (Cyberlandslaget 2024)"
 date: 2025-03-09 10:00:00 -0000
 categories: writeups
 tags: [Quaternion Algebra]

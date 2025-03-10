@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-03-09T19:30:16+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zukane CTF</title><subtitle>CTF Writeups, mostly focused on crypto</subtitle><author><name>Zukane</name></author><entry><title type="html">Alle gode ting er fire (CLL24)</title><link href="http://localhost:4000/alle-gode-ting-er-fire/" rel="alternate" type="text/html" title="Alle gode ting er fire (CLL24)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/alle-gode-ting-er-fire</id><content type="html" xml:base="http://localhost:4000/alle-gode-ting-er-fire/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-03-09T23:02:52+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zukane CTF</title><subtitle>CTF Writeups, mostly focused on crypto</subtitle><author><name>Zukane</name></author><entry><title type="html">Alle gode ting er fire (Cyberlandslaget 2024)</title><link href="http://localhost:4000/alle-gode-ting-er-fire/" rel="alternate" type="text/html" title="Alle gode ting er fire (Cyberlandslaget 2024)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/alle-gode-ting-er-fire</id><content type="html" xml:base="http://localhost:4000/alle-gode-ting-er-fire/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this challenge, we are provided with a challenge script which gives us the following information to work with:</p>
 
@@ -99,7 +99,7 @@ We can factor the squared norm and find the 64-bit factor. Then, finding the inv
     <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">x</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
 
 <span class="c1"># x = -584210810594046517355452820113415197 + 487268406469160255588161824266067879*i - 604670429592815531484994554730642919*j + 523176388428119814691754655613320989*k
-</span></code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Quaternion Algebra" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Connorsmith (CSCTF)</title><link href="http://localhost:4000/connorsmith/" rel="alternate" type="text/html" title="Connorsmith (CSCTF)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/connorsmith</id><content type="html" xml:base="http://localhost:4000/connorsmith/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</span></code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Quaternion Algebra" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Connorsmith (CSCTF 2024)</title><link href="http://localhost:4000/connorsmith/" rel="alternate" type="text/html" title="Connorsmith (CSCTF 2024)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/connorsmith</id><content type="html" xml:base="http://localhost:4000/connorsmith/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge, we are given a relatively standard RSA setup:</p>
 
@@ -237,7 +237,7 @@ e d &amp; \equiv1 \quad(\bmod \varphi(N)) \\
 <p>This gives us the flag:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CSCTF{37c37f30fc67f98f376a1c30b25b3969}
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">I Lost my Bottoms (H7CTF)</title><link href="http://localhost:4000/i-lost-my-bottoms/" rel="alternate" type="text/html" title="I Lost my Bottoms (H7CTF)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/i-lost-my-bottoms</id><content type="html" xml:base="http://localhost:4000/i-lost-my-bottoms/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">I Lost my Bottoms (H7CTF 2024)</title><link href="http://localhost:4000/i-lost-my-bottoms/" rel="alternate" type="text/html" title="I Lost my Bottoms (H7CTF 2024)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/i-lost-my-bottoms</id><content type="html" xml:base="http://localhost:4000/i-lost-my-bottoms/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge we are given an <code class="language-plaintext highlighter-rouge">enc.py</code> file:</p>
 
@@ -390,7 +390,7 @@ Hint2\_leak + y &amp;= (m+1)^{-2} &amp;\mod p \\
 <span class="n">invmod_leak</span> <span class="o">=</span> <span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">solx</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">invmod_leak</span> <span class="o">^</span> <span class="o">-</span><span class="mi">1</span> <span class="o">%</span> <span class="n">p</span>
 <span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">))</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Backdoor (ironCTF)</title><link href="http://localhost:4000/backdoor/" rel="alternate" type="text/html" title="Backdoor (ironCTF)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/backdoor</id><content type="html" xml:base="http://localhost:4000/backdoor/"><![CDATA[<h5 id="challenge-introduction">Challenge Introduction</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Backdoor (ironCTF 2024)</title><link href="http://localhost:4000/backdoor/" rel="alternate" type="text/html" title="Backdoor (ironCTF 2024)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/backdoor</id><content type="html" xml:base="http://localhost:4000/backdoor/"><![CDATA[<h5 id="challenge-introduction">Challenge Introduction</h5>
 
 <p>In this CTF challenge we are given the following python script:</p>
 
@@ -531,7 +531,7 @@ Then, the next state is generated as the x value of $state \cdot  P$</p>
 
 <p>The shifted function f_ is equal to:</p>
 
-\[\large x^3 + 229054522729978652250851640754582529764*x^2\]
+\[\large x^3 + 229054522729978652250851640754582529764 \cdot x^2\]
 
 <p>or rather (factored_f):</p>
 
@@ -573,7 +573,7 @@ Then, the next state is generated as the x value of $state \cdot  P$</p>
 
 <h5 id="breaking-the-prng-and-decrypting-the-flag">Breaking the PRNG and decrypting the flag</h5>
 
-<p>Now that we have the initial state, we can easily recover the iv and the key. However, we will have to implement some custom functions and classes for our curves and such (because sagemath refuses to instantiate a super-singular curve). I will omit the explanation of the classes, but you can check [[#Solve.sage]] for the code.</p>
+<p>Now that we have the initial state, we can easily recover the iv and the key. However, we will have to implement some custom functions and classes for our curves and such (because sagemath refuses to instantiate a super-singular curve). I will omit the explanation of the classes, but you can check the solve script below for the code.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">prng</span> <span class="o">=</span> <span class="n">Dual_EC_PRNG</span><span class="p">(</span><span class="n">state_0</span><span class="p">,</span> <span class="n">curve</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span>
 <span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">((</span><span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="mi">128</span><span class="p">)</span> <span class="o">+</span> <span class="n">prng</span><span class="p">.</span><span class="n">gen_rand_num</span><span class="p">())</span>
@@ -786,7 +786,7 @@ Then, the next state is generated as the x value of $state \cdot  P$</p>
     <span class="k">print</span><span class="p">(</span><span class="s">"Decrypted Flag:"</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">)</span>
 <span class="k">except</span> <span class="nb">ValueError</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="s">"Incorrect decryption. Possible wrong key/IV."</span><span class="p">)</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="PRNG" /><category term="Elliptic Curve" /><category term="Nodal Curve" /><category term="ECDLP" /><summary type="html"><![CDATA[Challenge Introduction]]></summary></entry><entry><title type="html">That one RSA challenge (TCP1P)</title><link href="http://localhost:4000/that-one-rsa-challenge/" rel="alternate" type="text/html" title="That one RSA challenge (TCP1P)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/that-one-rsa-challenge</id><content type="html" xml:base="http://localhost:4000/that-one-rsa-challenge/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="PRNG" /><category term="Elliptic Curve" /><category term="Nodal Curve" /><category term="ECDLP" /><summary type="html"><![CDATA[Challenge Introduction]]></summary></entry><entry><title type="html">That one RSA challenge (TCP1P 2024)</title><link href="http://localhost:4000/that-one-rsa-challenge/" rel="alternate" type="text/html" title="That one RSA challenge (TCP1P 2024)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/that-one-rsa-challenge</id><content type="html" xml:base="http://localhost:4000/that-one-rsa-challenge/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge, we are given the following python source code:</p>
 
@@ -919,7 +919,7 @@ e \cdot d &amp; \equiv1 \quad(\bmod \varphi(N)) \\
 <span class="n">roots</span> <span class="o">=</span> <span class="n">coppersmith_multivariate_heuristic</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">z</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">z</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(((</span><span class="n">h</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span><span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Comet19 (Jul25)</title><link href="http://localhost:4000/comet-19/" rel="alternate" type="text/html" title="Comet19 (Jul25)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/comet-19</id><content type="html" xml:base="http://localhost:4000/comet-19/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Comet19 (CLL Julekalender 2024)</title><link href="http://localhost:4000/comet-19/" rel="alternate" type="text/html" title="Comet19 (CLL Julekalender 2024)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/comet-19</id><content type="html" xml:base="http://localhost:4000/comet-19/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this challenge, we are given a zip file containing 10 <code class="language-plaintext highlighter-rouge">.png</code> images.</p>
 
@@ -1116,4 +1116,819 @@ Heksadesimal: a785f6e888a665205f289647bafca36f319de1883304d7f2d369b15d24d16efd88
 </span><span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">s2</span><span class="o">*</span><span class="n">h1</span> <span class="o">-</span> <span class="n">s1</span><span class="o">*</span><span class="n">h2</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">((</span><span class="n">r</span><span class="o">*</span><span class="p">(</span><span class="n">s1</span><span class="o">-</span><span class="n">s2</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
 
 <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Flag: </span><span class="si">{</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">d</span><span class="p">)[</span><span class="mi">2</span><span class="si">:</span><span class="p">]).</span><span class="n">decode</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="ECDSA" /><category term="Reused Nonce" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry></feed>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="ECDSA" /><category term="Reused Nonce" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Learning with Elliptic Curves (HelseCTF 2025)</title><link href="http://localhost:4000/learning-with-elliptic-curves/" rel="alternate" type="text/html" title="Learning with Elliptic Curves (HelseCTF 2025)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/learning-with-elliptic-curves</id><content type="html" xml:base="http://localhost:4000/learning-with-elliptic-curves/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following python source code, along with the output.txt</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
+<span class="kn">from</span> <span class="nn">hemmelig</span> <span class="kn">import</span> <span class="n">flagg</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="mi">39761755302725183918693591729206126391094688519137850931996389197052105934335057950945885109127019315116708698582684135940731</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mi">37470413545164594923241940723449977961814431955261347161951289533994732796785078955994373335971437954627235171462939970255523</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">33862474237826219764283873646917712191796653587975971730267794592641857158089029148517141460472220490573591617494610494543421</span> 
+
+<span class="n">gf</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">gf</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">E</span><span class="p">.</span><span class="n">gen</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"G = </span><span class="si">{</span><span class="n">G</span><span class="p">.</span><span class="n">xy</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">offentlig_nøkkel</span> <span class="o">=</span> <span class="p">[</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">G</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">flagg</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"offentlig_nøkkel = </span><span class="si">{</span><span class="p">[</span><span class="n">P</span><span class="p">.</span><span class="n">xy</span><span class="p">()</span> <span class="k">for</span> <span class="n">P</span> <span class="ow">in</span> <span class="n">offentlig_nøkkel</span><span class="p">]</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="n">hemmelighet</span> <span class="o">=</span> <span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">flagg</span><span class="p">]</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">G</span>
+
+<span class="n">resultat</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">o</span> <span class="o">*</span> <span class="n">h</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">offentlig_nøkkel</span><span class="p">,</span> <span class="n">hemmelighet</span><span class="p">))</span> <span class="o">+</span> <span class="n">error</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"resultat = </span><span class="si">{</span><span class="n">resultat</span><span class="p">.</span><span class="n">xy</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>This is a Learning with Errors type of challenge, but based on elliptic curve arithmetic. We are given the public key consisting of a random point on the curve $E$ for each character in the flag. We are also given point $resultat$ from the LWE-looking equation. The encryption is essentially:</p>
+
+\[\large resultat = \left( \sum_{i=0}^{n-1} o_{i}\cdot h_{i} \right) + error\]
+
+<p>But since $h_{i}$ is just a small integer value, and each point in the public key is computed as</p>
+
+\[\large r_{i}\cdot G\]
+
+<p>Where $r_{i}$ is a random integer, we can rewrite as</p>
+
+\[\large resultat = \left( \sum_{i=0}^{n-1} r_{i}\cdot h_{i} + e\right) \cdot G\]
+
+<p>This means we could potentially compute the discrete logarithm for $resultat$ to unwrap the elliptic curve arithmetic back into an integer equation. We can also compute the discrete logarithm of the public key points $o_{i}$ with respect to $G$ to recover $r_{i}$, which would leave us with an equation of the form</p>
+
+\[\large X = \sum_{i=0}^{n-1} r_{i}\cdot h_{i}+e \mod order(G)\]
+
+<p>The equation is a modular linear equation with small unknowns. We can utilize this solver: https://github.com/nneonneo/pwn-stuff/blob/main/math/solvelinmod.py, but we need to make some preparations first.</p>
+
+<p>Normally, the discrete logarithm problem can be quite tricky to solve. However, in our case, the order of curve $E$ is very smooth:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">factor</span><span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">order</span><span class="p">())</span>
+<span class="mi">2</span><span class="o">^</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">11</span> <span class="o">*</span> <span class="mi">13</span> <span class="o">*</span> <span class="mi">19</span> <span class="o">*</span> <span class="mi">31</span> <span class="o">*</span> <span class="mi">59</span> <span class="o">*</span> <span class="mi">67</span> <span class="o">*</span> <span class="mi">79</span> <span class="o">*</span> <span class="mi">101</span> <span class="o">*</span> <span class="mi">103</span> <span class="o">*</span> <span class="mi">139</span> <span class="o">*</span> <span class="mi">179</span> <span class="o">*</span> <span class="mi">233</span> <span class="o">*</span> <span class="mi">241</span> <span class="o">*</span> <span class="mi">269</span> <span class="o">*</span> <span class="mi">271</span> <span class="o">*</span> <span class="mi">283</span><span class="o">^</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">419</span> <span class="o">*</span> <span class="mi">431</span> <span class="o">*</span> <span class="mi">439</span> <span class="o">*</span> <span class="mi">463</span> <span class="o">*</span> <span class="mi">509</span> <span class="o">*</span> <span class="mi">563</span> <span class="o">*</span> <span class="mi">571</span> <span class="o">*</span> <span class="mi">617</span><span class="o">^</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">641</span><span class="o">^</span><span class="mi">3</span> <span class="o">*</span> <span class="mi">659</span> <span class="o">*</span> <span class="mi">691</span> <span class="o">*</span> <span class="mi">719</span> <span class="o">*</span> <span class="mi">733</span><span class="o">^</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">739</span> <span class="o">*</span> <span class="mi">743</span><span class="o">^</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">761</span> <span class="o">*</span> <span class="mi">773</span> <span class="o">*</span> <span class="mi">797</span> <span class="o">*</span> <span class="mi">821</span> <span class="o">*</span> <span class="mi">823</span><span class="o">^</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">829</span> <span class="o">*</span> <span class="mi">929</span> <span class="o">*</span> <span class="mi">937</span> <span class="o">*</span> <span class="mi">977</span>
+</code></pre></div></div>
+
+<p>meaning it is easy to solve with something like Pohlig-Hellman.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"Computing discrete logs for public keys ..."</span><span class="p">)</span>
+<span class="n">r_values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">P</span> <span class="ow">in</span> <span class="n">offentlig_nøkkel</span><span class="p">:</span>
+	<span class="n">r</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">"+"</span><span class="p">)</span>
+	<span class="n">r_values</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+<span class="n">order</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="n">order</span><span class="p">()</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">resultat</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">"+"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We can now begin to set up the equation for $X$ where we wish to solve for the unknown flag characters $h_{i}$.
+Firstly, we must define some variables to represent the unknowns:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_values</span><span class="p">)</span>
+<span class="n">flag_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">(</span><span class="sa">f</span><span class="s">"x</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+<span class="n">e_var</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s">"e"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We can now express our equation as</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">equation</span> <span class="o">=</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">r_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">+</span> <span class="n">e_var</span> <span class="o">==</span> <span class="n">X</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Lastly, we need to define the bounds of possible values for the unknowns. We know $h_{i}$ are the numerical ascii codes for the flag characters, which means the possible values are between $0, 256$ (we could in reality assume that its between $32, 126$ for printable characters). And from the source code, we already know the error value $e$ is between $-1000, 1000$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">flag_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)}</span>
+<span class="n">bounds</span><span class="p">[</span><span class="n">e_var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="c1"># (min, expected, max)
+</span></code></pre></div></div>
+
+<p>And with everything set up, we can now utilize the linmod solver after it has been imported:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"Solving modular linear equation using lattice reduction..."</span><span class="p">)</span>
+<span class="n">solution</span> <span class="o">=</span> <span class="n">solve_linear_mod</span><span class="p">([</span><span class="n">equation</span><span class="p">],</span> <span class="n">bounds</span><span class="p">)</span>
+<span class="n">recovered_flag</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="n">flag_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Recovered flag: </span><span class="si">{</span><span class="n">recovered_flag</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="c1">#Recovered flag: helsectf{Ell1pt15k3_kurv3r_3r_l1vet!}
+</span></code></pre></div></div>
+
+<h5 id="solvesage">Solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="n">ZZ</span><span class="p">,</span> <span class="n">gcd</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">prod</span><span class="p">,</span> <span class="n">var</span>
+
+<span class="c1"># Solver from: https://github.com/nneonneo/pwn-stuff/blob/main/math/solvelinmod.py
+</span><span class="k">def</span> <span class="nf">_process_linear_equations</span><span class="p">(</span><span class="n">equations</span><span class="p">,</span> <span class="nb">vars</span><span class="p">,</span> <span class="n">guesses</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">rel</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">equations</span><span class="p">:</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">rel</span><span class="p">.</span><span class="n">operator</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">operator</span><span class="p">.</span><span class="n">eq</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s">"relation </span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s">: not an equality relation"</span><span class="p">)</span>
+
+        <span class="n">expr</span> <span class="o">=</span> <span class="p">(</span><span class="n">rel</span> <span class="o">-</span> <span class="n">rel</span><span class="p">.</span><span class="n">rhs</span><span class="p">()).</span><span class="n">lhs</span><span class="p">().</span><span class="n">expand</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">expr</span><span class="p">.</span><span class="n">variables</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"relation </span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s">: variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s"> is not bounded"</span><span class="p">)</span>
+
+        <span class="c1"># Fill in eqns block of B
+</span>        <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">expr</span><span class="p">.</span><span class="n">degree</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"relation </span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s">: equation is not linear in </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">expr</span><span class="p">.</span><span class="n">coefficient</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">coeff</span><span class="p">.</span><span class="n">is_constant</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"relation </span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s">: coefficient of </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s"> is not constant (equation is not linear)"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">coeff</span><span class="p">.</span><span class="n">is_integer</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"relation </span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s">: coefficient of </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s"> is not an integer"</span><span class="p">)</span>
+
+            <span class="n">coeff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">coeff</span> <span class="o">%=</span> <span class="n">m</span>
+            <span class="n">coeffs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+        <span class="c1"># Shift variables towards their guesses to reduce the (expected) length of the solution vector
+</span>        <span class="n">const</span> <span class="o">=</span> <span class="n">expr</span><span class="p">.</span><span class="n">subs</span><span class="p">({</span><span class="n">var</span><span class="p">:</span> <span class="n">guesses</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">const</span><span class="p">.</span><span class="n">is_constant</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"relation </span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s">: failed to extract constant"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">const</span><span class="p">.</span><span class="n">is_integer</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"relation </span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s">: constant is not integer"</span><span class="p">)</span>
+
+        <span class="n">const</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">const</span> <span class="o">%=</span> <span class="n">m</span>
+
+        <span class="n">result</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">solve_linear_mod</span><span class="p">(</span><span class="n">equations</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">use_flatter</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">lll_args</span><span class="p">):</span>
+    <span class="s">"""Solve an arbitrary system of modular linear equations over different moduli.
+
+    equations: A sequence of (lhs == rhs, M) pairs, where lhs and rhs are expressions and M is the modulus.
+        M may be None to indicate that the equation is not modular.
+    bounds: A dictionary of {var: B} entries, where var is a variable and B is the bounds on that variable.
+        Bounds may be specified in one of three ways:
+        - A single integer X: Variable is assumed to be uniformly distributed in [0, X] with an expected value of X/2.
+        - A tuple of integers (X, Y): Variable is assumed to be uniformly distributed in [X, Y] with an expected value of (X + Y)/2.
+        - A tuple of integers (X, E, Y): Variable is assumed to be bounded within [X, Y] with an expected value of E.
+        All variables used in the equations must be bounded.
+    verbose: set to True to enable additional output
+    use_flatter: set to True to use [flatter](https://github.com/keeganryan/flatter), which is much faster
+    lll_args: Additional arguments passed to LLL, for advanced usage.
+
+    NOTE: Bounds are *soft*. This function may return solutions above the bounds. If this happens, and the result
+    is incorrect, make some bounds tighter and try again.
+
+    Tip: if you get an unwanted solution, try setting the expected values to that solution to force this function
+    to produce a different solution.
+
+    Tip: if your bounds are loose and you just want small solutions, set the expected values to zero for all
+    loosely-bounded variables.
+
+    &gt;&gt;&gt; k = var('k')
+    &gt;&gt;&gt; # solve CRT
+    &gt;&gt;&gt; solve_linear_mod([(k == 2, 3), (k == 4, 5), (k == 3, 7)], {k: 3*5*7})
+    {k: 59}
+
+    &gt;&gt;&gt; x,y = var('x,y')
+    &gt;&gt;&gt; solve_linear_mod([(2*x + 3*y == 7, 11), (3*x + 5*y == 3, 13), (2*x + 5*y == 6, 143)], {x: 143, y: 143})
+    {x: 62, y: 5}
+
+    &gt;&gt;&gt; x,y = var('x,y')
+    &gt;&gt;&gt; # we can also solve homogenous equations, provided the guesses are zeroed
+    &gt;&gt;&gt; solve_linear_mod([(2*x + 5*y == 0, 1337)], {x: 5, y: 5}, guesses={x: 0, y: 0})
+    {x: 5, y: -2}
+    """</span>
+
+    <span class="c1"># The general idea is to set up an integer matrix equation Ax=y by introducing extra variables for the quotients,
+</span>    <span class="c1"># then use LLL to solve the equation. We introduce extra axes in the lattice to observe the actual solution x,
+</span>    <span class="c1"># which works so long as the solutions are known to be bounded (which is of course the case for modular equations).
+</span>    <span class="c1"># Scaling factors are configured to generally push the smallest vectors to have zeros for the relations, and to
+</span>    <span class="c1"># scale disparate variables to approximately the same base.
+</span>
+    <span class="nb">vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+    <span class="n">guesses</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">var_scale</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
+        <span class="n">bound</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bound</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">bound</span><span class="p">)</span>
+                <span class="n">guess</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">xmin</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bound</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">xmin</span><span class="p">,</span> <span class="n">guess</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">bound</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span><span class="s">"Bounds must be integers, 2-tuples or 3-tuples"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xmin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bound</span><span class="p">)</span>
+            <span class="n">guess</span> <span class="o">=</span> <span class="n">xmax</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">xmin</span> <span class="o">&lt;=</span> <span class="n">guess</span> <span class="o">&lt;=</span> <span class="n">xmax</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"Bound for variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s"> is invalid (</span><span class="si">{</span><span class="n">xmin</span><span class="o">=</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">guess</span><span class="o">=</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">xmax</span><span class="o">=</span><span class="si">}</span><span class="s">)"</span><span class="p">)</span>
+        <span class="n">var_scale</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">guess</span><span class="p">,</span> <span class="n">guess</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">guesses</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">guess</span>
+
+    <span class="n">var_bits</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="n">log2</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">prod</span><span class="p">(</span><span class="n">var_scale</span><span class="p">.</span><span class="n">values</span><span class="p">())))</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span>
+    <span class="n">mod_bits</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="n">log2</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">prod</span><span class="p">(</span><span class="n">m</span> <span class="k">for</span> <span class="n">rel</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">equations</span> <span class="k">if</span> <span class="n">m</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"verbose: variable entropy: </span><span class="si">{</span><span class="n">var_bits</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> bits"</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"verbose: modulus entropy: </span><span class="si">{</span><span class="n">mod_bits</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> bits"</span><span class="p">)</span>
+
+    <span class="c1"># Extract coefficients from equations
+</span>    <span class="n">equation_coeffs</span> <span class="o">=</span> <span class="n">_process_linear_equations</span><span class="p">(</span><span class="n">equations</span><span class="p">,</span> <span class="nb">vars</span><span class="p">,</span> <span class="n">guesses</span><span class="p">)</span>
+
+    <span class="n">is_inhom</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">const</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">equation_coeffs</span><span class="p">)</span>
+    <span class="n">mod_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">equation_coeffs</span> <span class="k">if</span> <span class="n">m</span><span class="p">)</span>
+
+    <span class="n">NR</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">equation_coeffs</span><span class="p">)</span>
+    <span class="n">NV</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_inhom</span><span class="p">:</span>
+        <span class="c1"># Add one dummy variable for the constant term.
+</span>        <span class="n">NV</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="n">mod_count</span> <span class="o">+</span> <span class="n">NV</span><span class="p">,</span> <span class="n">NR</span> <span class="o">+</span> <span class="n">NV</span><span class="p">)</span>
+
+    <span class="c1"># B format (rows are the basis for the lattice):
+</span>    <span class="c1"># [ mods:NRxNR 0
+</span>    <span class="c1">#   eqns:NVxNR vars:NVxNV ]
+</span>    <span class="c1"># eqns correspond to equation axes, fi(...) = yi mod mi
+</span>    <span class="c1"># vars correspond to variable axes, which effectively "observe" elements of the solution vector (x in Ax=y)
+</span>    <span class="c1"># mods and vars are diagonal, so this matrix is lower triangular.
+</span>
+    <span class="c1"># Compute maximum scale factor over all variables
+</span>    <span class="n">S</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">var_scale</span><span class="p">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="c1"># Compute equation scale such that the bounded solution vector (equation columns all zero)
+</span>    <span class="c1"># will be shorter than any vector that has a nonzero equation column
+</span>    <span class="n">eqS</span> <span class="o">=</span> <span class="n">S</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">NR</span> <span class="o">+</span> <span class="n">NV</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># If the equation is underconstrained, add additional scaling to find a solution anyway
+</span>    <span class="k">if</span> <span class="n">var_bits</span> <span class="o">&gt;</span> <span class="n">mod_bits</span><span class="p">:</span>
+        <span class="n">eqS</span> <span class="o">&lt;&lt;=</span> <span class="nb">int</span><span class="p">((</span><span class="n">var_bits</span> <span class="o">-</span> <span class="n">mod_bits</span><span class="p">)</span> <span class="o">/</span> <span class="n">NR</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">col_scales</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">mi</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ri</span><span class="p">,</span> <span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">equation_coeffs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">vi</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coeffs</span><span class="p">):</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">mod_count</span> <span class="o">+</span> <span class="n">vi</span><span class="p">,</span> <span class="n">ri</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="k">if</span> <span class="n">is_inhom</span><span class="p">:</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">mod_count</span> <span class="o">+</span> <span class="n">NV</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ri</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">mi</span><span class="p">,</span> <span class="n">ri</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+            <span class="n">mi</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">col_scales</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">eqS</span><span class="p">)</span>
+
+    <span class="c1"># Compute per-variable scale such that the variable axes are scaled roughly equally
+</span>    <span class="k">for</span> <span class="n">vi</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">vars</span><span class="p">):</span>
+        <span class="n">col_scales</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">S</span> <span class="o">//</span> <span class="n">var_scale</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+        <span class="c1"># Fill in vars block of B
+</span>        <span class="n">B</span><span class="p">[</span><span class="n">mod_count</span> <span class="o">+</span> <span class="n">vi</span><span class="p">,</span> <span class="n">NR</span> <span class="o">+</span> <span class="n">vi</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">is_inhom</span><span class="p">:</span>
+        <span class="c1"># Const block: effectively, this is a bound of 1 on the constant term
+</span>        <span class="n">col_scales</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">mod_count</span> <span class="o">+</span> <span class="n">NV</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"verbose: scaling shifts:"</span><span class="p">,</span> <span class="p">[</span><span class="n">math</span><span class="p">.</span><span class="n">log2</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">col_scales</span><span class="p">])</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"verbose: matrix dimensions:"</span><span class="p">,</span> <span class="n">B</span><span class="p">.</span><span class="n">dimensions</span><span class="p">())</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"verbose: unscaled matrix before:"</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">B</span><span class="p">.</span><span class="n">n</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">col_scales</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="n">s</span>
+    <span class="k">if</span> <span class="n">use_flatter</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">re</span> <span class="kn">import</span> <span class="n">findall</span>
+        <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">check_output</span>
+
+        <span class="c1"># compile https://github.com/keeganryan/flatter and put it in $PATH
+</span>        <span class="n">z</span> <span class="o">=</span> <span class="s">"[["</span> <span class="o">+</span> <span class="s">"]</span><span class="se">\n</span><span class="s">["</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">" "</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">row</span><span class="p">))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="s">"]]"</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">check_output</span><span class="p">([</span><span class="s">"flatter"</span><span class="p">],</span> <span class="nb">input</span><span class="o">=</span><span class="n">z</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">B</span><span class="p">.</span><span class="n">nrows</span><span class="p">(),</span> <span class="n">B</span><span class="p">.</span><span class="n">ncols</span><span class="p">(),</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">findall</span><span class="p">(</span><span class="sa">b</span><span class="s">"-?</span><span class="se">\\</span><span class="s">d+"</span><span class="p">,</span> <span class="n">ret</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">LLL</span><span class="p">(</span><span class="o">**</span><span class="n">lll_args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">col_scales</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">/=</span> <span class="n">s</span>
+
+    <span class="c1"># Negate rows for more readable output
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">.</span><span class="n">nrows</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:])</span> <span class="o">&gt;</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]):</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">is_inhom</span> <span class="ow">and</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"verbose: unscaled matrix after:"</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">B</span><span class="p">.</span><span class="n">n</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">B</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[:</span><span class="n">NR</span><span class="p">]):</span>
+            <span class="c1"># invalid solution: some relations are nonzero
+</span>            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">is_inhom</span><span class="p">:</span>
+            <span class="c1"># Each row is a potential solution, but some rows may not carry a constant.
+</span>            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span>
+                        <span class="s">"verbose: zero solution"</span><span class="p">,</span>
+                        <span class="p">{</span><span class="n">var</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="n">NR</span> <span class="o">+</span> <span class="n">vi</span><span class="p">]</span> <span class="k">for</span> <span class="n">vi</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">NR</span> <span class="o">+</span> <span class="n">vi</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">},</span>
+                    <span class="p">)</span>
+                <span class="k">continue</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">vi</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">vars</span><span class="p">):</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">NR</span> <span class="o">+</span> <span class="n">vi</span><span class="p">]</span> <span class="o">+</span> <span class="n">guesses</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">res</span>
+
+
+<span class="n">p</span> <span class="o">=</span> <span class="mi">39761755302725183918693591729206126391094688519137850931996389197052105934335057950945885109127019315116708698582684135940731</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mi">37470413545164594923241940723449977961814431955261347161951289533994732796785078955994373335971437954627235171462939970255523</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">33862474237826219764283873646917712191796653587975971730267794592641857158089029148517141460472220490573591617494610494543421</span> 
+
+<span class="n">gf</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">gf</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">E</span><span class="p">.</span><span class="n">gen</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"G ="</span><span class="p">,</span> <span class="n">G</span><span class="p">.</span><span class="n">xy</span><span class="p">())</span>
+
+<span class="n">offentlig_nokkel_coords</span> <span class="o">=</span> <span class="p">[</span>
+<span class="p">(</span><span class="mi">19344995651025956194741672391212032148363490396937400401146819955355580393176808369173184320136313448134647998758831966754736</span><span class="p">,</span><span class="mi">34020826004970877240134787872651656341416368729440458356772758698852519328204528888078873163885699991764853721479123610703057</span><span class="p">),(</span><span class="mi">38966172409616242154304141143709898301034470122461722607712942742033687783643301247009025399729745022556064024850518869451975</span><span class="p">,</span><span class="mi">5981020799362018596735936290285344387211688865092193941491931169619830103374376973760714068642118719362457727239510914584312</span><span class="p">),</span> <span class="p">(</span><span class="mi">7012878627760257841132118070607478265284965240349652309759124191322573986096551843751246689024934516739883838453379849725751</span><span class="p">,</span> <span class="mi">21649710842932323285463795978767807324556917210964041962739790237236275762823921746606063379573395895459130209397906892095198</span><span class="p">),(</span><span class="mi">16507820273786900224618748750477369369775435705316765856004067873105139579722596955551099931764203698774088259217970865323799</span><span class="p">,</span><span class="mi">9928713485305875739506130889554325411729009153463022555918280976553112545014442785040986950316547911895874494514074098917894</span><span class="p">),</span> <span class="p">(</span><span class="mi">14055726663591292873961297946052533592325700065779495995571239086780922293043115049640092519426435728577412970964860502584449</span><span class="p">,</span><span class="mi">30485748320816380831514092554721453382052900140209991279839693184940939803544687454557399278030782153436443843797878162131674</span><span class="p">),(</span><span class="mi">19284533584902441535038251888281949359237393762112655572077569950661307649081647225051558606183700516352557183155082396507339</span><span class="p">,</span><span class="mi">31789499814834902156506651897418657730851979924342092149083494301240879566203258318324279812405062325758883084316388028234579</span><span class="p">),(</span><span class="mi">28563743478892127827438135408124657877593631512851235793560586090530615354590467727997486849059095488933932291824423145715989</span><span class="p">,</span><span class="mi">25665200201155002744035128647945633598163319971421639263108985895408409856469875694440510114104190480548047704288193118501977</span><span class="p">),(</span><span class="mi">8237411227822132038206373512614285405591981546461995832779339333592557055834188155984551094441805050462771868300394115224375</span><span class="p">,</span> <span class="mi">9885852244328856561608785982938660796665507504121412998798975798901881787628711681405954967253476772481210173364953121589569</span><span class="p">),</span> <span class="p">(</span><span class="mi">21181985550811301835779112200376346636025418520808320184931262305958073757014994270429006350952950798310763860866304539428929</span><span class="p">,</span><span class="mi">6884701502844069177625971506999045981345995595705569692948922952369734751204260690491272933693975446873824249524309618970166</span><span class="p">),</span> <span class="p">(</span><span class="mi">6788587008462034943410368611241496145015831006919232554367954799108989568960420306961801801625921628580097121258960350700616</span><span class="p">,</span> <span class="mi">7635783031494681408229331516727445970079910973779703487539674574209624228670655658114668541055090475326537403610663421717055</span><span class="p">),</span> <span class="p">(</span><span class="mi">34698918716321067804863000464018663206020680011298961086526003259750622996268085071858633541035040445940040693707640153655632</span><span class="p">,</span><span class="mi">16384492064938169922484926227544844042674774692541434008770082166704569520085415713559690586140748815044546227319134849083937</span><span class="p">),(</span><span class="mi">10658974785580326054433035059311986417475084708116100695444229265131486566672126986110855036056235411708879953276778915747801</span><span class="p">,</span> <span class="mi">512033780990944074185563748626730709761992606831859714133668839103428371946017012458822632270307898211602256126273987669132</span><span class="p">),</span> <span class="p">(</span><span class="mi">8622011872253081660673091782773585822060637051075312656402567659535855409821932333482382411981983992572035293537198471300443</span><span class="p">,</span> <span class="mi">39022515826644233788881586619347250212977673395132189646832370764675062592750514668680322547648802196304673254653571721291831</span><span class="p">),</span> <span class="p">(</span><span class="mi">733746435861052343265423986364461942348676907044568071574314976256865094935712580652635360676426823887304743127942655669737</span><span class="p">,</span> <span class="mi">35699658584837934841721507175186736204106629480007391268786882614665034436247870540906673672955477842345407758711255421701272</span><span class="p">),(</span><span class="mi">37939426890774994620687639386442335504804214910213475108653073835175095782887561413623491816689117769855921083421601000351221</span><span class="p">,</span><span class="mi">35484662781609586835666968283377268002573421586505838429006735486351151941782347671265691433508246152630679857286434611823446</span><span class="p">),(</span><span class="mi">27671434794626920166815769310586909573137141964976057656198980121930015805040405450922076489265137388163898643646828570297312</span><span class="p">,</span><span class="mi">15804008446744328534974710571663042229605689599724078001882369669149290404107074338305844058792073815442376248853911841614426</span><span class="p">),(</span><span class="mi">20950482645513610873765064128356556647853383897087887862635288029551420919838051885419671413603809323953440287910086578994272</span><span class="p">,</span><span class="mi">13179730620551517421814470850730448699505360331488970430430199559692709864311666620597196650579997342340297429683266669665805</span><span class="p">),(</span><span class="mi">38209802766336036826548158011858091566763499319755339954976644987497178193491031815701219011999258731732565706983754522742860</span><span class="p">,</span><span class="mi">32075952411759489640105226466556224741572861015631622764015731585347955580393913886424341362200247972419249692718256292405497</span><span class="p">),(</span><span class="mi">29715879263362133992147038430203964295629513055492327942093840791136536190075611961658831084719071107836887811583662865879707</span><span class="p">,</span><span class="mi">13919539779082633178483137734805867250894605291219091326819707826267111628567784026617883661947346871050484166323317372092681</span><span class="p">),(</span><span class="mi">17596448059924478922611374900453610553302087678439808939152903825727511660677906979887680120862442594782190195990376480227247</span><span class="p">,</span><span class="mi">18848917550521531970852496369038841222855249240611234505174458309342823960300837116527482677611242707548544929064942808521326</span><span class="p">),(</span><span class="mi">11694674951617050896888126743690058647375337519424427182693314257629019803360357415031340224437750579664116587883003716347322</span><span class="p">,</span><span class="mi">23769034524399304221482377572880603810420827986816819410647124240381458717464137504868299950648504922208277820779862263213253</span><span class="p">),(</span><span class="mi">28044352636044165142531892612483278790309014066998469173880740484234864937824324353622678955699284335850641632696218607711105</span><span class="p">,</span><span class="mi">36852342519447641222459786922480459165554935411917926715070142361516598240249543218059044962301159233451421107516861058931350</span><span class="p">),(</span><span class="mi">39472716548612380290361977865584209019941773021001278034808705016371847732706310749561371415767551848024898140778002489761104</span><span class="p">,</span><span class="mi">13778771389568946804361056265311684945284062484739422530826916480764877337518958508982589095578772377611594544422376483705189</span><span class="p">),(</span><span class="mi">12383735787832868736512166373154971015290898726854325082693549282798933504244296605160216975903246810620642146814345310554245</span><span class="p">,</span><span class="mi">14606252906250500651763421535808607189949773824275233075682901325789088277988476921580364063054361211058708760529784757163069</span><span class="p">),(</span><span class="mi">7911163544792784677994220674429320832525623274395272821492773307062011009307739889205201720778512712202950737090638605306941</span><span class="p">,</span> <span class="mi">32328838849120475224173379425480516068696470208616385098516834929939549599336938286263319475085712307078669689264043940279300</span><span class="p">),(</span><span class="mi">6806084376297874363978666332947512148582907530266444061137669650799184257952980294236356891605898752326730504084259266607078</span><span class="p">,</span> <span class="mi">4086053235856464049299978367263407974062293925257987675966363058200510421805899650679492916373893962060529530866829744661115</span><span class="p">),</span> <span class="p">(</span><span class="mi">20068421201757796406821504148184756417915558249894999425509689063181453172284226606798981021385347488384527499616803388564798</span><span class="p">,</span><span class="mi">10471301146159400545932616687757275132945443353048424290724629816042012731619948044876834966798469450294545018272842518767039</span><span class="p">),(</span><span class="mi">37732339642517665660573396789456436211371585579156819026373871223024196528579359580573460397737420382889142185220947626429988</span><span class="p">,</span><span class="mi">35588564732766799911411770707054827045426121818169585798083508100212146760878114879993716618460747691986999221885780988213939</span><span class="p">),(</span><span class="mi">18994922082342729210669842066574295649621438440922345176100372319975853401945330951612964095074112154449538291135263645795633</span><span class="p">,</span><span class="mi">7421835481723385629627683542845775174176654429284456417903254652848254644501526524277397274456927128375951677872783186544197</span><span class="p">),</span> <span class="p">(</span><span class="mi">10936179747633490187048811205659632385493108913888571448351520692827861401235904055783909618959144801043869111517493064450813</span><span class="p">,</span><span class="mi">37767515592460780812692994627273499472840828310356287804193220268370806467963587115872332370607004725228518423275190521909036</span><span class="p">),(</span><span class="mi">15578363357360720656604318751099363826610190567191944249530552187368108247234937882283894395989015950625087477601990604613568</span><span class="p">,</span><span class="mi">12944764605838608945255892796385860090328827583817839716418744552699643658761977975421689813669953770928326326679477989760425</span><span class="p">),(</span><span class="mi">18465487551066678587591230816929918491636227429489142712426400860471604878959497312492289805250369784518246291043516743718314</span><span class="p">,</span><span class="mi">33048932538804853453137676161648323915507524602563070414028513687897002445778522892502931139172408593517572601654502257710179</span><span class="p">),(</span><span class="mi">36405447831709193796097960326620635017451602614074697050898363305471353306230658731010486585219737953570079593165399424640077</span><span class="p">,</span><span class="mi">39408299074343594603359628294024899354312805473493079470807758263096873347563725962734813169017704613381036169912740705802415</span><span class="p">),(</span><span class="mi">31489959783721349126832583793042849991821734712454827062803050435506164238311383809821966356053124230213468581001961871705240</span><span class="p">,</span><span class="mi">1370610624414638548357272623280330236940111440345356060614790482301844799622501923372464196490616842945705405162689484422131</span><span class="p">),</span> <span class="p">(</span><span class="mi">38410418347480905434105603211519555470978675975416499460761655754318826230236231759067316884038352846297919716523834617388809</span><span class="p">,</span><span class="mi">38373076908014641207743595020405645972279538291511910579173338937672642301553739809924261109302942930372828119645211569180371</span><span class="p">),(</span><span class="mi">18699249088920525263336529579250720339651996780233633707443800456666031211347230017240747302897271985757953958425270369197271</span><span class="p">,</span><span class="mi">15810499777345670198178975014724801539468143573738090921792268760133300634100091531087694924391974063121939953084474417068575</span><span class="p">),(</span><span class="mi">26959780058637657932043291551863273749284276382492090808843948794474433894425495846938331234168041540969970436897968026924422</span><span class="p">,</span> <span class="mi">1575063286522455595288872157965487016380397319130447521930183949162108900735380591336731890417444500695552903110119195898094</span><span class="p">)]</span>
+
+<span class="n">offentlig_nøkkel</span> <span class="o">=</span> <span class="p">[</span><span class="n">E</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">offentlig_nokkel_coords</span><span class="p">]</span>
+<span class="n">resultat</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mi">20651818137470466933477728509072550437756475330872536030571099768051457046843355623709212804930440099044049040144879241690983</span><span class="p">,</span><span class="mi">35600016854460355091451342763877862314510764810503386770058531389353025412814465374425619239887352848890007571085094884466047</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Computing discrete logs for public keys ..."</span><span class="p">)</span>
+<span class="n">r_values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">P</span> <span class="ow">in</span> <span class="n">offentlig_nøkkel</span><span class="p">:</span>
+	<span class="n">r</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">"+"</span><span class="p">)</span>
+	<span class="n">r_values</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+<span class="n">order</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="n">order</span><span class="p">()</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">resultat</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">"+"</span><span class="p">)</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_values</span><span class="p">)</span>
+<span class="n">flag_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">(</span><span class="sa">f</span><span class="s">"x</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+<span class="n">e_var</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s">"e"</span><span class="p">)</span>
+
+<span class="n">equation</span> <span class="o">=</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">r_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">flag_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">+</span> <span class="n">e_var</span> <span class="o">==</span> <span class="n">X</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">flag_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)}</span>
+<span class="n">bounds</span><span class="p">[</span><span class="n">e_var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Solving modular linear equation using lattice reduction..."</span><span class="p">)</span>
+<span class="n">solution</span> <span class="o">=</span> <span class="n">solve_linear_mod</span><span class="p">([</span><span class="n">equation</span><span class="p">],</span> <span class="n">bounds</span><span class="p">)</span>
+<span class="n">recovered_flag</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="n">flag_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Recovered flag: </span><span class="si">{</span><span class="n">recovered_flag</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Flag: <code class="language-plaintext highlighter-rouge">helsectf{Ell1pt15k3_kurv3r_3r_l1vet!}</code></p>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Elliptic Curves" /><category term="ECDLP" /><category term="LWE" /><category term="Lattice" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">My Signed Nonsense (HelseCTF 2025)</title><link href="http://localhost:4000/my-signed-nonsense/" rel="alternate" type="text/html" title="My Signed Nonsense (HelseCTF 2025)" /><published>2025-03-09T11:00:00+01:00</published><updated>2025-03-09T11:00:00+01:00</updated><id>http://localhost:4000/my-signed-nonsense</id><content type="html" xml:base="http://localhost:4000/my-signed-nonsense/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given a GitHub repository and an SSH key to verify signatures. The repository contains quite a lot of files:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>encrypt_flag.py  file13.txt  file18.txt  file22.txt  file27.txt  file31.txt  file36.txt  file40.txt  file45.txt  file5.txt   file54.txt  file6.txt
+file1.txt        file14.txt  file19.txt  file23.txt  file28.txt  file32.txt  file37.txt  file41.txt  file46.txt  file50.txt  file55.txt  file7.txt
+file10.txt       file15.txt  file2.txt   file24.txt  file29.txt  file33.txt  file38.txt  file42.txt  file47.txt  file51.txt  file56.txt  file8.txt
+file11.txt       file16.txt  file20.txt  file25.txt  file3.txt   file34.txt  file39.txt  file43.txt  file48.txt  file52.txt  file57.txt  file9.txt
+file12.txt       file17.txt  file21.txt  file26.txt  file30.txt  file35.txt  file4.txt   file44.txt  file49.txt  file53.txt  file58.txt  flag.enc.txt
+</code></pre></div></div>
+
+<p>Inspecting some of the files, the majority look quite uninteresting:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ cat file13.txt                                                      
+just a number: 13
+
+└─$ cat file37.txt                                                      
+just a number: 37
+</code></pre></div></div>
+
+<p>But we are given an encryption script in <code class="language-plaintext highlighter-rouge">encrypt_flag.py</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">long_to_bytes</span><span class="p">,</span> <span class="n">inverse</span>
+<span class="kn">from</span> <span class="nn">Crypto.PublicKey.ECC</span> <span class="kn">import</span> <span class="n">EccPoint</span>
+<span class="kn">from</span> <span class="nn">Crypto.PublicKey._nist_ecc</span> <span class="kn">import</span> <span class="n">p521_curve</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives.serialization</span> <span class="kn">import</span> <span class="n">load_ssh_private_key</span>
+
+<span class="n">FLAG</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">"../flag.txt"</span><span class="p">,</span><span class="s">"rb"</span><span class="p">).</span><span class="n">read</span><span class="p">())</span>
+
+<span class="c1"># calculate y point given x using the weierstrass equation: y^2 = x^3 + a*x + b
+</span><span class="k">def</span> <span class="nf">lift_x</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="nb">pow</span><span class="p">((</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span><span class="o">%</span><span class="n">p</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+
+<span class="c1"># NIST-p521 curve
+</span><span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+<span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p521_curve</span><span class="p">().</span><span class="n">b</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p521_curve</span><span class="p">().</span><span class="n">p</span><span class="p">)</span>
+<span class="n">order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p521_curve</span><span class="p">().</span><span class="n">order</span><span class="p">)</span>
+
+<span class="c1"># using SSH private key as ECC secret
+</span><span class="n">key</span> <span class="o">=</span> <span class="n">load_ssh_private_key</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">"/root/.ssh/id_ecdsa"</span><span class="p">,</span><span class="s">"rb"</span><span class="p">).</span><span class="n">read</span><span class="p">(),</span><span class="sa">b</span><span class="s">""</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">key</span><span class="p">.</span><span class="n">private_numbers</span><span class="p">().</span><span class="n">private_value</span>
+
+<span class="c1"># load the flag as x-point on a curve, find y-point by lifting x and then encrypt the point using our secret
+</span><span class="n">P</span> <span class="o">=</span> <span class="n">EccPoint</span><span class="p">(</span><span class="n">FLAG</span><span class="p">,</span> <span class="n">lift_x</span><span class="p">(</span><span class="n">FLAG</span><span class="p">),</span> <span class="s">"p521"</span><span class="p">)</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">P</span><span class="o">*</span><span class="n">d</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Q=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s">,</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span> 
+</code></pre></div></div>
+
+<p>And the encrypted flag in <code class="language-plaintext highlighter-rouge">flag.enc.txt</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Q=0x15f0683537d9a6ff956284fd77f96b5c2060d7334b8c419188fe8d8df00fb6ee88a7bd7e3653860af84c41f951961e36eec3dbde669a40b953dcec6f9d5c148a94a,0x11e37ad3acaf57a4a905213023f70f93375c1022e78a9a57a7621a709104e7276c60fd6c65f9e8c3ba866abc5ce263db163502103bf1cf448be24aa4eb3b466e305
+</code></pre></div></div>
+
+<p>The encryption script loads in the SSH private key $d$, calculates $Q = d \cdot P$ where $P.x$ is the flag converted to a long. To recover the flag, we would have to calculate the multiplicative inverse of $d$ with respect to the curve order. This means we must recover the SSH private key $d$.</p>
+
+<h5 id="understanding-the-vulnerability">Understanding the vulnerability</h5>
+
+<p>In April 2024, a cryptographic vulnerability in PuTTY was discovered where an attacker could recover a NIST P-521 SSH private key from only around 60 signatures. The vulnerability (CVE-2024-31497) stems from how PuTTY handled nonce generation:</p>
+
+\[\large k = \text{SHA512} ( \text{SHA512}(d)||\text{SHA1}(m) ) \mod q\]
+
+<p>where $k$ is the nonce, $d$ is the private key, $m$ is the message, and $q$ is the curve order. For most curves, this nonce generation is fine. However, for curve P-521 with a 521-bit curve order, the 512-bit hash $k$ won’t be reduced modulo $q$. That means the nonce $k$ will always be a 512-bit value.</p>
+
+<p>In ECDSA, the randomness of the nonce is critical for the security of the algorithm. In our case, the 512-bit nonce will in reality be a 521-bit number with 9 bits of leading zeroes. This is true for all nonces generated in this fashion. Nonces with predictable bits are called <em>biased</em> nonces. With enough signatures, the nonces can be recovered. If the nonce is known, the private key can be recovered in a trivial manner.</p>
+
+<p>An ECDSA signature is comprised of two integer values $(R,S)$ generated like such:</p>
+
+\[\large\begin{aligned}
+R &amp;= (k \cdot G).x \\
+S &amp;\equiv k^{-1} \cdot (h + d \cdot R) \mod q
+\end{aligned}\]
+
+<p>Where $k$ is the nonce, $h$ is the hash of the message to be signed, $q$ is the order of the curve, $d$ is the private key, and $G$ is the generator point of the curve. We can therefore recover the private key by calculating:</p>
+
+\[\large d = (S \cdot k - h) \cdot R^{-1} \mod q\]
+
+<p>Like previously mentioned, the nonce $k$ can be recovered with enough signatures. This is done by using advanced cryptanalysis to set up and solve the “Hidden Number Problem”</p>
+
+<h5 id="the-hidden-number-problem-math-warning">The Hidden Number Problem (math warning)</h5>
+<p><em>Note, a lot of this math is sourced from Joseph Surin’s “A Gentle Tutorial for Lattice-Based Cryptanalysis”. I recommend reading it if you are interested in learning more about lattices!</em></p>
+
+<p>Let $p$ be a prime and let $\alpha \in [1, p-1]$ be a secret integer. Recover $\alpha$ given $m$ pairs of integers ${(t_{i},a_{i})}^{m}_{i=1}$ such that:</p>
+
+\[\large\beta_{i} - t_{i} \cdot \alpha + a_{i} \equiv 0 \mod p\]
+
+<p>Where the $\beta_{i}$ are unknown and satisfy $|\beta| &lt; B$ for some $B &lt; p$. We can set up the following lattice basis $B’$:</p>
+
+\[\large B' = \begin{bmatrix}
+p &amp;  &amp;  &amp;  &amp;  &amp; \\
+ &amp; p &amp;  &amp;  &amp;  &amp; \\
+ &amp;  &amp; \ddots &amp;  &amp;  &amp; \\
+ &amp;  &amp;  &amp; p &amp;  &amp; \\
+t_{1} &amp; t_{2} &amp; \dots &amp; t_{m} &amp; B/p  \\
+a_{1} &amp; a_{2} &amp; \dots &amp; a_{m} &amp;  &amp; B
+\end{bmatrix}\]
+
+<p>Running $LLL$ on $B’$ will recover $\alpha$.</p>
+
+<p>For ECDSA with “biased” nonces (here biased means zeroed MSBs), we assume that the nonces are generated such that the top $l$ bits of each nonce $k_{i}$ are zero. Therefore, we have:</p>
+
+\[\large |k_{i}| &lt; 2^{\log_{2}\cdot q-l}\]
+
+<p>And so:</p>
+
+\[\large\begin{align}
+\nonumber s_{i} \cdot k_{i} &amp;\equiv h_{i} + r_{i} \cdot d &amp;\mod q \\
+\nonumber k_{i} - (s_{i}^{-1} \cdot r_{i}) \cdot d + (-s_{i}^{-1} \cdot h_{i}) &amp;\equiv 0 &amp;\mod q
+\end{align}\]
+
+<p>Which is precisely a hidden number problem instance which can be solved, given large enough $l$ and $\ell$, where $\ell$ is the number of signatures, and $l$ is again the number of most significant bits of $k_{i}$ that are zero.</p>
+
+<p>While this math can be intimidating, it actually isn’t really needed to solve this particular challenge as implementations for this CVE already exist.</p>
+
+<h5 id="recovering-the-signatures-from-the-handout">Recovering the signatures from the handout</h5>
+
+<p>For this particular PuTTY CVE, we need approximately 60 signatures in order to recover the key. In our given repository, we have exactly 60 signed commits:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ git reflog
+fc539ef (HEAD -&gt; master) HEAD@{0}: commit: my signed git commit 58
+cbd843a HEAD@{1}: commit: my signed git commit 57
+b188d36 HEAD@{2}: commit: my signed git commit 56
+[...]
+2cfff33 HEAD@{55}: commit: my signed git commit 3
+8b91d9f HEAD@{56}: commit: my signed git commit 2
+95a2ccf HEAD@{57}: commit: my signed git commit 1
+bc7b769 HEAD@{58}: commit: added encrypted flag point
+23e2beb HEAD@{59}: commit (initial): added encrypt_flag.py
+</code></pre></div></div>
+
+<p>And each of these commits are signed with the SSH key:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ git cat-file commit fc539ef
+tree 354058dc6762047002089dccd967ae9f8f5986b9
+parent cbd843aa544dcf87b8052a56e7fc45c2ac27c9e2
+author Paxton Peppers &lt;paxton.peppers@myorg.local&gt; 1738052956 +0000
+committer Paxton Peppers &lt;paxton.peppers@myorg.local&gt; 1738052956 +0000
+gpgsig -----BEGIN SSH SIGNATURE-----
+ U1NIU0lHAAAAAQAAAKwAAAATZWNkc2Etc2hhMi1uaXN0cDUyMQAAAAhuaXN0cDUyMQAAAI
+ UEAIgr1autRfCQyHE7gHVI5Uo4z1vrPbdYvJLdNtHpXwd3HZ21OG1TCsKiiYvAECEF4l8Z
+ iARY0wZgHFaA/Zw85X4pARwtlsFPVltjIYdFtvO7pZTCeQHmUm2NBh4Os5qqcjwUl0XvXB
+ cxnF8XWpb9RFqbqyZDxWSp8hUouMa3JEgP9vj2AAAAA2dpdAAAAAAAAAAGc2hhNTEyAAAA
+ pwAAABNlY2RzYS1zaGEyLW5pc3RwNTIxAAAAjAAAAEIA59LudM8hw3uDlXtX2UoG98n58R
+ EMiAhV4Rxbr9SVH4Tr9UTiqjkcACObwAtUjnQsUWNsywKYh9p6LTx9M1ypleoAAABCAA1n
+ ArtBef3FOCdH+0u9x8dZC/omIYEM0BOdO3D2ADMmMXoqjFeMjtbYs2pnbS2/GsOBtdbgOx
+ Lxdpu5ajMKPPFy
+ -----END SSH SIGNATURE-----
+
+my signed git commit 58
+</code></pre></div></div>
+
+<p>We need to extract $R$, $S$ and $h$ for each signature. We must therefore begin by investigating how the SSH signature is structured. We can refer to the official signature protocol definition: https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#define MAGIC_PREAMBLE "SSHSIG"
+#define SIG_VERSION    0x01
+        byte[6]   MAGIC_PREAMBLE
+        uint32    SIG_VERSION
+        string    publickey
+        string    namespace
+        string    reserved
+        string    hash_algorithm
+        string    signature
+</code></pre></div></div>
+
+<p>So it seems like the signature is comprised of numerous fields. Each string is prefixed with four bytes denoting the length of the subsequent string. If we strip the signature “armor”, decode from base64, and hex-encode the raw bytes, we can analyse how our signature compares to the protocol definition:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ cat signature.txt | base64 -d | xxd -p               
+53534853494700000001000000ac0000001365636473612d736861322d6e
+69737470353231000000086e69737470353231000000850400882bd5abad
+45f090c8713b807548e54a38cf5beb3db758bc92dd36d1e95f07771d9db5
+386d530ac2a2898bc0102105e25f19880458d306601c5680fd9c3ce57e29
+011c2d96c14f565b63218745b6f3bba594c27901e6526d8d061e0eb39aaa
+723c149745ef5c17319c5f175a96fd445a9bab2643c564a9f21528b8c6b7
+24480ff6f8f6000000036769740000000000000006736861353132000000
+a70000001365636473612d736861322d6e697374703532310000008c0000
+004200e7d2ee74cf21c37b83957b57d94a06f7c9f9f1110c880855e11c5b
+afd4951f84ebf544e2aa391c00239bc00b548e742c51636ccb029887da7a
+2d3c7d335ca995ea00000042000d6702bb4179fdc5382747fb4bbdc7c759
+0bfa2621810cd0139d3b70f6003326317a2a8c578c8ed6d8b36a676d2dbf
+1ac381b5d6e03b12f1769bb96a330a3cf172
+</code></pre></div></div>
+
+<p>Breaking it up and ignoring the length-specifications, we have the following values:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># byte[6] MAGIC_PREAMBLE - 535348534947 (SSHSIG)
+# uint32 SIG_VERSION     - 00000001     (0x01)
+# string publickey       - 0000001365636473612d736861322d6e
+#                        - 69737470353231000000086e69737470353231000000850400882bd5abad
+#                        - 45f090c8713b807548e54a38cf5beb3db758bc92dd36d1e95f07771d9db5
+#                        - 386d530ac2a2898bc0102105e25f19880458d306601c5680fd9c3ce57e29
+#                        - 011c2d96c14f565b63218745b6f3bba594c27901e6526d8d061e0eb39aaa
+#                        - 723c149745ef5c17319c5f175a96fd445a9bab2643c564a9f21528b8c6b7
+#                        - 24480ff6f8f6
+# string namespace       - 676974 (git)
+# string reserved        - 00000000
+# string hash_algorithm  - 736861353132 (sha512)
+# string signature       - 0000001365636473612d736861322d6e697374703532310000008c0000
+#                        - 004200e7d2ee74cf21c37b83957b57d94a06f7c9f9f1110c880855e11c5b
+#                        - afd4951f84ebf544e2aa391c00239bc00b548e742c51636ccb029887da7a
+#                        - 2d3c7d335ca995ea00000042000d6702bb4179fdc5382747fb4bbdc7c759
+#                        - 0bfa2621810cd0139d3b70f6003326317a2a8c578c8ed6d8b36a676d2dbf
+#                        - 1ac381b5d6e03b12f1769bb96a330a3cf172 (ecdsa-sha2-nistp521, r, s)
+</code></pre></div></div>
+
+<p>The signature part contains the curve name, $R$, and $S$:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># string signature       - 0000001365636473612d736861322d6e69737470353231
+# string R               - 00e7d2ee74cf21c37b83957b57d94a06f7c9f9f1110c880855e11c5baf
+#                        - d4951f84ebf544e2aa391c00239bc00b548e742c51636ccb029887da7a
+#                        - 2d3c7d335ca995ea
+# string S               - 000d6702bb4179fdc5382747fb4bbdc7c7590bfa2621810cd0139d3b70
+#                        - f6003326317a2a8c578c8ed6d8b36a676d2dbf1ac381b5d6e03b12f176
+#                        - 9bb96a330a3cf172
+</code></pre></div></div>
+
+<p>We can confirm that both values are <em>around</em> 521-bits:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">r</span> <span class="o">=</span> <span class="mh">0xe7d2ee74cf21c37b83957b57d94a06f7c9f9f1110c880855e11c5bafd4951f84ebf544e2aa391c00239bc00b548e742c51636ccb029887da7a2d3c7d335ca995ea</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">r</span><span class="p">.</span><span class="n">nbits</span><span class="p">()</span>
+<span class="mi">520</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">s</span> <span class="o">=</span> <span class="mh">0xd6702bb4179fdc5382747fb4bbdc7c7590bfa2621810cd0139d3b70f6003326317a2a8c578c8ed6d8b36a676d2dbf1ac381b5d6e03b12f1769bb96a330a3cf172</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">s</span><span class="p">.</span><span class="n">nbits</span><span class="p">()</span>
+<span class="mi">516</span>
+</code></pre></div></div>
+
+<p>We can repeat the same process for each of the 60 signatures to retrieve all $(R,S)$ pairs.</p>
+
+<p>Now, we “just” need to recover all the corresponding hashes $h$!</p>
+
+<h5 id="recovering-the-hashes">Recovering the hashes</h5>
+
+<p>Unlike the signature values, the hash messages are not stored in the signatures themselves. In order to recover them, we must construct each hash ourselves. We can once again refer to the SSHSIG protocol definition to see how the hashes are constructed:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. Signed Data, of which the signature goes into the blob above
+#define MAGIC_PREAMBLE "SSHSIG"
+        byte[6]   MAGIC_PREAMBLE
+        string    namespace
+        string    reserved
+        string    hash_algorithm
+        string    H(message)
+</code></pre></div></div>
+
+<p>Following the signature scheme, we can assume the hash will look something like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># byte[6] MAGIC_PREAMBLE - 535348534947 (SSHSIG)
+# string namespace       - 676974 (git)
+# string reserved        - 00000000
+# string hash_algorithm  - 736861353132 (sha512)
+# string H(message)      - SHA512(???)
+</code></pre></div></div>
+
+<p>And with the string lengths included:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">m</span>  <span class="o">=</span> <span class="sa">b</span><span class="s">"SSHSIG"</span>                           <span class="c1"># MAGIC_PREAMBLE
+</span><span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x03</span><span class="s">git"</span>              <span class="c1"># namespace, length is 3 bytes
+</span><span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x00</span><span class="s">"</span>                 <span class="c1"># reserved
+</span><span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x06</span><span class="s">sha512"</span>           <span class="c1"># algorithm, length is 6 bytes 
+</span><span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x40</span><span class="s">"</span> <span class="o">+</span> <span class="n">commit_sha512</span> <span class="c1"># hash, length is 64 bytes
+</span><span class="n">h</span>  <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha512</span><span class="p">(</span><span class="n">m</span><span class="p">).</span><span class="n">hexdigest</span><span class="p">()</span>       <span class="c1"># P-521 uses SHA512 for h
+</span></code></pre></div></div>
+
+<p>Here, <code class="language-plaintext highlighter-rouge">commit_sha512</code> is the SHA512-sum of the original message to be signed. In our case, the commit object to be hashed and used for signing will naturally not include the yet-to-be created signature. We will therefore have to remove the gpg-sign section:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ cat commit                   
+tree 354058dc6762047002089dccd967ae9f8f5986b9
+parent cbd843aa544dcf87b8052a56e7fc45c2ac27c9e2
+author Paxton Peppers &lt;paxton.peppers@myorg.local&gt; 1738052956 +0000
+committer Paxton Peppers &lt;paxton.peppers@myorg.local&gt; 1738052956 +0000
+
+my signed git commit 58
+
+</code></pre></div></div>
+
+<p>We can then easily find the commit hash:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ sha512sum commit
+75dde82973e901de91e66b3c647ef541892836eb21f3ba8c1093c5ba9613455a7a35a7c41f742b837ccb24b5cdfb6713f39c736c5983822f16fa1b0f9cec9aec
+</code></pre></div></div>
+
+<p>With this, we can finally compute the hash $h$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">commit_sha512</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="mh">0x75dde82973e901de91e66b3c647ef541892836eb21f3ba8c1093c5ba9613455a7a35a7c41f742b837ccb24b5cdfb6713f39c736c5983822f16fa1b0f9cec9aec</span><span class="p">)</span>
+<span class="n">m</span>  <span class="o">=</span> <span class="sa">b</span><span class="s">"SSHSIG"</span>
+<span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x03</span><span class="s">git"</span>              <span class="c1"># length is 3 bytes
+</span><span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x00</span><span class="s">"</span>
+<span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x06</span><span class="s">sha512"</span>           <span class="c1"># length is 6 bytes 
+</span><span class="n">m</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00\x00\x00\x40</span><span class="s">"</span> <span class="o">+</span> <span class="n">commit_sha512</span> <span class="c1"># length is 64 bytes
+</span><span class="n">h</span>  <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha512</span><span class="p">(</span><span class="n">m</span><span class="p">).</span><span class="n">hexdigest</span><span class="p">()</span>       <span class="c1"># P-521 uses SHA512 for h
+# 0x9197b8dfa0936f527174ff6fd0011f65cead004310022cdfa203a44e30794e2321870d34a7c3c4b77a72b13c9426d888a332dd19e02f7fec9e057c9d9888b464
+</span></code></pre></div></div>
+
+<p>To ensure all values are correctly extracted, we can verify with the public key (which can be parsed from either the signature or the allowed-signers file). Mathematically, verifying an ECDSA signature is done by computing:</p>
+
+\[\large
+\begin{aligned}
+P = S^{-1}\cdot h \cdot G + S^{-1} \cdot R \cdot pubkey
+\end{aligned}\]
+
+<p>The signature is considered to be valid if the point $P$’s x-coordinate is equal to $R$.
+We can create a short SageMath script to verify:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="c1"># P-521 Curve Parameters from https://neuromancer.sk/std/nist/P-521
+</span><span class="n">p</span> <span class="o">=</span> <span class="mh">0x01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">K</span><span class="p">(</span><span class="mh">0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">K</span><span class="p">(</span><span class="mh">0x0051953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00</span><span class="p">)</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mh">0x00c6858e06b70404e9cd9e3ecb662395b4429c648139053fb521f828af606b4d3dbaa14b5e77efe75928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66</span><span class="p">,</span> <span class="mh">0x011839296a789a3bc0045c8a5fb42c7d1bd998f54449579b446817afbd17273e662c97ee72995ef42640c550b9013fad0761353c7086a272c24088be94769fd16650</span><span class="p">)</span>
+<span class="n">E</span><span class="p">.</span><span class="n">set_order</span><span class="p">(</span><span class="mh">0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">E</span><span class="p">.</span><span class="n">order</span><span class="p">()</span>
+
+<span class="c1"># Public key parsed from allowed-signers file
+</span><span class="n">Qx</span> <span class="o">=</span> <span class="mh">0x00882bd5abad45f090c8713b807548e54a38cf5beb3db758bc92dd36d1e95f07771d9db5386d530ac2a2898bc0102105e25f19880458d306601c5680fd9c3ce57e29</span>
+<span class="n">Qy</span> <span class="o">=</span> <span class="mh">0x011c2d96c14f565b63218745b6f3bba594c27901e6526d8d061e0eb39aaa723c149745ef5c17319c5f175a96fd445a9bab2643c564a9f21528b8c6b724480ff6f8f6</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="n">Qx</span><span class="p">,</span> <span class="n">Qy</span><span class="p">)</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="mh">0xe7d2ee74cf21c37b83957b57d94a06f7c9f9f1110c880855e11c5bafd4951f84ebf544e2aa391c00239bc00b548e742c51636ccb029887da7a2d3c7d335ca995ea</span>
+<span class="n">s</span> <span class="o">=</span> <span class="mh">0xd6702bb4179fdc5382747fb4bbdc7c7590bfa2621810cd0139d3b70f6003326317a2a8c578c8ed6d8b36a676d2dbf1ac381b5d6e03b12f1769bb96a330a3cf172</span>
+<span class="n">h</span> <span class="o">=</span> <span class="mh">0x9197b8dfa0936f527174ff6fd0011f65cead004310022cdfa203a44e30794e2321870d34a7c3c4b77a72b13c9426d888a332dd19e02f7fec9e057c9d9888b464</span>
+
+<span class="n">sinv</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="p">(</span><span class="n">sinv</span> <span class="o">*</span> <span class="n">h</span><span class="p">)</span> <span class="o">*</span> <span class="n">G</span> <span class="o">+</span> <span class="p">(</span><span class="n">sinv</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">Q</span>
+
+<span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">xy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">n</span> <span class="o">==</span> <span class="n">r</span> <span class="o">%</span> <span class="n">n</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Valid Signature!!!!"</span><span class="p">)</span>
+
+<span class="c1"># Valid Signature!!!!
+</span></code></pre></div></div>
+
+<p>And the signature is valid! This means the extracted values for $R$, $S$ and $h$ are correct! We can repeat the same process to retrieve all 60 hashes (through scripting ofcourse, as this would be quite tedious manually).</p>
+
+<h5 id="recovering-the-private-key-and-getting-the-flag">Recovering the private key and getting the flag</h5>
+
+<p>Finally, with all parameters retrieved, we can retrieve the private key d. I spent many many hours trying to set up the Hidden Number Problem instance in sagemath. Approaches I have used for previous cryptography challenges, and approaches from writeups I read online did not work. Instead, I found this proof-of-concept GitHub repository: https://github.com/HugoBond/CVE-2024-31497-POC</p>
+
+<p>To use this, we need to do a couple of things first. Firstly, we need to convert our public key into PEM format:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives.serialization</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">load_ssh_public_key</span><span class="p">,</span>
+    <span class="n">Encoding</span><span class="p">,</span>
+    <span class="n">PublicFormat</span>
+<span class="p">)</span>
+
+<span class="n">allowed_signers_path</span> <span class="o">=</span> <span class="s">"../repo/allowed_signers"</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">allowed_signers_path</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+	<span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">().</span><span class="n">strip</span><span class="p">().</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+	<span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"Unexpected allowed_signers format."</span><span class="p">)</span>
+
+<span class="n">key_type</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>        <span class="c1"># ecdsa-sha2-nistp521
+</span><span class="n">key_blob</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>        <span class="c1"># base64-encoded key blob
+</span>
+<span class="n">ssh_key_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">key_type</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">key_blob</span><span class="si">}</span><span class="s">"</span>
+<span class="n">ssh_key</span> <span class="o">=</span> <span class="n">load_ssh_public_key</span><span class="p">(</span><span class="n">ssh_key_line</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">pem_data</span> <span class="o">=</span> <span class="n">ssh_key</span><span class="p">.</span><span class="n">public_bytes</span><span class="p">(</span><span class="n">Encoding</span><span class="p">.</span><span class="n">PEM</span><span class="p">,</span> <span class="n">PublicFormat</span><span class="p">.</span><span class="n">SubjectPublicKeyInfo</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"pubkey.pub"</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+	<span class="n">out</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">pem_data</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Public key replaced successfully in pubkey.pub."</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Which gives us our <code class="language-plaintext highlighter-rouge">pubkey.pub</code> file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-----BEGIN PUBLIC KEY-----
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAiCvVq61F8JDIcTuAdUjlSjjPW+s9
+t1i8kt020elfB3cdnbU4bVMKwqKJi8AQIQXiXxmIBFjTBmAcVoD9nDzlfikBHC2W
+wU9WW2Mhh0W287ullMJ5AeZSbY0GHg6zmqpyPBSXRe9cFzGcXxdalv1EWpurJkPF
+ZKnyFSi4xrckSA/2+PY=
+-----END PUBLIC KEY-----
+</code></pre></div></div>
+
+<p>Then, we need to format the signatures so that each line consists of the hash, a space, and the signature values r and s concatenated. It is also important to ensure all values are padded with leading zeroes to a total of 66 bytes. This is a requirement for the tool to work.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ cat signatures.txt
+9197b8dfa0936f527174ff6fd0011f65cead004310022cdfa203a44e30794e2321870d34a7c3c4b77a72b13c9426d888a332dd19e02f7fec9e057c9d9888b464 00e7d2ee74cf21c37b83957b57d94a06f7c9f9f1110c880855e11c5bafd4951f84ebf544e2aa391c00239bc00b548e742c51636ccb029887da7a2d3c7d335ca995ea000d6702bb4179fdc5382747fb4bbdc7c7590bfa2621810cd0139d3b70f6003326317a2a8c578c8ed6d8b36a676d2dbf1ac381b5d6e03b12f1769bb96a330a3cf172
+57d95227769b9e63c26b9bd23aef7532e794332a67bb5f430ac6b2561fe7d6ae83b968bcf5ab6eb20da9a4d84bb79c9beb13b825ad5e6f9d4cef93c4005552f7 00504ee72a86f56b7f1c0c2828f3bb03bf068e71fe3fa909b9e2a9587fc3f677345e8c6943848bd553872cec55b20fd82d0a5474e4f4e0870e49c5a21641aedde79f018f8b5f96d55df8d0354932cc46e7536fef1d3afe2c0ee12174e2b956a2016beeb616be602a2bd8622a81c003752281b27e37aa94d5c428378772e46d607926afb8
+83940acb319efc1f3d6bb6d356a3713beaba23ca05ec1924a8bd4a5e42f0c5d836aa2ec8fee8b75fa73b372ab10d45d9160d63bde66a71b198627e2a189167ee 01b30607e91c8c5b31f8b4fbecb58370b676763da368a266f2a24300c639546aff94e56520b6c0286104b8ce2264229a681dadd8a7d921b9cd92b050c7ff40480a7a002d5284b8edb2e23b716c1466e9ee0d702defc540acf2abb88e0abb85ed80aade0f1123a8047660ab1bd4cc5ea5bc9c2813a16cdaac63d0316e8ec6642aeb972144
+[...]
+</code></pre></div></div>
+
+<p>We can now run the attack:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>└─$ sage --python3 main.py -s signatures.txt -pk pubkey.pub -o key.txt
+/home/user/sage/sage/local/var/lib/sage/venv-python3.11/lib/python3.11/site-packages/g6k/__init__.py:23: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from .siever_params import SieverParams  # noqa
+
+     ██████ ██    ██ ███████       ██████   ██████  ██████  ██   ██       ██████   ██ ██   ██  █████  ███████ 
+    ██      ██    ██ ██                 ██ ██  ████      ██ ██   ██            ██ ███ ██   ██ ██   ██      ██ 
+    ██      ██    ██ █████   █████  █████  ██ ██ ██  █████  ███████ █████  █████   ██ ███████  ██████     ██  
+    ██       ██  ██  ██            ██      ████  ██ ██           ██            ██  ██      ██      ██    ██   
+     ██████   ████   ███████       ███████  ██████  ███████      ██       ██████   ██      ██  █████     ██   
+                                                                                                          
+    Author: @𝐻𝓊𝑔𝑜𝐵𝑜𝓃𝒹 
+                
+    
+Starting private key recovery...
+Private key recovered successfully!
+Saved in key.txt
+</code></pre></div></div>
+
+<p>With the private key recovered in <code class="language-plaintext highlighter-rouge">key.txt</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-----BEGIN PRIVATE KEY-----
+MIHuAgEAMBAGByqGSM49AgEGBSuBBAAjBIHWMIHTAgEBBEIAfl4xP4UyGmir+PKR
+8X6Tzwz2oO3nAESBu+vHuCDF9+GD1LWZGXdxlp+3REGLYPd0Y6xh9nA15sDudfY1
+QZIDFj+hgYkDgYYABADGhY4GtwQE6c2ePstmI5W0QpxkgTkFP7Uh+CivYGtNPbqh
+S1537+dZKP4dwSei/6jeM0izwYVqQpv5fn4xwuW9ZgEYOSlqeJo7wARcil+0LH0b
+2Zj1RElXm0RoF6+9Fyc+ZiyX7nKZXvQmQMVQuQE/rQdhNTxwhqJywkCIvpR2n9Fm
+UA==
+-----END PRIVATE KEY----- 
+</code></pre></div></div>
+
+<p>We can now finally decrypt the flag. We simply calculate the modular inverse of $d$ with respect to the curve order, then</p>
+
+\[\large d^{-1}\cdot Q = P\]
+
+<p>And $P.x$ is our flag!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives</span> <span class="kn">import</span> <span class="n">serialization</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.backends</span> <span class="kn">import</span> <span class="n">default_backend</span>
+<span class="kn">from</span> <span class="nn">Crypto.PublicKey.ECC</span> <span class="kn">import</span> <span class="n">EccPoint</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"key.txt"</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">key_file</span><span class="p">:</span>
+	<span class="n">private_key</span> <span class="o">=</span> <span class="n">serialization</span><span class="p">.</span><span class="n">load_pem_private_key</span><span class="p">(</span>
+		<span class="n">key_file</span><span class="p">.</span><span class="n">read</span><span class="p">(),</span>
+		<span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+		<span class="n">backend</span><span class="o">=</span><span class="n">default_backend</span><span class="p">()</span>
+	<span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">private_key</span><span class="p">.</span><span class="n">private_numbers</span><span class="p">().</span><span class="n">private_value</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Extracted d:"</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="mh">0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409</span>
+
+<span class="n">d_inv</span> <span class="o">=</span> <span class="n">inverse_mod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+<span class="n">Qx</span> <span class="o">=</span> <span class="mh">0x15f0683537d9a6ff956284fd77f96b5c2060d7334b8c419188fe8d8df00fb6ee88a7bd7e3653860af84c41f951961e36eec3dbde669a40b953dcec6f9d5c148a94a</span>
+<span class="n">Qy</span> <span class="o">=</span> <span class="mh">0x11e37ad3acaf57a4a905213023f70f93375c1022e78a9a57a7621a709104e7276c60fd6c65f9e8c3ba866abc5ce263db163502103bf1cf448be24aa4eb3b466e305</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">EccPoint</span><span class="p">(</span><span class="n">Qx</span><span class="p">,</span> <span class="n">Qy</span><span class="p">,</span> <span class="s">"P-521"</span><span class="p">)</span>
+
+<span class="n">P</span> <span class="o">=</span> <span class="n">d_inv</span> <span class="o">*</span> <span class="n">Q</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">x</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">'</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1">#Extracted d: 0x7e5e313f85321a68abf8f291f17e93cf0cf6a0ede7004481bbebc7b820c5f7e183d4b599197771969fb744418b60f77463ac61f67035e6c0ee75f635419203163f
+#helsectf{b14sEd_ECDSA_n0nSEns3!}
+</span></code></pre></div></div>
+
+<p>Flag: <code class="language-plaintext highlighter-rouge">helsectf{b14sEd_ECDSA_n0nSEns3!}</code></p>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="ECDSA" /><category term="Biased Nonces" /><category term="Hidden Number Problem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry></feed>

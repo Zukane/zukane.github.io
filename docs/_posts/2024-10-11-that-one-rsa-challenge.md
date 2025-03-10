@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "That one RSA challenge (TCP1P)"
+title: "That one RSA challenge (TCP1P 2024)"
 date: 2025-03-09 10:00:00 -0000
 categories: writeups
 tags: [Coppersmith small roots, RSA]
