@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signert Betaling (HelseCTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Signert Betaling (HelseCTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/aes-gcm/" class="tag">AES-GCM</a>
+            
+            <a href="/tags/reused-nonce/" class="tag">Reused Nonce</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are provided with a link to a web-store and its source code. The store is a simple fruit shop where the user starts with a balance of 100, but to purchase the flag the balance must reach 110. The source code clearly shows the list of products including the flag, which costs 110, and the backend implementation. The code snippet defining the products is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">varer</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Banan"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s">"God og gul"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Eple"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s">"Sunt og godt"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Appelsin"</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s">"Søt og saftig"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Pære"</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="s">"Saftig og god"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Kiwi"</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s">"Grønn og god"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Ananas"</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="s">"Stor og rund"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Mango"</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s">"Søt og god"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Drue"</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="s">"Liten og søt"</span><span class="p">),</span>
+    <span class="n">Vare</span><span class="p">(</span><span class="s">"Flagg"</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">"FLAGG"</span><span class="p">])</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<p>The vulnerability stems from the cryptographic implementation in the session management code. The server uses AES-GCM for encrypting and signing session tokens, but the nonce is generated only once and then reused across all sessions. The relevant portion of the source code is:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nøkkel</span> <span class="o">=</span> <span class="n">byte_fra_ekte_slumptallsgenerator</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">engangsord</span> <span class="o">=</span> <span class="n">byte_fra_ekte_slumptallsgenerator</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="n">klasse</span> <span class="n">AESGCMGrensesnitt</span><span class="p">(</span><span class="n">ØktGrensesnitt</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">open_session</span><span class="p">(</span><span class="n">selv</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spørring</span><span class="p">):</span>
+        <span class="n">økt</span> <span class="o">=</span> <span class="n">Økt</span><span class="p">({</span><span class="s">"saldo"</span><span class="p">:</span> <span class="mi">100</span><span class="p">})</span>
+        <span class="n">hvis</span> <span class="s">'økt'</span><span class="p">.</span><span class="n">enkod</span><span class="p">().</span><span class="n">dekod</span><span class="p">(</span><span class="s">"latin-1"</span><span class="p">)</span> <span class="n">inni</span> <span class="n">spørring</span><span class="p">.</span><span class="n">cookies</span><span class="p">:</span>
+            <span class="n">chiffer</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">nøkkel</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_GCM</span><span class="p">,</span> <span class="n">nonce</span><span class="o">=</span><span class="n">engangsord</span><span class="p">)</span>
+            <span class="n">kryptert_økt</span><span class="p">,</span> <span class="n">økt_tagg</span> <span class="o">=</span> <span class="n">spørring</span><span class="p">.</span><span class="n">cookies</span><span class="p">[</span><span class="s">'økt'</span><span class="p">.</span><span class="n">enkod</span><span class="p">().</span><span class="n">dekod</span><span class="p">(</span><span class="s">"latin-1"</span><span class="p">)].</span><span class="n">splitt</span><span class="p">(</span><span class="s">"."</span><span class="p">)</span>
+            <span class="n">prøv</span><span class="p">:</span>
+                <span class="n">økt_data</span> <span class="o">=</span> <span class="n">chiffer</span><span class="p">.</span><span class="n">decrypt_and_verify</span><span class="p">(</span><span class="n">b64dekod</span><span class="p">(</span><span class="n">kryptert_økt</span> <span class="o">+</span> <span class="s">"=="</span><span class="p">),</span> <span class="n">b64dekod</span><span class="p">(</span><span class="n">økt_tagg</span> <span class="o">+</span> <span class="s">"=="</span><span class="p">))</span>
+            <span class="n">unntatt</span> <span class="n">Verdifeil</span><span class="p">:</span>
+                <span class="n">returner</span> <span class="n">økt</span>
+            <span class="n">prøv</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">last_json</span><span class="p">(</span><span class="n">økt_data</span><span class="p">.</span><span class="n">dekod</span><span class="p">())</span>
+            <span class="n">unntatt</span> <span class="n">JSONDekodingsfeil</span><span class="p">:</span>
+                <span class="n">returner</span> <span class="n">økt</span>
+            <span class="n">økt</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">returner</span> <span class="n">økt</span>
+    
+    <span class="k">def</span> <span class="nf">save_session</span><span class="p">(</span><span class="n">selv</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">økt</span><span class="p">,</span> <span class="n">svar</span><span class="p">):</span>
+        <span class="n">chiffer</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">nøkkel</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_GCM</span><span class="p">,</span> <span class="n">nonce</span><span class="o">=</span><span class="n">engangsord</span><span class="p">)</span>
+        <span class="n">kryptert_økt</span> <span class="o">=</span> <span class="n">chiffer</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">dump_json</span><span class="p">(</span><span class="n">økt</span><span class="p">).</span><span class="n">enkod</span><span class="p">())</span>
+        <span class="n">økt_tagg</span> <span class="o">=</span> <span class="n">chiffer</span><span class="p">.</span><span class="n">digest</span><span class="p">()</span>
+        <span class="n">svar</span><span class="p">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s">'økt'</span><span class="p">,</span> <span class="p">(</span><span class="n">b64enkod</span><span class="p">(</span><span class="n">kryptert_økt</span><span class="p">).</span><span class="n">stripp</span><span class="p">(</span><span class="sa">b</span><span class="s">"="</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s">"."</span> <span class="o">+</span> <span class="n">b64enkod</span><span class="p">(</span><span class="n">økt_tagg</span><span class="p">).</span><span class="n">stripp</span><span class="p">(</span><span class="sa">b</span><span class="s">"="</span><span class="p">)).</span><span class="n">dekod</span><span class="p">())</span>
+        <span class="n">returner</span> <span class="n">svar</span>  
+</code></pre></div></div>
+
+<p>Because the same nonce is reused for every session, the same keystream is produced for every encryption. This is detrimental for AES-GCM, and can allow for an attacker to encrypt and sign arbitrary plaintexts. We could for instance encrypt a plaintext cookie where the flag is in the cart.</p>
+
+<h5 id="attack-overview">Attack overview</h5>
+
+<p>The attack is carried out in several stages. First, a known plaintext-ciphertext pair is used to recover the keystream using the XOR operation.</p>
+
+\[\large \text{keystream} = \text{plaintext} \oplus \text{ciphertext}\]
+
+<p>This keystream is then used to produce the ciphertext for an arbitrary plaintext. Next, two messages encrypted with the same nonce yield authentication tags $T_1$ and $T_{2}$. In AES-GCM the authentication tag is computed as:</p>
+
+\[\large T = GHASH \oplus E_k(y_0)\]
+
+<p>where $GHASH$ is a polynomial hash over $GF(2^{128})$, and $E_k(y_0)$ is the encryption of the initial counter block. In our vulnerable implementation the nonce is reused, so the initial counter block $y_0$ remains constant between messages. This implies that $E_k(y_0)$ is the same for all messages.</p>
+
+<p>Consider two messages with tags $T_1$ and $T_2$. Their tags are computed as:</p>
+
+\[\large \begin{align}
+\nonumber T_1 = GHASH_1 \oplus E_k(y_0) \\
+\nonumber T_2 = GHASH_2 \oplus E_k(y_0)
+\end{align}\]
+
+<p>where $GHASH_1$ and $GHASH_2$ are the polynomial hashes of the corresponding ciphertexts.
+Since $E_k(y_0)$ is identical for both messages, XORing the two equations cancels this term:</p>
+
+\[\large T_1 \oplus T_2 = GHASH_1 \oplus GHASH_2\]
+
+<p>The $GHASH$ function is defined by interpreting the ciphertext (and a length block) as coefficients of a polynomial in $H$. For example, a typical computation might be structured as:</p>
+
+\[\large GHASH = C_0 \cdot H^4 \oplus C_1 \cdot H^3 \oplus C_2 \cdot H^2 \oplus L \cdot H\]
+
+<p>where $C_i$ are the ciphertext blocks and $L$ is a constant derived from the lengths of the ciphertext and any associated data.
+When the difference $GHASH_1 \oplus GHASH_2$ is computed, the result is a polynomial $P(H)$ in $H$ such that $P(H)=0$. This equation encapsulates the differences between the two message authentications and depends solely on $H$. By expressing the known values (the ciphertext blocks and the tags) in polynomial form, the resulting equation is solved over $GF(2^{128})$. Once the correct $H$ is recovered, it can be used to compute valid authentication tags for any forged message. This allows an attacker to create a session token that appears valid to the server, effectively bypassing the integrity of AES-GCM when the nonce is reused.</p>
+
+<h5 id="attack-implementation">Attack Implementation</h5>
+
+<p>The attack will require two ciphertexts $C_{1}$ and $C_{2}$, their tags $T_{1}$ and $T_{2}$, as well as the forged ciphertext $C_{3}$. <code class="language-plaintext highlighter-rouge">Flagg</code> is 5 characters, so we can put another 5-character item like <code class="language-plaintext highlighter-rouge">Banan</code> in our cart to get $C_{1}$ and forge $C_{3}$ like so:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="n">xor</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="n">P1</span> <span class="o">=</span> <span class="s">"{'saldo': 90, 'varer': ['Banan']}"</span>
+<span class="n">C1</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64decode</span><span class="p">(</span><span class="s">"BmKtIdhBoEBaFnYVEwou8RaQhFL8rZIZax/w+t0VBNLr=="</span><span class="p">)</span>
+<span class="n">keystream</span> <span class="o">=</span> <span class="n">xor</span><span class="p">(</span><span class="n">C1</span><span class="p">,</span><span class="n">P1</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span>
+
+<span class="n">C3</span> <span class="o">=</span> <span class="s">"{'saldo': 99, 'varer': ['Flagg']}"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">xor</span><span class="p">(</span><span class="n">C3</span><span class="p">,</span> <span class="n">keystream</span><span class="p">)).</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1"># BmKtIdhBoEBaFnYcEwou8RaQhFL8rZIZaxv99dscBNLr
+</span></code></pre></div></div>
+
+<p>We also get $C_{2}$ for the item <code class="language-plaintext highlighter-rouge">Mango</code>. We can now follow the SageMath approach in https://meowmeowxw.gitlab.io/ctf/utctf-2020-crypto/.</p>
+
+<p>The script automates the attack by converting the ciphertext blocks into polynomials, constructing the GHASH polynomial equations, and solving for the GHASH key $H$. The function that converts a 16-byte block into a polynomial is defined as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">bytes_to_polynomial</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="n">poly</span> <span class="o">=</span> <span class="mi">0</span> 
+    <span class="n">bin_block</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">block</span><span class="p">))[</span><span class="mi">2</span> <span class="p">:].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_block</span><span class="p">)):</span>
+        <span class="n">poly</span> <span class="o">+=</span> <span class="n">a</span><span class="o">^</span><span class="n">i</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">bin_block</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">poly</span>
+</code></pre></div></div>
+
+<p>This conversion enables arithmetic in the finite field where XOR corresponds to addition and carry-less multiplication corresponds to polynomial multiplication. The script also splits ciphertexts into 16-byte blocks for conversion:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">convert_to_blocks</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ciphertext</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">16</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span> <span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">),</span> <span class="mi">16</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<p>For each message the script constructs a polynomial representing the GHASH computation using the ciphertext blocks, a length block, and the authentication tag. It then adds the polynomials from two messages to cancel the constant term, forming a polynomial equation with H as roots. For every candidate root, a new tag $T_3$ is computed for the forged message (the session containing the flag) as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">H</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">P</span><span class="p">.</span><span class="n">roots</span><span class="p">():</span>
+    <span class="n">EJ</span> <span class="o">=</span> <span class="n">G_1</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+    <span class="n">T3</span> <span class="o">=</span> <span class="n">G_3</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="o">+</span> <span class="n">EJ</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">polynomial_to_bytes</span><span class="p">(</span><span class="n">T3</span><span class="p">)).</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">(</span><span class="s">"="</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Potential cookie: BmKtIdhBoEBaFnYcEwou8RaQhFL8rZIZaxv99dscBNLr.</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># Potential cookie: BmKtIdhBoEBaFnYcEwou8RaQhFL8rZIZaxv99dscBNLr.oMavgKEW1cPwEbQYN7kR+g
+</span></code></pre></div></div>
+
+<p>We can then set this cookie manually and visit <code class="language-plaintext highlighter-rouge">/mine_varer</code>, and the flag will be in our cart!</p>
+
+<h5 id="solvesage">Solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="o">*</span>  
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="n">xor</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="k">def</span> <span class="nf">bytes_to_polynomial</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="n">poly</span> <span class="o">=</span> <span class="mi">0</span> 
+    <span class="n">bin_block</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">block</span><span class="p">))[</span><span class="mi">2</span> <span class="p">:].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_block</span><span class="p">)):</span>
+        <span class="n">poly</span> <span class="o">+=</span> <span class="n">a</span><span class="o">^</span><span class="n">i</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">bin_block</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">poly</span>
+
+<span class="k">def</span> <span class="nf">polynomial_to_bytes</span><span class="p">(</span><span class="n">poly</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">bin</span><span class="p">(</span><span class="n">poly</span><span class="p">.</span><span class="n">to_integer</span><span class="p">())[</span><span class="mi">2</span><span class="p">:].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">128</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">convert_to_blocks</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ciphertext</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">16</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span> <span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">),</span> <span class="mi">16</span><span class="p">)]</span>
+
+<span class="n">F</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">128</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"a"</span><span class="p">,</span> <span class="n">modulus</span><span class="o">=</span><span class="n">x</span><span class="o">^</span><span class="mi">128</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">7</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">).</span><span class="n">objgen</span><span class="p">()</span>
+<span class="n">R</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"x"</span><span class="p">).</span><span class="n">objgen</span><span class="p">()</span>
+
+<span class="n">C1</span> <span class="o">=</span> <span class="n">convert_to_blocks</span><span class="p">(</span><span class="n">base64</span><span class="p">.</span><span class="n">b64decode</span><span class="p">(</span><span class="s">"BmKtIdhBoEBaFnYVEwou8RaQhFL8rZIZax/w+t0VBNLr=="</span><span class="p">))</span> <span class="c1"># {'saldo': 90, 'varer': ['Banan']}
+</span><span class="n">T1</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64decode</span><span class="p">(</span><span class="s">"xUnFMnilk9J9z+1goZYcdA=="</span><span class="p">)</span> <span class="c1"># Tag for C1
+</span><span class="n">C2</span> <span class="o">=</span> <span class="n">convert_to_blocks</span><span class="p">(</span><span class="n">base64</span><span class="p">.</span><span class="n">b64decode</span><span class="p">(</span><span class="s">"BmKtIdhBoEBaFncVEwou8RaQhFL8rZIZaxDw+tsUBNLr=="</span><span class="p">))</span> <span class="c1"># {'saldo': 80, 'varer': ['Mango']}
+</span><span class="n">T2</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64decode</span><span class="p">(</span><span class="s">"hK4GROnNzWz38mQMV9WaYA=="</span><span class="p">)</span> <span class="c1"># Tag for C2
+</span><span class="n">C3</span> <span class="o">=</span> <span class="n">convert_to_blocks</span><span class="p">(</span><span class="n">base64</span><span class="p">.</span><span class="n">b64decode</span><span class="p">(</span><span class="s">"BmKtIdhBoEBaFnYcEwou8RaQhFL8rZIZaxv99dscBNLr=="</span><span class="p">))</span> <span class="c1"># {'saldo': 99, 'varer': ['Flagg']}
+</span>
+<span class="n">L</span> <span class="o">=</span> <span class="n">struct</span><span class="p">.</span><span class="n">pack</span><span class="p">(</span><span class="s">"&gt;QQ"</span><span class="p">,</span> <span class="mi">0</span> <span class="o">*</span> <span class="mi">8</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">C1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">C1_p</span> <span class="o">=</span> <span class="p">[</span><span class="n">bytes_to_polynomial</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">C1</span><span class="p">]</span>
+<span class="n">C2_p</span> <span class="o">=</span> <span class="p">[</span><span class="n">bytes_to_polynomial</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">C2</span><span class="p">]</span>
+<span class="n">C3_p</span> <span class="o">=</span> <span class="p">[</span><span class="n">bytes_to_polynomial</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">C3</span><span class="p">]</span>
+<span class="n">T1_p</span> <span class="o">=</span>  <span class="n">bytes_to_polynomial</span><span class="p">(</span><span class="n">T1</span><span class="p">,</span>    <span class="n">a</span><span class="p">)</span>
+<span class="n">T2_p</span> <span class="o">=</span>  <span class="n">bytes_to_polynomial</span><span class="p">(</span><span class="n">T2</span><span class="p">,</span>    <span class="n">a</span><span class="p">)</span>
+<span class="n">L_p</span>  <span class="o">=</span>  <span class="n">bytes_to_polynomial</span><span class="p">(</span><span class="n">L</span><span class="p">,</span>     <span class="n">a</span><span class="p">)</span>
+
+<span class="n">G_1</span> <span class="o">=</span> <span class="p">(</span><span class="n">C1_p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">C1_p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">C1_p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">L_p</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">T1_p</span>
+<span class="n">G_2</span> <span class="o">=</span> <span class="p">(</span><span class="n">C2_p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">C2_p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">C2_p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">L_p</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">T2_p</span>
+<span class="n">G_3</span> <span class="o">=</span> <span class="p">(</span><span class="n">C3_p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">C3_p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">C3_p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">L_p</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">P</span>   <span class="o">=</span> <span class="n">G_1</span> <span class="o">+</span> <span class="n">G_2</span>
+
+<span class="k">for</span> <span class="n">H</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">P</span><span class="p">.</span><span class="n">roots</span><span class="p">():</span>
+    <span class="n">EJ</span> <span class="o">=</span> <span class="n">G_1</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+    <span class="n">T3</span> <span class="o">=</span> <span class="n">G_3</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="o">+</span> <span class="n">EJ</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">polynomial_to_bytes</span><span class="p">(</span><span class="n">T3</span><span class="p">)).</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">(</span><span class="s">"="</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Potential cookie: BmKtIdhBoEBaFnYcEwou8RaQhFL8rZIZaxv99dscBNLr.</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
