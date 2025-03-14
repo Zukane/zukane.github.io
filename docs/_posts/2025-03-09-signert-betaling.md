@@ -149,6 +149,8 @@ for H, _ in P.roots():
 
 We can then set this cookie manually and visit `/mine_varer`, and the flag will be in our cart!
 
+Flag: `helsectf{1kk3_r3s1rkul3r_d1n3_3ng4ng50rd}`
+
 ##### Solve.sage
 
 ```python
