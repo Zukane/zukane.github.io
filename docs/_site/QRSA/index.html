@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRSA (Cyberlandslaget 2024)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">QRSA (Cyberlandslaget 2024)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/quaternion-algebra/" class="tag">Quaternion Algebra</a>
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following source code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">getPrime</span>
+<span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="n">QuaternionAlgebra</span><span class="p">,</span> <span class="n">Zmod</span>
+<span class="kn">from</span> <span class="nn">secret</span> <span class="kn">import</span> <span class="n">FLAG</span><span class="p">,</span> <span class="n">gen_hint</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">NBITS</span> <span class="o">=</span> <span class="mi">1024</span>
+
+<span class="k">def</span> <span class="nf">gen_primes</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">nbits</span><span class="o">=</span><span class="mi">512</span><span class="p">):</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">coeffs</span>
+    <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="n">nbits</span><span class="p">),</span> <span class="n">getPrime</span><span class="p">(</span><span class="n">nbits</span><span class="p">)</span>
+    <span class="k">while</span> <span class="nb">pow</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">c</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="n">nbits</span><span class="p">)</span>
+    <span class="k">while</span> <span class="nb">pow</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">c</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="n">nbits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span>
+
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">FLAG</span> <span class="o">+</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="n">NBITS</span> <span class="o">//</span> <span class="mi">8</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">FLAG</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">NBITS</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">NBITS</span>
+
+<span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="n">NBITS</span> <span class="o">//</span> <span class="mi">8</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+
+<span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">gen_primes</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">NBITS</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mh">0x10001</span>
+
+<span class="c1"># Quaternion algebra over the ring of integers modulo n, i^2 = 1 and j^2 = 1
+</span><span class="n">Q</span> <span class="o">=</span> <span class="n">QuaternionAlgebra</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">Q</span><span class="p">.</span><span class="n">gens</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">j</span> <span class="o">+</span> <span class="n">d</span><span class="o">*</span><span class="n">k</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="n">m</span><span class="o">**</span><span class="n">e</span>
+
+<span class="n">A1</span><span class="p">,</span> <span class="n">B1</span><span class="p">,</span> <span class="n">C1</span><span class="p">,</span> <span class="n">A2</span><span class="p">,</span> <span class="n">B2</span><span class="p">,</span> <span class="n">C2</span> <span class="o">=</span> <span class="n">gen_hint</span><span class="p">(</span><span class="n">ct</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">A1</span> <span class="o">*</span> <span class="n">B1</span> <span class="o">*</span> <span class="n">C1</span> <span class="o">==</span> <span class="n">A2</span> <span class="o">*</span> <span class="n">B2</span> <span class="o">*</span> <span class="n">C2</span> <span class="o">==</span> <span class="n">ct</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"output.txt"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">n</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">e</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">ct</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">A1</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">B1</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">C1</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">A2</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">B2</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">C2</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>n = 79161869544747204783874822054833014320323556832416066584560128636372874663065398425734864730985749653368890376759830367592761979721670941495548898960644396124185466172811136671454154337973972344555362632207904852487665177621475296531057751990913972848863646094468698407041332170700052004768608534042667579121
+e = 65537
+ct = 45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476 + 9636778951092026544619680376283645017091864144765215100182792073900889455722431141350824102930042194215545271639741781474956534156028982115096761310259817797880256030535184725458691827842359229205634251600103222660818429492661230352467934735238831060489640927936324633663429097757450709372828417472948228655*i + 42090734601248398467652772944955203031292955060140266685368647521924599121778893886195972800382868410948198836032034804885666359881580106576361714902084329571927989997266986168680004601984090297892893669953053934753173607514702551338186889553996223165625949213170645532229800226654389222790682585308293478211*j + 37699481126666114686462332601768590025034297697056201317434979282540644109720249050363861699136261356898583435103943623192844437959908510088918677203091364226265634529874781462000421643873894197699723017160643170280032485819045136926491711428105967074739475257303917915410119714035780689908122501991259337454*k
+
+A1 = 19727958696358899567551325193694979539894477527861381827404887901335278557117631424903954804827886032261713035975409749872365574368520068437173585631619102947142514993179551407372198727752200352482750928036660247001298894220341281088704979761103978991864910617612193389349395907569524278104742011421485970132 + 59433910848388305216323496861138034780429079304554684757155240735037596105947767000830909926157863621107177340784420617720396405353150873058375313329025293177042951179631585264081955610221771992072611704171244605486366283401134015442352772229809993856998735476856505017691936263130527726663866522621181608990*i + 58107182368102627107777418802525673205878197559852120959065806434496156974251338753096583280662844781884364902930830836113414476554101670045795482773476333201679481447476558436998646999024267638361372457524619117408406037001929636682942806495150503215441463709446189870289027119236269287972168921622751038610*j + 21054687176644577676097403252307341114445359272563945625494322201876717688814059672638281450322904871484525473828999531479347503167569271449753416187168062922505984725334578234455507338949704706193990174683285735079259140619545659848114945495763469633422182385022508536752305051463782716796439612419916540512*k
+B1 = 45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476 + 20285870704186706976213976458439571881006193336387937289849925595201347891376652949248311145360615081470562529188045384875849052770228036462985742433468183628504175998029630865030332309190296171707992065830643884033059264132942270541699779783779676204125698956659169015081249141843645287582920651372517427133*i
+C1 = 40573134738540497978912648728273361922102901871861471947076530407737963022296085033111093233900911401164870436155725444036143477985120655827394906518088663532845375713047497411004025135472917095865047307742614582096073754451695348697138094647455515762042505202442917511787202040413692645774080851335298350919 + 49420017049785019367083436811546306734668536671090330475680327960782544182048682173597669784207483770406186515260697164175677372585862582823730811548096072756502494147222745554115462340566650054158383951226280091543180675098181656696520905267988010459726719053402707154451458878186503429021676409786192854445*i + 78169669578580309196899584353976159558382433376762627929763662546821348972302012605491203862577713078888465128984020107352999491597385756415928441922877930653432823546169207596177206371488041420967996640569242696635424011980517596099448533338915443511252963939260130098774796215636385361378831949728703017763*j + 9839082277411416975146025784129799574506758254882297183400263642596106850515982960730237418714608943721741326880781980379296382725027112075956362067773874694409761060817177218388385171579663881880702635122327665299348086287444008430992029272531024035294896006168357950930792792836477426637372142764859064884*k
+
+A2 = 75228514911858956091573282833709149476152526237198103123800704497201068128053650948032490319100201363570809341152574861265272013626522258520222632415326011788756141735071360617157173800956887586623402451250157977805796114656461913690801907561498891658477974484607821151321470689448689229947847660917338160920 + 3933354632888248692301539221123864844171030595217963460759424139171806535011747477702374411885548289798081035607255506327489966095148682975326266545318384335429324437739776054296980537017084757931960180957746874681869062965013382840255844429415081190385671609860877255719861481251362774820760873125329418202*i + 2606626152602570583755461162511503269620148850515399662669989838630367403315319229968047766390529450575268597753665724720508037296099479962746435989769424360065854705584749227213671925819580404220720934311121386603908816565809004080845878694755590548828399842450562108316952337357104336129063272126898847822*j + 76555243392144634200119360892321511050703407981900666921890138797742507259750079195766816964595220202793621779006164642872253942425571461532802462970874971764119611467226387444240482412154391940334641697896783465883756361055666292450211873296158382300035246252018136298724379833342947668639545261915768731300*k
+B2 = 45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476 + 61317860696350089996867727902537386127493727472431368853751635762640996293273155055126410425941200572873225898284972582348511106794933063186039400216982820063635462762582134056709351097477943811646227501194481290789099091604897240355391738423962314529008371932976291007376200907047634818231210990184186773068*i
+C2 = 48394829056691483612880956564445780692656042650604611995215780083643003641361580627019663126592175056843994085593183765801496440539137724422209333194631391495765413418970424428520519094524187454104312998926481220858125121146332193512464140630762686803208879408204968548433677149309796721705692612301423367563 + 56532740347958427597358234728060882968014904139293847982764978463732873929149666698956003332717751268228861485142060861803071540630097462753627742648901617209133856227529612124031833332228024133995362645443116679805808569582758092915960143760104034276016416779117695522299068433563891369359822808355215659597*i + 70347975260429323562931276517803740787829292598019487881624412870916308353236517011582633969886449423209341479546561785587646529043368687821114015246335202690512785840246280578660712412436771062728730949385376057873372645285880751284122487355608272470086589733498079062128321106740281285447220188762578001119*j + 16951805575584825205420823700644375807853125723085814690484914145546436597616967486088570967224876441544416296762145678006690550769261992005853293168579419147041123141124043788304756163241037961717681329339164253561975980772020444650431267764647047851584593731883346318778402348213865366975518541333881870036*k
+</code></pre></div></div>
+
+<p>This is an RSA-like setup, but using quaternion algebra. We are given some hints $A_{1},B_{1},C_{1},A_{2},B_{2},C_{2}$ but we don’t know how they are generated.</p>
+
+<h5 id="challenge-solution">Challenge solution</h5>
+
+<p>A quaternion $q$ is a four-dimension imaginary number:</p>
+
+\[\large q = a + bi + cj + dk\]
+
+<p>A quaternion can be represented as a $2 \times 2$ complex matrix:</p>
+
+\[\large M_{q} = \begin{bmatrix}
+\;\; a+bi &amp; c+di \\
+  -c+di &amp; a-bi
+\end{bmatrix}\]
+
+<p>Looking at our hints, we can notice that some quaternions will be converted to diagonalized matrices (because $c$ and $d$ are $0$):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>B1 = 45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476 + 20285870704186706976213976458439571881006193336387937289849925595201347891376652949248311145360615081470562529188045384875849052770228036462985742433468183628504175998029630865030332309190296171707992065830643884033059264132942270541699779783779676204125698956659169015081249141843645287582920651372517427133*i
+B2 = 45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476 + 61317860696350089996867727902537386127493727472431368853751635762640996293273155055126410425941200572873225898284972582348511106794933063186039400216982820063635462762582134056709351097477943811646227501194481290789099091604897240355391738423962314529008371932976291007376200907047634818231210990184186773068*i
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">q_to_matrix</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">parent</span><span class="p">().</span><span class="n">base_ring</span><span class="p">()</span>
+    <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">d</span> <span class="o">=</span> <span class="n">q</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="p">[[</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="n">d</span><span class="p">],</span>
+                   <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="o">+</span> <span class="n">d</span><span class="p">,</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">M</span>
+
+<span class="n">D1</span> <span class="o">=</span> <span class="n">q_to_matrix</span><span class="p">(</span><span class="n">B1</span><span class="p">)</span>
+<span class="n">D2</span> <span class="o">=</span> <span class="n">q_to_matrix</span><span class="p">(</span><span class="n">B2</span><span class="p">)</span>
+<span class="c1"># [65299351791257996698142045086888590006823576294424843674119479744674598264268550484857091084292875404360954829033142462025520352544798673309163176368482592384408187402951332024846090282939644632870086501174668804677901386359527710527500889320540222513545879259111559055378087759268524295616830142052345081609 0] 
+# [0 24727610382884582745714092170009446244811189621648969094419628554271902481515244586360468793571645241419829770657051692273822247004342600383191691501546225127399835406892070294785425664559052289454102369513381036611782858093643169444101329752980870105294481345793221025215589475581233720450988839307310227343]
+</span>
+<span class="c1"># [27169472238674174934920974476153389932987553598052208653461061275741372003099654165000325633887711242394727821370239291905420426847832758536667935191352832695354007994692698545070954733253319928252959304330601358946276036210007383810135095969808887989564906140959982640631707353772461821496511946821346848423 0]
+# [0 62857489935468404508935162780744646318647212318021604115078047023205128742684140906217234243976809403386056778319954862393922172701308515155686932678675984816454014815150703774560561214245376994071229566357448482343408208243163496161467123103712204629275454463944797439961969881077296194571307034538308460529]
+</span></code></pre></div></div>
+
+<p>Quaternions $B_{1}$ and $B_{2}$ also share the same coefficient $a$.</p>
+
+\[\large D_{1} = \begin{bmatrix}
+a+b_{1} &amp; 0 \\
+0 &amp; a-b_{1}
+\end{bmatrix}
+, \quad \quad
+ D_{2} =\begin{bmatrix}
+a+b_{2} &amp; 0 \\
+0 &amp; a-b_{2}
+\end{bmatrix}\]
+
+<p>Since these matrices are diagonalized, they contain their own eigenvalues:</p>
+
+\[\large D_{n} = \begin{bmatrix}
+\lambda_{n1} &amp; 0 \\
+0 &amp; \lambda_{n2}
+\end{bmatrix}\]
+
+<p>Normally, eigenvalues are found by solving the characteristic polynomial:</p>
+
+\[\large \det(M(q) - \lambda I) = 0\]
+
+<p>In our case with quaternions, this determinant is:</p>
+
+\[\large \begin{align}
+\nonumber (a+b-\lambda)(a-b-\lambda)-(c+d)(c-d) \equiv 0 &amp;\mod n\\
+\nonumber (a-\lambda)^{2}-b^{2}-(c^{2}-d^{2}) \equiv 0 &amp;\mod n\\
+\nonumber (a-\lambda)^{2} \equiv b^{2}+c^{2}-d^{2} &amp;\mod n\\
+\end{align}\]
+
+<p>we can denote $b^{2}+c^{2}-d^{2}$ as a value $u$. Based on how prime factors $p$ and $q$ are created, $u$ will be a quadratic residue modulo $n$.</p>
+
+\[\large (a-\lambda)^{2} \equiv u \mod n\]
+
+<p>Because quaternions $B_{1}$ and $B_{2}$ share the same coefficient $a$, we can subtract one expression from the other:</p>
+
+\[\large \begin{gather}
+\nonumber (a-\lambda_{B_{1}}) ^{2} - (a-\lambda_{B_{2}})^{2} \equiv u - u &amp;\mod n \\
+\nonumber (a - (a+b_{B_{1}}))^{2} - (a - (a+b_{B_{2}}))^{2} \equiv 0 &amp;\mod n \\
+\nonumber (-b_{B_{1}})^{2} - (-b_{B_{2}})^{2} \equiv 0 &amp;\mod n \\
+\nonumber b_{B_{1}}^{2} - b_{B_{2}}^{2} \equiv 0 &amp;\mod n \\
+\nonumber (b_{B_{1}}+b_{B_{2}})(b_{B_{1}}-b_{B_{2}}) \equiv 0 &amp;\mod n
+\end{gather}\]
+
+<p>Since this is congruent to $0$ modulus $n$, it must mean that $(b_{B_{1}}+b_{B_{2}})(b_{B_{1}}-b_{B_{2}})$ shares a factor with $n$. We can find the factors by performing GCD:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcd</span><span class="p">(</span><span class="n">B1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">B2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">q</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcd</span><span class="p">(</span><span class="n">B1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">B2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span>
+<span class="mi">79161869544747204783874822054833014320323556832416066584560128636372874663065398425734864730985749653368890376759830367592761979721670941495548898960644396124185466172811136671454154337973972344555362632207904852487665177621475296531057751990913972848863646094468698407041332170700052004768608534042667579121</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">n</span>
+<span class="mi">79161869544747204783874822054833014320323556832416066584560128636372874663065398425734864730985749653368890376759830367592761979721670941495548898960644396124185466172811136671454154337973972344555362632207904852487665177621475296531057751990913972848863646094468698407041332170700052004768608534042667579121</span>
+</code></pre></div></div>
+
+<p>With prime factors $p$ and $q$ recovered, we can continue with the basic RSA decryption. The flag is encoded in the coefficient $a$ in the plaintext quaternion, and $ct = pt^{e}$. We can recover the plaintext by doing $pt = ct^{d}$, thus recovering the flag:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span> <span class="o">=</span> <span class="mi">79161869544747204783874822054833014320323556832416066584560128636372874663065398425734864730985749653368890376759830367592761979721670941495548898960644396124185466172811136671454154337973972344555362632207904852487665177621475296531057751990913972848863646094468698407041332170700052004768608534042667579121</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mi">65537</span>
+
+<span class="n">Q</span> <span class="o">=</span> <span class="n">QuaternionAlgebra</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">Q</span><span class="p">.</span><span class="n">gens</span><span class="p">()</span>
+
+<span class="n">ct</span> <span class="o">=</span> <span class="mi">45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476</span> <span class="o">+</span> <span class="mi">9636778951092026544619680376283645017091864144765215100182792073900889455722431141350824102930042194215545271639741781474956534156028982115096761310259817797880256030535184725458691827842359229205634251600103222660818429492661230352467934735238831060489640927936324633663429097757450709372828417472948228655</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">42090734601248398467652772944955203031292955060140266685368647521924599121778893886195972800382868410948198836032034804885666359881580106576361714902084329571927989997266986168680004601984090297892893669953053934753173607514702551338186889553996223165625949213170645532229800226654389222790682585308293478211</span><span class="o">*</span><span class="n">j</span> <span class="o">+</span> <span class="mi">37699481126666114686462332601768590025034297697056201317434979282540644109720249050363861699136261356898583435103943623192844437959908510088918677203091364226265634529874781462000421643873894197699723017160643170280032485819045136926491711428105967074739475257303917915410119714035780689908122501991259337454</span><span class="o">*</span><span class="n">k</span>
+<span class="n">B1</span> <span class="o">=</span> <span class="mi">45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476</span> <span class="o">+</span> <span class="mi">20285870704186706976213976458439571881006193336387937289849925595201347891376652949248311145360615081470562529188045384875849052770228036462985742433468183628504175998029630865030332309190296171707992065830643884033059264132942270541699779783779676204125698956659169015081249141843645287582920651372517427133</span><span class="o">*</span><span class="n">i</span>
+<span class="n">B2</span> <span class="o">=</span> <span class="mi">45013481087071289721928068628449018125817382958036906384269554149473250372891897535608779938932260322890392299845097077149671299774570636846177433935014408755904011404921701159815757973749348461162094435344024920644842122226585439985801109536760546309420180302452390040296838617424879008033909490679827654476</span> <span class="o">+</span> <span class="mi">61317860696350089996867727902537386127493727472431368853751635762640996293273155055126410425941200572873225898284972582348511106794933063186039400216982820063635462762582134056709351097477943811646227501194481290789099091604897240355391738423962314529008371932976291007376200907047634818231210990184186773068</span><span class="o">*</span><span class="n">i</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcd</span><span class="p">(</span><span class="n">B1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">B2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
+<span class="n">q</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcd</span><span class="p">(</span><span class="n">B1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">B2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">n</span> <span class="o">==</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
+
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="n">ct</span><span class="o">**</span><span class="n">d</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+<span class="c1"># b'flag{r41s1ng_a_t04st_t0_s1r_w1ll14m_r0w4n_h4m1lt0n}o\x93]B\x1dzI\x1d\x00R\x02\x85y\xc5\xc2o\xcaa\x8f\xcc\x9f\xfe\x99,\nz\xcf\xe9\xf7\xd4\xf3\xed\x92\x91\xe6-\xef\x19"\x14)2&amp;\xe6\x11\xe8J\x9d\xf1\xcc\xf9\x9c\xaf\x90\xe6:\x85\xc7\xc7wJ\xa6F(r\x16+\xa0KT\x9b")o\r;\xf2'
+</span></code></pre></div></div>
+
+<p>Flag: <code class="language-plaintext highlighter-rouge">flag{r41s1ng_a_t04st_t0_s1r_w1ll14m_r0w4n_h4m1lt0n}</code></p>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
