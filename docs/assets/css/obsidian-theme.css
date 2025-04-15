@@ -128,19 +128,29 @@ footer {
   text-align: center;
 }
 
-mjx-container[display="true"] {
-  display: block;
-  overflow-x: auto;
-  white-space: nowrap;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .container {
     margin: 1rem;
     padding: 1rem;
+  }
+  mjx-container[display="true"] {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;  /* Let height expand naturally */
+    box-sizing: border-box;
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+    
+    /* Hide scrollbars in Firefox and IE */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  }
+  
+  /* Hide scrollbar on WebKit browsers */
+  mjx-container[display="true"]::-webkit-scrollbar {
+    display: none;
   }
 }
 
