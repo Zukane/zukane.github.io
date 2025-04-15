@@ -138,7 +138,6 @@ footer {
     display: block;
     max-width: 100%;
     overflow-x: auto;
-    overflow-y: visible;  /* Let height expand naturally */
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
   }
