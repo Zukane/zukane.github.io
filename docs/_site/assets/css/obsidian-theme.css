@@ -2,185 +2,204 @@
 
 /* Base custom properties */
 :root {
-    --default-font: "Segoe UI", "Arial", "Tahoma", "Helvetica", sans-serif;
-  }
-  
-  /* Dark theme variables */
-  .theme-dark {
-    --background-primary: #161b22;
-    --background-primary-alt: #13161b;
-    --background-secondary: #11161d;
-    --background-secondary-alt: #0d1117;
-    --background-accent: #000;
-    --panel-border-color: #18191e;
-    
-    --text-accent: hsl(152, 39%, 51%);
-    --text-normal: #dedede;
-    --text-muted: #bbb;
-    --text-title-h5: #ff5757;  /* All headers will use this color */
-    
-    --interactive-accent: #4c78cc;
-    --interactive-accent-hover: #5082df;
-    
-    --font-monospace: "Consolas", "Fira Code", "Source Code Pro", "Droid Sans Mono", "Monoid", "Arial", sans-serif;
-    --line-height-headers: 1.2;
-    --file-line-width: 1000px;
-  }
-  
-  /* Global Styles */
-  body.theme-dark {
-    background-color: var(--background-primary);
-    color: var(--text-normal);
-    font-family: var(--default-font);
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
-  }
-  
-  /* Force all headers (h1-h6 and post title) to use the desired header color */
-  body.theme-dark h1,
-  body.theme-dark h2,
-  body.theme-dark h3,
-  body.theme-dark h4,
-  body.theme-dark h5,
-  body.theme-dark h6,
-  .post-title {
-    color: var(--text-title-h5) !important;
-  }
-  
-  /* Container (inspired by Minimal Mistakes) */
-  .container {
-    max-width: var(--file-line-width);
-    margin: 3rem auto; /* Generous vertical margin */
-    padding: 2rem;     /* Generous inner padding */
-    background-color: var(--background-secondary);
-    border-radius: 8px;
-  }
-  
-  /* Typography */
-  h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-  h2 { font-size: 2rem; margin-bottom: 0.75rem; }
-  h3 { font-size: 1.75rem; margin-bottom: 0.75rem; }
-  h4 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-  h5 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-  h6 { font-size: 1rem; margin-bottom: 0.5rem; }
-  p { margin-bottom: 1rem; }
-  
-  /* Links */
-  body.theme-dark a {
-    color: var(--interactive-accent);
-    text-decoration: none;
-  }
-  body.theme-dark a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Code Blocks & Syntax Highlighting (Rouge-inspired) */
-  .highlight, pre {
-    background-color: var(--background-secondary-alt);
-    padding: 1rem;
-    overflow-x: auto;
-    border-radius: 4px;
-    font-family: var(--font-monospace);
-    margin: 1rem 0;
-  }
-  
-  /* Basic syntax coloring */
-  .highlight .k  { color: #f92672; }   /* Keywords */
-  .highlight .o  { color: #66d9ef; }   /* Operators */
-  .highlight .c  { color: #75715e; }   /* Comments */
-  .highlight .s  { color: #e6db74; }   /* Strings */
-  .highlight .n  { color: #a6e22e; }   /* Names, numbers */
-  .highlight .nf { color: #a6e22e; }   /* Function names */
-  
-  /* Inline code */
-  body.theme-dark code {
-    background-color: var(--background-secondary-alt);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: var(--font-monospace);
-  }
-  
-  /* Blockquotes */
-  body.theme-dark blockquote {
-    border-left: 4px solid var(--interactive-accent);
-    padding-left: 1rem;
-    color: var(--text-muted);
-    font-style: italic;
-    margin: 1rem 0;
-  }
-  
-  /* Header and Footer */
-  header, footer {
-    background-color: var(--background-secondary);
-    padding: 1rem;
-    text-align: center;
-    border-bottom: 1px solid var(--panel-border-color);
-  }
-  footer {
-    border-top: 1px solid var(--panel-border-color);
-    border-bottom: none;
-  }
-  
-  /* MathJax adjustments */
-  .MathJax_Display, .MathJax {
-    margin: 1rem 0;
-    text-align: center;
-  }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 768px) {
-    .container {
-      margin: 1rem;
-      padding: 1rem;
-    }
-  }
+  --default-font: "Segoe UI", "Arial", "Tahoma", "Helvetica", sans-serif;
+}
 
-  /* Code Blocks & Syntax Highlighting (Rouge-inspired) */
+/* Dark theme variables */
+.theme-dark {
+  --background-primary: #161b22;
+  --background-primary-alt: #13161b;
+  --background-secondary: #11161d;
+  --background-secondary-alt: #0d1117;
+  --background-accent: #000;
+  --panel-border-color: #18191e;
+  
+  --text-accent: hsl(152, 39%, 51%);
+  --text-normal: #dedede;
+  --text-muted: #bbb;
+  --text-title-h5: #ff5757;  /* All headers will use this color */
+  
+  --interactive-accent: #4c78cc;
+  --interactive-accent-hover: #5082df;
+  
+  --font-monospace: "Consolas", "Fira Code", "Source Code Pro", "Droid Sans Mono", "Monoid", "Arial", sans-serif;
+  --line-height-headers: 1.2;
+  --file-line-width: 1000px;
+}
+
+/* Global Styles */
+body.theme-dark {
+  background-color: var(--background-primary);
+  color: var(--text-normal);
+  font-family: var(--default-font);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Force all headers (h1-h6 and post title) to use the desired header color */
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4,
+body.theme-dark h5,
+body.theme-dark h6,
+.post-title {
+  color: var(--text-title-h5) !important;
+}
+
+/* Container (inspired by Minimal Mistakes) */
+.container {
+  max-width: var(--file-line-width);
+  margin: 3rem auto; /* Generous vertical margin */
+  padding: 2rem;     /* Generous inner padding */
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+}
+
+/* Typography */
+h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+h2 { font-size: 2rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.75rem; margin-bottom: 0.75rem; }
+h4 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+h5 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+h6 { font-size: 1rem; margin-bottom: 0.5rem; }
+p { margin-bottom: 1rem; }
+
+/* Links */
+body.theme-dark a {
+  color: var(--interactive-accent);
+  text-decoration: none;
+}
+body.theme-dark a:hover {
+  text-decoration: underline;
+}
+
+/* Code Blocks & Syntax Highlighting (Rouge-inspired) */
 .highlight, pre {
-    background-color: var(--background-secondary-alt);
-    /* Reduced padding: 0.5rem top and bottom, 1rem left and right */
-    padding: 0.25rem 0.5rem;
-    overflow-x: auto;
-    border-radius: 4px;
-    font-family: var(--font-monospace);
-    margin: 1rem 0;
-    /* Remove any extra indentation at the beginning */
-    text-indent: 0;
+  background-color: var(--background-secondary-alt);
+  padding: 1rem;
+  overflow-x: auto;
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+  margin: 1rem 0;
+}
+
+/* Basic syntax coloring */
+.highlight .k  { color: #f92672; }   /* Keywords */
+.highlight .o  { color: #66d9ef; }   /* Operators */
+.highlight .c  { color: #75715e; }   /* Comments */
+.highlight .s  { color: #e6db74; }   /* Strings */
+.highlight .n  { color: #a6e22e; }   /* Names, numbers */
+.highlight .nf { color: #a6e22e; }   /* Function names */
+
+/* Inline code */
+body.theme-dark code {
+  background-color: var(--background-secondary-alt);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+}
+
+/* Blockquotes */
+body.theme-dark blockquote {
+  border-left: 4px solid var(--interactive-accent);
+  padding-left: 1rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+/* Header and Footer */
+header, footer {
+  background-color: var(--background-secondary);
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--panel-border-color);
+}
+footer {
+  border-top: 1px solid var(--panel-border-color);
+  border-bottom: none;
+}
+
+/* MathJax adjustments */
+.MathJax_Display, .MathJax {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+/* Add horizontal scrolling to MathJax display equations on mobile */
+.MathJax_Display {
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 1rem; /* Optional padding for better appearance */
+}
+
+mjx-container[display="true"] {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 1rem; /* Optional for extra spacing */
+}
+
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    margin: 1rem;
+    padding: 1rem;
   }
-  
-  /* Ensure code inside pre has no extra margin */
-  pre code {
-    margin: 0;
-    display: block;
-  }
-  
-  /* Inline code styling remains unchanged */
-  body.theme-dark code {
-    background-color: var(--background-secondary-alt);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: var(--font-monospace);
-  }
-  
-  .post-tags {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-  }
-  
-  .post-tags a.tag {
-    background-color: var(--background-secondary-alt);
-    color: var(--text-normal);
-    text-decoration: none;
-    padding: 0.25rem 0.5rem;
-    margin-right: 0.5rem;
-    border-radius: 3px;
-    border: 1px solid var(--panel-border-color);
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
-  .post-tags a.tag:hover {
-    color: var(--text-title-h5);
-  }
-  
+}
+
+/* Code Blocks & Syntax Highlighting (Rouge-inspired) */
+.highlight, pre {
+  background-color: var(--background-secondary-alt);
+  /* Reduced padding: 0.5rem top and bottom, 1rem left and right */
+  padding: 0.25rem 0.5rem;
+  overflow-x: auto;
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+  margin: 1rem 0;
+  /* Remove any extra indentation at the beginning */
+  text-indent: 0;
+}
+
+/* Ensure code inside pre has no extra margin */
+pre code {
+  margin: 0;
+  display: block;
+}
+
+/* Inline code styling remains unchanged */
+body.theme-dark code {
+  background-color: var(--background-secondary-alt);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+}
+
+.post-tags {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.post-tags a.tag {
+  background-color: var(--background-secondary-alt);
+  color: var(--text-normal);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 3px;
+  border: 1px solid var(--panel-border-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.post-tags a.tag:hover {
+  color: var(--text-title-h5);
+}

@@ -184,11 +184,24 @@ a+b_{2} &amp; 0 \\
 \nonumber (a-\lambda)^{2} \equiv b^{2}+c^{2}-d^{2} &amp;\mod n\\
 \end{align}\]
 
-<p>we can denote $b^{2}+c^{2}-d^{2}$ as a value $u$. Based on how prime factors $p$ and $q$ are created, $u$ will be a quadratic residue modulo $n$.</p>
+<p>we can denote $b^{2}+c^{2}-d^{2}$ as a value $u$.</p>
 
-\[\large (a-\lambda)^{2} \equiv u \mod n\]
+\[\large \begin{align}
+\nonumber (a-\lambda)^{2} \equiv u &amp;\mod n\\
+\nonumber a-\lambda \equiv \pm \sqrt{ u } &amp;\mod n\\
+\nonumber -\lambda = -a \pm \sqrt{ u } &amp;\mod n  \\
+\nonumber \lambda = a \pm \sqrt{ u } &amp;\mod n
+\end{align}\]
 
-<p>Because quaternions $B_{1}$ and $B_{2}$ share the same coefficient $a$, we can subtract one expression from the other:</p>
+<p>Again, the value $a$ is shared between $B_{1}$ and $B_{2}$. The term $\pm \sqrt{ u } \mod n$  corresponds to $b_{B_{1}}$ and $b_{B_{2}}$ respectively. These modular square roots are different, but square to the same value $u$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">B1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+<span class="mi">21104498759730951345299530257770218287253058765413538124167386704493288996686945622618542246917851335420162534215327306621550074867975399263960930177555806091407498731713911608003371706155481995184782087962090472070710138779089057759972404348579825463226797380162617798593860686073220033446375560412113430969</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+<span class="mi">21104498759730951345299530257770218287253058765413538124167386704493288996686945622618542246917851335420162534215327306621550074867975399263960930177555806091407498731713911608003371706155481995184782087962090472070710138779089057759972404348579825463226797380162617798593860686073220033446375560412113430969</span>
+</code></pre></div></div>
+
+<p>We can subtract one expression for the eigenvalue from the other:</p>
 
 \[\large \begin{gather}
 \nonumber (a-\lambda_{B_{1}}) ^{2} - (a-\lambda_{B_{2}})^{2} \equiv u - u &amp;\mod n \\

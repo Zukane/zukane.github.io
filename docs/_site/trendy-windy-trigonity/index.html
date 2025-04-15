@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendy Windy Trigonity (CSCTF 2024)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Trendy Windy Trigonity (CSCTF 2024)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/lll/" class="tag">LLL</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="n">REDACTED</span> 
+<span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">))</span> 
+<span class="n">R</span> <span class="o">=</span> <span class="n">RealField</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">:])</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="mf">0.75872961153339387563860550178464795474547887323678173252494265684893323654606628651427151866818730100357590296863274236719073684620030717141521941211167282170567424114270941542016135979438271439047194028943997508126389603529160316379547558098144713802870753946485296790294770557302303874143106908193100</span><span class="p">)</span>
+
+<span class="n">enc</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="n">b</span><span class="o">*</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> 
+
+<span class="c1">#38
+#2.78332652222000091147933689155414792020338527644698903976732528036823470890155538913578083110732846416012108159157421703264608723649277363079905992717518852564589901390988865009495918051490722972227485851595410047572144567706501150041757189923387228097603575500648300998275877439215112961273516978501e45
+</span></code></pre></div></div>
+
+<p>The flag is split into two parts and converted to two integer values, $a$ and $b$. The script also defines a value $x = 0.7587\dots$ 
+The flag is then encrypted as:</p>
+
+\[\large a \cdot \cos(x) + b \cdot \sin(x) = 2.7833 \dots\]
+
+<h5 id="recovering-the-flag">Recovering the flag</h5>
+
+<p>We must solve for the two unknowns $a$ and $b$. We can first get the actual values for $\cos(x)$ and $\sin(x)$, and then scale them by $10^{300}$ to eliminate the decimals. That way, we can work with whole numbers instead:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sin_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">*</span><span class="mi">10</span><span class="o">^</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">cos_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">*</span><span class="mi">10</span><span class="o">^</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">enc</span> <span class="o">=</span>  <span class="nb">int</span><span class="p">(</span><span class="n">enc</span><span class="o">*</span><span class="mi">10</span><span class="o">^</span><span class="mi">300</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>From here, we can rearrange:</p>
+
+\[\large a \cdot \cos(x) + b \cdot \sin(x) - enc \approx 0\]
+
+<p>We can encode our values in a matrix:</p>
+
+\[\large M = 
+\begin{bmatrix}
+\cos(x) &amp; 1 &amp; 0 &amp; 0 \\
+sin(x) &amp; 0 &amp; 1 &amp; 0 \\
+-enc &amp; 0 &amp; 0  &amp; 1\\
+
+\end{bmatrix}\]
+
+<p>Since we have scaled up our known values, we can recover $a$ and $b$ using lattice reduction. After LLL, this will leave us with a short vector in the form of:</p>
+
+<p>\(\large (a \cdot cos(x) + b \cdot sin(y) - enc, a, b, 1)\)
+We can construct the matrix basis in SageMath like so:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">M</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">[</span><span class="n">cos_x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="n">sin_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="o">-</span><span class="n">enc</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="p">]).</span><span class="n">LLL</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>From here, we can look at the reduced basis and quickly see that the first row is the shortest vector:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">(</span><span class="o">-</span><span class="mi">15072279561902375628763173372008305345187322476795529354825338687</span><span class="p">,</span> <span class="mi">1501403158973585406817603354497647816859742771</span><span class="p">,</span> <span class="mi">2461834501240441634675537458806974655348946301</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="p">(</span><span class="o">-</span><span class="mi">7391861668707603282709231218455828032078905961290926586835454990586821475776990031713155846459308562947919441185021868660</span><span class="p">,</span> <span class="mi">314542509734288297909903500277415340854483533948710727152673295447868841674323466027269529700099155554576091659555786257701301206449266229145</span><span class="p">,</span> <span class="o">-</span><span class="mi">237086336634781754726112897494132806473786182003092834756129311769494361699763840138472843167059944437722442955730943096407833119784484329152</span><span class="p">,</span> <span class="mi">23407755087802489987290113835273172227532540875462199393589430593743547685435037491405562141068</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="p">(</span><span class="o">-</span><span class="mi">86008852239251166992557883620519450679508029675304176608461890794439175296151101648277914048866131761611633684294863025010</span><span class="p">,</span> <span class="o">-</span><span class="mi">420585066010882796869527410081839280633711977689303381295676996668959509593195217532891886055288288371553908082547486869056528984111179693625</span><span class="p">,</span> <span class="o">-</span><span class="mi">270075717391839377414210661342525817119151716931995218589666935717661694079295386742694420894381612443933488654685346824874968393331572139174</span><span class="p">,</span> <span class="o">-</span><span class="mi">176420250365570679868485640927550795943793938088366342014101624636616969734670056934980489248661</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>From the source code, we know the flag is 38 bytes long, meaning $a$ and $b$ are around 19 bytes each. This equates to 152 bits. In fact, since the flag consists of ascii characters, the first bit will be 0, meaning we actually have 151 bits for each. This fits well with the results of the LLL:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">nbits</span><span class="p">()</span>
+<span class="mi">151</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">].</span><span class="n">nbits</span><span class="p">()</span>
+<span class="mi">151</span>
+</code></pre></div></div>
+
+<p>We can then reconstruct the flag by converting each half from long to bytes:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">a</span><span class="si">:</span><span class="n">x</span><span class="si">}{</span><span class="n">b</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>This gives us our flag: <code class="language-plaintext highlighter-rouge">CSCTF{Trigo_453_Tr3ndy_FuN_Th35e_D4Y5}</code></p>
+
+<h5 id="solvesage">Solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">R</span> <span class="o">=</span> <span class="n">RealField</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">enc</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="s">"2.78332652222000091147933689155414792020338527644698903976732528036823470890155538913578083110732846416012108159157421703264608723649277363079905992717518852564589901390988865009495918051490722972227485851595410047572144567706501150041757189923387228097603575500648300998275877439215112961273516978501e45"</span><span class="p">)</span>
+<span class="n">x</span>   <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="s">"0.75872961153339387563860550178464795474547887323678173252494265684893323654606628651427151866818730100357590296863274236719073684620030717141521941211167282170567424114270941542016135979438271439047194028943997508126389603529160316379547558098144713802870753946485296790294770557300303874143106908193100"</span><span class="p">)</span>
+
+<span class="n">sin_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">*</span><span class="mi">10</span><span class="o">^</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">cos_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">*</span><span class="mi">10</span><span class="o">^</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">enc</span> <span class="o">=</span>  <span class="nb">int</span><span class="p">(</span><span class="n">enc</span><span class="o">*</span><span class="mi">10</span><span class="o">^</span><span class="mi">300</span><span class="p">)</span>
+
+<span class="n">M</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">[</span><span class="n">cos_x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="n">sin_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="o">-</span><span class="n">enc</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="p">]).</span><span class="n">LLL</span><span class="p">()</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">a</span><span class="si">:</span><span class="n">x</span><span class="si">}{</span><span class="n">b</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

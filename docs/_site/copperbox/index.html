@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copperbox (HTB Cyber Appocalypse 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Copperbox (HTB Cyber Appocalypse 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/coppersmith-small-roots/" class="tag">Coppersmith small roots</a>
+            
+            <a href="/tags/lcg/" class="tag">LCG</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">secrets</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="mh">0x31337313373133731337313373133731337313373133731337313373133732ad</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mh">0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mh">0xdeadc0dedeadc0dedeadc0dedeadc0dedeadc0dedeadc0dedeadc0dedeadc0de</span>
+
+<span class="k">def</span> <span class="nf">lcg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="n">x</span> <span class="p">:</span><span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="n">flag</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'flag.txt'</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">flag</span> <span class="o">+</span> <span class="n">secrets</span><span class="p">.</span><span class="n">token_bytes</span><span class="p">(</span><span class="mi">30</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">)),</span> <span class="s">'big'</span><span class="p">)</span>
+<span class="n">gen</span> <span class="o">=</span> <span class="n">lcg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="n">h1</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'output.txt'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">o</span><span class="p">:</span>
+    <span class="n">trunc</span> <span class="o">=</span> <span class="mi">48</span>
+    <span class="c1"># oops, i forgot the last part
+</span>    <span class="n">o</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'hint1 = </span><span class="si">{</span><span class="n">h1</span> <span class="o">&gt;&gt;</span> <span class="n">trunc</span><span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'hint2 = </span><span class="si">{</span><span class="n">h2</span> <span class="o">&gt;&gt;</span> <span class="n">trunc</span><span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>As well as output.txt:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hint1 = 77759147870011250959067600299812670660963056658309113392093130
+hint2 = 50608194198883881938583003429122755064581079722494357415324546
+</code></pre></div></div>
+
+<p>This is a classic coppersmith’s small roots challenge, but using a Linear Congruential Generator to generate the hints $h_{1}$ and $h_{2}$.</p>
+
+<h5 id="general-approach">General approach</h5>
+
+<p>An LCG is a very simple PRNG. It is in the general form:</p>
+
+\[\large x_{n+1} = a\cdot x_{n} + b \mod p\]
+
+<p>In our case, there is no modulus in the LCG itself but the modulo operation is instead performed later, so the LCG isn’t congruential. This fact will be useful later. The LCG gives us:</p>
+
+\[\large
+\begin{align}
+\nonumber x_{1} &amp;= ax+b \\
+\nonumber x_{2} &amp;= a^{2}x+ab+b \\
+\nonumber x_{3} &amp;= a^{3}x+a^{2}b+ab+b \\
+\nonumber x_{4} &amp;= a^{4}x+a^{3}b+a^{2}b+ab+b
+\end{align}\]
+
+<p>Where $x$ is the encoded flag. The encryption script generates two hints $h_{1}$ and $h_{2}$ as the ratios:</p>
+
+\[\large
+\begin{align}
+\nonumber h_{1}=x_{1}\cdot x_{2}^{-1} \mod p \\
+\nonumber h_{2}=x_{3}\cdot x_{4}^{-1} \mod p
+\end{align}\]
+
+<p>We only receive the most significant bits of the hints, meaning there are two small roots $x$ and $y$ we have to find:</p>
+
+\[\large
+\begin{align}
+\nonumber h_{1} = H_{1} + x  \\
+\nonumber h_{2} = H_{2} +y
+\end{align}\]
+
+<p>Note that this $x$ is not the same as the $x$ used in the LCG (the encoded flag). To retrieve the small roots, we can use a bivariate coppersmith’s attack, but we first have to derive the polynomial $f(x,y)$.</p>
+
+<h5 id="deriving-the-polynomial">Deriving the polynomial</h5>
+
+<p>We begin by rewriting the LCG, since the LCG is not defined with a modulus. If we set:</p>
+
+\[\large C = \frac{b}{a-1} \quad \text{and} \quad X = x+C\]
+
+<p>Then we can rewrite $x_{n+1}=ax_{n}+b$ to:</p>
+
+\[\large x_{n} = a^{n}X-C\]
+
+<p>This means we can rewrite our hints $h_{1}$ and $h_{2}$ to:</p>
+
+\[\large h_{1} = \frac{aX-C}{a^{2}X-C} \quad \text{and} \quad h_{2} = \frac{a^{3}X-C}{a^{4}X-C}\]
+
+<p>By rearranging $h_{1}$, we can isolate $X$:</p>
+
+\[\large
+\begin{align}
+\nonumber h_{1} (a^{2}X-C) &amp;= aX-C \\
+\nonumber aX(1-ah_{1}) &amp;= C(1-h_{1})  \\
+\nonumber X &amp;= \frac{C(1-h_{1})}{a(1-ah_{1})}
+\end{align}\]
+
+<p>And similarly for $h_{2}$:</p>
+
+\[\large X = \frac{C(1-h_{2})}{a^{3}(1-ah_{2})}\]
+
+<p>We can set these equal to each other:</p>
+
+\[\large \begin{align}
+\nonumber \frac{C(1-h_{1})}{a(1-ah_{1})} &amp;= \frac{C(1-h_{2})}{a^{3}(1-ah_{2})} \\
+\nonumber C(1-h_{1})\cdot a^{3}(1-ah_{2}) &amp;= C(1-h_{2}) \cdot a(1-ah_{1}) \\
+\end{align}\]
+
+<p>By cancelling out $C$ and subtracting one side from the other, we obtain:</p>
+
+\[\large f(x,y) = (1-h_{1})\cdot a^{3}(1-ah_{2}) - (1-h_{2}) \cdot a(1-ah_{1}) = 0\]
+
+<p>Where again, $h_{1} = H_{1} + x$ and $h_{2} = H_{2} + y$.</p>
+
+<h5 id="implementing-the-solution">Implementing the solution</h5>
+
+<p>With an expression for the polynomial $f$ derived, we can implement the bivariate coppersmith solution in sagemath. For this, I will utilize the lbc-toolkit from Joseph Surin’s GitHub repo.</p>
+
+<p>We make sure to define $H_{1}$ and $H_{2}$ from rescaling the truncated output, and define $h_{1}$ and $h_{2}$ in our polynomial ring. We set our bounds for the roots to $2^{48}$, and after running <code class="language-plaintext highlighter-rouge">small_roots</code>, we obtain $x$ and $y$ and thus $h_{1}$ and $h_{2}$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">h1</span> <span class="o">=</span> <span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">x</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="n">hint2_leak</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">h1</span><span class="p">)</span> <span class="o">*</span> <span class="n">a</span><span class="o">^</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a</span><span class="o">*</span><span class="n">h2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">h2</span><span class="p">)</span> <span class="o">*</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a</span><span class="o">*</span><span class="n">h1</span><span class="p">)</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">small_roots</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"resultants"</span><span class="p">,</span> <span class="n">lattice_reduction</span><span class="o">=</span><span class="n">flatter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">h1</span> <span class="o">=</span> <span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="n">hint2_leak</span> <span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>With $h_{1}$ and $h_{2}$, we can simply solve for $x$:</p>
+
+\[\large h_{1} = \frac{x_{1}}{x_{2}} = \frac{ax+b}{a^{2}x+ab+b}\]
+
+\[\large x = \frac{b (h_{1} (a+1)-1)}{a(1-h_{1}a)}\]
+
+<p>And $x$ is our flag along with some random padding:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">x</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">h1</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">((</span><span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">h1</span><span class="o">*</span><span class="n">a</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>b'HTB{sm1th1ng_mY_c0pp3r_fl4G}L\xc6'
+</code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/problems/small_roots.sage'</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/common/flatter.sage'</span><span class="p">)</span>
+<span class="n">load</span><span class="p">(</span><span class="s">'~/tools/coppersmith/lbc/lattice-based-cryptanalysis/lbc_toolkit/common/systems_solvers.sage'</span><span class="p">)</span>
+
+<span class="c1"># Given values from out.txt
+</span><span class="n">p</span> <span class="o">=</span> <span class="mh">0x31337313373133731337313373133731337313373133731337313373133732ad</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mh">0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mh">0xdeadc0dedeadc0dedeadc0dedeadc0dedeadc0dedeadc0dedeadc0dedeadc0de</span>
+<span class="n">hint1_leak</span> <span class="o">=</span> <span class="mi">77759147870011250959067600299812670660963056658309113392093130</span> <span class="o">&lt;&lt;</span> <span class="mi">48</span>
+<span class="n">hint2_leak</span> <span class="o">=</span> <span class="mi">50608194198883881938583003429122755064581079722494357415324546</span> <span class="o">&lt;&lt;</span> <span class="mi">48</span>
+
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">48</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">48</span><span class="p">)</span>
+
+<span class="c1"># Define the polynomial ring
+</span><span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
+<span class="n">h1</span> <span class="o">=</span> <span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">x</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="n">hint2_leak</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">h1</span><span class="p">)</span> <span class="o">*</span> <span class="n">a</span><span class="o">^</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a</span><span class="o">*</span><span class="n">h2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">h2</span><span class="p">)</span> <span class="o">*</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a</span><span class="o">*</span><span class="n">h1</span><span class="p">)</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">small_roots</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">change_ring</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"resultants"</span><span class="p">,</span> <span class="n">lattice_reduction</span><span class="o">=</span><span class="n">flatter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">h1</span> <span class="o">=</span> <span class="n">hint1_leak</span> <span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="n">hint2_leak</span> <span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">h1</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">((</span><span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">h1</span><span class="o">*</span><span class="n">a</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

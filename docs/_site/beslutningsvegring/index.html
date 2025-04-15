@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>beslutningsvegring (Cyberlandslaget 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">beslutningsvegring (Cyberlandslaget 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/kyber/" class="tag">Kyber</a>
+            
+            <a href="/tags/mlwe/" class="tag">MLWE</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"flag.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+    <span class="n">flag</span> <span class="o">=</span> <span class="n">fin</span><span class="p">.</span><span class="n">read</span><span class="p">().</span><span class="n">strip</span><span class="p">().</span><span class="n">encode</span><span class="p">()</span>
+
+<span class="k">assert</span> <span class="n">flag</span><span class="p">.</span><span class="n">decode</span><span class="p">().</span><span class="n">isprintable</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">sample_poly_cbd</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">eta</span><span class="p">):</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+    <span class="n">num_bits</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">eta</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="n">num_bits</span> <span class="o">//</span> <span class="mi">8</span><span class="p">),</span> <span class="s">"big"</span><span class="p">)</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_bits</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_bits</span><span class="p">):</span>
+        <span class="n">bits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span> <span class="o">&amp;</span> <span class="mi">1</span>
+        <span class="n">b</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">*</span><span class="n">eta</span> <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">eta</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">bits</span><span class="p">[(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">eta</span> <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">eta</span><span class="p">])</span>
+        <span class="n">coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span>
+
+    <span class="k">return</span> <span class="n">Rq</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">sample_poly_uniform</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">24</span> <span class="o">//</span> <span class="mi">8</span><span class="p">),</span> <span class="s">"big"</span><span class="p">)</span>
+        <span class="n">r0</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&gt;&gt;</span>  <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xfff</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xfff</span>
+
+        <span class="k">if</span> <span class="n">r0</span> <span class="o">&lt;</span> <span class="n">q</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">r0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">r1</span> <span class="o">&lt;</span> <span class="n">q</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">r1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Rq</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[:</span><span class="n">n</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">gen_mlwe_sample</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[[</span><span class="n">sample_poly_uniform</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> \
+                                                   <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[</span><span class="n">sample_poly_cbd</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">s</span> <span class="o">+</span> <span class="n">e</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">gen_uniform_sample</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[[</span><span class="n">sample_poly_uniform</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> \
+                                                   <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[</span><span class="n">sample_poly_uniform</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">samples_to_json</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+    <span class="n">samples_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">A</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+        <span class="n">A_list</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">a_ij</span><span class="p">))</span> <span class="k">for</span> <span class="n">a_ij</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">A</span><span class="p">]</span>
+        <span class="n">t_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">t_i</span><span class="p">))</span> <span class="k">for</span> <span class="n">t_i</span> <span class="ow">in</span> <span class="n">t</span><span class="p">]</span>
+        <span class="n">samples_list</span><span class="p">.</span><span class="n">append</span><span class="p">({</span><span class="s">"A"</span> <span class="p">:</span> <span class="n">A_list</span><span class="p">,</span> <span class="s">"t"</span> <span class="p">:</span> <span class="n">t_list</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">"samples"</span> <span class="p">:</span> <span class="n">samples_list</span><span class="p">})</span>
+
+
+<span class="k">def</span> <span class="nf">samples_from_json</span><span class="p">(</span><span class="n">json_str</span><span class="p">,</span> <span class="n">Rq</span><span class="p">):</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">"samples"</span><span class="p">]:</span>
+        <span class="n">A_list</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s">"A"</span><span class="p">]</span>
+        <span class="n">t_list</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s">"t"</span><span class="p">]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[[</span><span class="n">Rq</span><span class="p">(</span><span class="n">a_ij</span><span class="p">)</span> <span class="k">for</span> <span class="n">a_ij</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">A_list</span><span class="p">])</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[</span><span class="n">Rq</span><span class="p">(</span><span class="n">t_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">t_i</span> <span class="ow">in</span> <span class="n">t_list</span><span class="p">])</span>
+        <span class="n">samples</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">samples</span>
+
+
+<span class="n">n</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">q</span> <span class="o">=</span> <span class="mi">3329</span>
+<span class="n">eta</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">k</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">Rq</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s">"x"</span><span class="p">]).</span><span class="n">quotient</span><span class="p">(</span><span class="n">x</span><span class="o">^</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[</span><span class="n">sample_poly_cbd</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+
+<span class="n">flag_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s">"big"</span><span class="p">)</span>
+<span class="n">flag_bits</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">flag_int</span><span class="p">)[</span><span class="mi">2</span><span class="p">:].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">))</span>
+
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">flag_bits</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="s">'0'</span><span class="p">:</span>
+        <span class="n">A</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">gen_mlwe_sample</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">A</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">gen_uniform_sample</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="n">samples</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"output.json"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+    <span class="n">fout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">samples_to_json</span><span class="p">(</span><span class="n">samples</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>As well as the <code class="language-plaintext highlighter-rouge">output.json</code>.</p>
+
+<p>The script implements KYBER. The flag is converted to bits, and depending on whether the bit is 0 or 1, different sample types are generated. MLWE samples are distributed binomially, while uniform samples are distributed uniformly. To get the flag, we must somehow be able to differentiate between these samples.</p>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>The challenge description refers to a plus and minus mix-up in the implementation. The mistake is in the definition of the quotient ring:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Rq</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s">"x"</span><span class="p">]).</span><span class="n">quotient</span><span class="p">(</span><span class="n">x</span><span class="o">^</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We can see that the polynomial modulus is defined as: $x^{n}-1$ instead of $x^{n}+1$ which is the standard in Kyber. This means we work In the ring:</p>
+
+\[\large R_{q} = GF(q)[x]/(x^{n}-1)\]
+
+<p>In a quotient ring, two polynomials are considered equivalent if their difference is a multiple of the modulus polynomial. The key property here is that $x^{n}-1$ has a root at $x=1$ (since $1^{n}-1=0$). This ensures that when evaluating any polynomial $f(x)$ at $x=1$, the value is independent of which representative of its equivalence class chosen because multiples of $x^{n}-1$ vanish when $x=1$.</p>
+
+<p>Thus, evaluating any polynomial $f(x)$ at $x=1$ gives the sum of the coefficients modulo $q$. This makes sense, because a polynomial is just:</p>
+
+\[\large f(x) = a_{n}x^{n}+a_{n-1}x^{n-1} \dots a_{2}x^2 +a_{1}x+a_{0} \mod q\]
+
+<p>When evaluating at $x=1$, we just get:</p>
+
+\[\large f(1) = a_{n} + a_{n-1} \dots + a_{2} + a_{1} + a_{0} \mod q\]
+
+<p>If the polynomial modulus were instead $x^{n}+1$, then evaluating at $x=1$ would yield $1^{n}+1=2$ which is non-zero modulo $q$. In that case, the operation of summing the coefficients would not be well-defined across the equivalence classes. This means that different representatives of the same equivalence class can have different sums of coefficients.</p>
+
+<p>For MLWE samples, we have $\large t = A \cdot s + e$. Evaluating this at $x=1$ gives:</p>
+
+\[\large t(1) \equiv A(1) \cdot s(1) + e(1) \mod q\]
+
+<p>Here, $e(1)$ is the sum of many coefficients in a binomial distribution, so the overall magnitude is rather small. For uniform samples, $A$ and $t$ are sampled uniformly and are therefore less likely to be small. We know that the samples in <code class="language-plaintext highlighter-rouge">output.json</code> that are MLWE samples correspond to bits in the flag that are $0$. Since we know the flag begins with <code class="language-plaintext highlighter-rouge">flag{</code>, we can find some samples that are guaranteed to be MLWE. Also, since the flag consists of only printable ascii, the first bit of each byte will be 0. This means that every 8th sample in <code class="language-plaintext highlighter-rouge">output.json</code> is guaranteed to be MLWE.</p>
+
+<h5 id="recovering-s1">Recovering s(1)</h5>
+
+<p>By looking at the source code, we see that $s(1)$ is also the sum of many coefficients in a binomial distribution</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">s</span> <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="p">[</span><span class="n">sample_poly_cbd</span><span class="p">(</span><span class="n">Rq</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+</code></pre></div></div>
+
+<p>and consists of two values: $s(1) = (s_{0},s_{1})$ since $k=2$. This means we can try to evaluate:</p>
+
+\[\large e(1) \equiv t(1) - A(1)\cdot (s_{0},s_{1}) \mod q\]
+
+<p>for different small values of $(s_{0},s_{1})$ for each of our guaranteed MLWE samples. If, for any combination of $(s_{0},s_{1})$ the error value $e(1)$ for all samples are small, we have most likely recovered $s(1)$. Its important to note that this is “$\mod q$,” so to actually get binomial distribution, we have to centre our values.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">%</span> <span class="n">q</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">q</span><span class="o">//</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">q</span>
+    <span class="k">return</span> <span class="n">x</span>
+</code></pre></div></div>
+
+<p>To recover $s(1)$, we load in all the guaranteed MLWE samples, sum the coefficients, and brute force $(s_{0}, s_{1})$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="mi">3329</span>
+
+<span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">%</span> <span class="n">q</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">q</span><span class="o">//</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">q</span>
+    <span class="k">return</span> <span class="n">x</span>
+    
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"output.json"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s">"samples"</span><span class="p">]</span>
+
+<span class="c1"># get mlwe sample incides from known prefix and every 8th bit.
+</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">"flag{"</span>
+<span class="n">bits</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">prefix</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">char</span><span class="p">))[</span><span class="mi">2</span><span class="p">:].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)]</span>
+<span class="n">prefix_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">bit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span> <span class="k">if</span> <span class="n">bit</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">every8</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">mlwe_idx</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">prefix_idx</span> <span class="o">+</span> <span class="n">every8</span><span class="p">))</span>
+
+<span class="c1"># Sum coefficients
+</span><span class="n">eqs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span>
+        <span class="nb">sum</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">"A"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">q</span><span class="p">,</span>
+        <span class="nb">sum</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">"A"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">q</span><span class="p">,</span>
+        <span class="nb">sum</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">"t"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">q</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mlwe_idx</span>
+<span class="p">]</span>
+
+<span class="n">solutions</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">threshold</span> <span class="o">=</span> <span class="mi">100</span> 
+<span class="c1"># bruteforce s0 and s1
+</span><span class="k">for</span> <span class="n">s0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">threshold</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">threshold</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">center</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="p">(</span><span class="n">a0</span> <span class="o">*</span> <span class="n">s0</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">s1</span><span class="p">),</span> <span class="n">q</span><span class="p">))</span> <span class="k">for</span> <span class="n">a0</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">eqs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">e</span> <span class="o">&lt;=</span> <span class="n">threshold</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Recovered s(1): </span><span class="si">{</span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>This gives:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Recovered s(1): (-50, 35)
+</code></pre></div></div>
+
+<h5 id="recovering-the-flag">Recovering the flag</h5>
+
+<p>With $s(1)$ recovered, we can use it to differentiate between MLWE and uniform samples. For each sample, we evaluate $A(1)$ and $t(1)$ like before. Then we compute:</p>
+
+\[\large error = center(t(1)-A(1)\cdot s(1),q)\]
+
+<p>If the error is small, we assume its an MLWE sample, and if its large, we assume its a uniform sample. This way, we can reconstruct the flag bit by bit.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="mi">3329</span>
+<span class="n">s0</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span>
+<span class="n">s1</span> <span class="o">=</span> <span class="mi">35</span>
+<span class="n">threshold</span> <span class="o">=</span> <span class="mi">76</span>
+
+<span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">%</span> <span class="n">q</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">q</span><span class="o">//</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">q</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"output.json"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">"samples"</span><span class="p">]</span>
+
+<span class="n">flag_bits</span> <span class="o">=</span> <span class="s">""</span>
+<span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s">"t"</span><span class="p">])):</span>
+        <span class="n">a0</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s">"A"</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">q</span>
+        <span class="n">a1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s">"A"</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">q</span>
+        <span class="n">t_val</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s">"t"</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">%</span> <span class="n">q</span>
+
+        <span class="n">error</span> <span class="o">=</span> <span class="n">t_val</span> <span class="o">-</span> <span class="p">(</span><span class="n">a0</span> <span class="o">*</span> <span class="n">s0</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">s1</span><span class="p">)</span> <span class="o">%</span> <span class="n">q</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">center</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">errors</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">threshold</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">):</span>
+        <span class="n">flag_bits</span> <span class="o">+=</span> <span class="s">"0"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flag_bits</span> <span class="o">+=</span> <span class="s">"1"</span>
+
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">flag_bits</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>This gives us</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>flag{decisional_mlwe_er_definitivt_vanskelig_muligens_kanskje_eller_ikke}
+</code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
