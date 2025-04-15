@@ -52,7 +52,7 @@ $$
 \large x_{n+1} = a\cdot x_{n} + b \mod p
 $$
 
-In our case, there is no modulus in the LCG itself but the modulo operation is instead performed later, so the LCG isn't congruential. This gives us:
+In our case, there is no modulus in the LCG itself but the modulo operation is instead performed later, so the LCG isn't congruential. This fact will be useful later. The LCG gives us:
 
 $$
 \large
@@ -79,8 +79,8 @@ We only receive the most significant bits of the hints, meaning there are two sm
 $$
 \large
 \begin{align}
-h_{1} = H_{1} + x  \\
-h_{2} = H_{2} +y
+\nonumber h_{1} = H_{1} + x  \\
+\nonumber h_{2} = H_{2} +y
 \end{align}
 $$
 
