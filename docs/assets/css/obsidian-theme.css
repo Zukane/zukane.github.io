@@ -128,25 +128,14 @@ footer {
   text-align: center;
 }
 
-/* Add horizontal scrolling to MathJax display equations on mobile */
-.MathJax_Display {
-  overflow-x: auto;
-  white-space: nowrap;
-  max-width: 100%;
-  box-sizing: border-box;
-  padding-bottom: 1rem; /* Optional padding for better appearance */
-}
-
 mjx-container[display="true"] {
   display: block;
   overflow-x: auto;
+  overflow-y: visible;
   white-space: nowrap;
   max-width: 100%;
   box-sizing: border-box;
-  padding-bottom: 1rem; /* Optional for extra spacing */
 }
-
-
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
