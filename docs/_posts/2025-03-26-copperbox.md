@@ -51,15 +51,16 @@ An LCG is a very simple PRNG. It is in the general form:
 $$
 \large x_{n+1} = a\cdot x_{n} + b \mod p
 $$
-This gives us:
+
+In our case, there is no modulus in the LCG itself but the modulo operation is instead performed later, so the LCG isn't congruential. This gives us:
 
 $$
 \large
 \begin{align}
-x_{1} &= ax+b \\
-x_{2} &= a^{2}x+ab+b \\
-x_{3} &= a^{3}x+a^{2}b+ab+b \\
-x_{4} &= a^{4}x+a^{3}b+a^{2}b+ab+b
+\nonumber x_{1} &= ax+b \\
+\nonumber x_{2} &= a^{2}x+ab+b \\
+\nonumber x_{3} &= a^{3}x+a^{2}b+ab+b \\
+\nonumber x_{4} &= a^{4}x+a^{3}b+a^{2}b+ab+b
 \end{align}
 $$
 
@@ -68,8 +69,8 @@ Where $x$ is the encoded flag. The encryption script generates two hints $h_{1}$
 $$
 \large
 \begin{align}
-h_{1}=x_{1}\cdot x_{2}^{-1} \mod p \\
-h_{2}=x_{3}\cdot x_{4}^{-1} \mod p
+\nonumber h_{1}=x_{1}\cdot x_{2}^{-1} \mod p \\
+\nonumber h_{2}=x_{3}\cdot x_{4}^{-1} \mod p
 \end{align}
 $$
 
@@ -88,7 +89,7 @@ Note that this $x$ is not the same as the $x$ used in the LCG (the encoded flag)
 
 ##### Deriving the polynomial
 
-We begin by rewriting the LCG. If we set:
+We begin by rewriting the LCG, since the LCG is not defined with a modulus. If we set:
 
 $$
 \large C = \frac{b}{a-1} \quad \text{and} \quad X = x+C
@@ -111,9 +112,9 @@ By rearranging $h_{1}$, we can isolate $X$:
 $$
 \large
 \begin{align}
-h_{1} (a^{2}X-C) &= aX-C \\
-aX(1-ah_{1}) &= C(1-h_{1})  \\
-X &= \frac{C(1-h_{1})}{a(1-ah_{1})}
+\nonumber h_{1} (a^{2}X-C) &= aX-C \\
+\nonumber aX(1-ah_{1}) &= C(1-h_{1})  \\
+\nonumber X &= \frac{C(1-h_{1})}{a(1-ah_{1})}
 \end{align}
 $$
 
@@ -127,8 +128,8 @@ We can set these equal to each other:
 
 $$
 \large \begin{align}
-\frac{C(1-h_{1})}{a(1-ah_{1})} &= \frac{C(1-h_{2})}{a^{3}(1-ah_{2})} \\
-C(1-h_{1})\cdot a^{3}(1-ah_{2}) &= C(1-h_{2}) \cdot a(1-ah_{1}) \\
+\nonumber \frac{C(1-h_{1})}{a(1-ah_{1})} &= \frac{C(1-h_{2})}{a^{3}(1-ah_{2})} \\
+\nonumber C(1-h_{1})\cdot a^{3}(1-ah_{2}) &= C(1-h_{2}) \cdot a(1-ah_{1}) \\
 \end{align}
 $$
 
@@ -144,7 +145,7 @@ Where again, $h_{1} = H_{1} + x$ and $h_{2} = H_{2} + y$.
 
 With an expression for the polynomial $f$ derived, we can implement the bivariate coppersmith solution in sagemath. For this, I will utilize the lbc-toolkit from Joseph Surin's GitHub repo.
 
-We make sure to define $H_{1}$ and $H_{2}$ from rescaling the truncated output, and define $h_{1}$ and $h_{2}$ in our polynomial ring. After running `small_roots`, we obtain $x$ and $y$ and thus $h_{1}$ and $h_{2}$. 
+We make sure to define $H_{1}$ and $H_{2}$ from rescaling the truncated output, and define $h_{1}$ and $h_{2}$ in our polynomial ring. We set our bounds for the roots to $2^{48}$, and after running `small_roots`, we obtain $x$ and $y$ and thus $h_{1}$ and $h_{2}$. 
 
 ```python
 P.<x, y> = PolynomialRing(ZZ)
@@ -164,6 +165,7 @@ With $h_{1}$ and $h_{2}$, we can simply solve for $x$:
 $$
 \large h_{1} = \frac{x_{1}}{x_{2}} = \frac{ax+b}{a^{2}x+ab+b}
 $$
+
 $$
 \large x = \frac{b (h_{1} (a+1)-1)}{a(1-h_{1}a)}
 $$
