@@ -131,7 +131,6 @@ footer {
 mjx-container[display="true"] {
   display: block;
   overflow-x: auto;
-  overflow-y: visible;
   white-space: nowrap;
   max-width: 100%;
   box-sizing: border-box;
