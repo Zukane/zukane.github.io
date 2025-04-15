@@ -140,17 +140,7 @@ footer {
     overflow-x: auto;
     overflow-y: visible;  /* Let height expand naturally */
     box-sizing: border-box;
-    padding-bottom: 1rem;
     -webkit-overflow-scrolling: touch;
-    
-    /* Hide scrollbars in Firefox and IE */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  }
-  
-  /* Hide scrollbar on WebKit browsers */
-  mjx-container[display="true"]::-webkit-scrollbar {
-    display: none;
   }
 }
 
