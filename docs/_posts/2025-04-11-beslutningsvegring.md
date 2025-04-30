@@ -3,7 +3,7 @@ layout: default
 title: "beslutningsvegring (Cyberlandslaget 2025)"
 date: 2025-04-11 10:00:00 -0000
 categories: writeups
-tags: [Kyber, MLWE]
+tags: [Kyber, MLWE, Decisional]
 ---
 
 ##### Challenge overview
