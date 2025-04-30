@@ -70,12 +70,14 @@ $$
 $$
 
 We can rewrite $p^{i}$ as:
+
 $$
 \large \begin{align}
 \nonumber p^{i} = p^{i} \cdot p^{j} \cdot p^{-j} \\
 \nonumber p^{i} = p^{j} \cdot p^{i-j}
 \end{align}
 $$
+
 By doing this, the terms are quite similar:
 
 
