@@ -72,8 +72,8 @@ $$
 We can rewrite $p^{i}$ as:
 $$
 \large \begin{align}
-p^{i} = p^{i} \cdot p^{j} \cdot p^{-j} \\
-p^{i} = p^{j} \cdot p^{i-j}
+\nonumber p^{i} = p^{i} \cdot p^{j} \cdot p^{-j} \\
+\nonumber p^{i} = p^{j} \cdot p^{i-j}
 \end{align}
 $$
 By doing this, the terms are quite similar:
@@ -95,11 +95,11 @@ The result of this is that $f(1,n) - f(p,q)$ is divisible by $p-1$. We can now u
 
 $$\large
 \begin{align}
-2^{f(1,n)-f(p,q)} &\equiv 1 \mod p \\
-\frac{2^{f(1,n)}}{2^{f(p,q)} } &\equiv 1 \mod p \\
-2^{f(1,n)} &\equiv 2^{f(p,q)}  \mod p \\
-2^{f(1,n)} &\equiv w  \mod p \\
-2^{f(1,n)} - w &\equiv 0  \mod p
+\nonumber 2^{f(1,n)-f(p,q)} &\equiv 1 \mod p \\
+\nonumber \frac{2^{f(1,n)}}{2^{f(p,q)} } &\equiv 1 \mod p \\
+\nonumber 2^{f(1,n)} &\equiv 2^{f(p,q)}  \mod p \\
+\nonumber 2^{f(1,n)} &\equiv w  \mod p \\
+\nonumber 2^{f(1,n)} - w &\equiv 0  \mod p
 \end{align}
 $$
 
