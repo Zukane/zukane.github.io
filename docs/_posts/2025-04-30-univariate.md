@@ -93,7 +93,7 @@ $$
 \begin{align}
 \nonumber 2^{f(p)+12} \equiv 1 \mod p \\
 \nonumber 2^{f(p)}\cdot 2^{12} \equiv 1 \mod p \\
-w \cdot 2^{12} - 1 \equiv 0 \mod p
+\nonumber w \cdot 2^{12} - 1 \equiv 0 \mod p
 \end{align}
 $$
 
