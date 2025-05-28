@@ -129,7 +129,7 @@ void encrypt_data(void *param_1,uint param_2,undefined8 param_3,longlong *param_
 
 The plaintext `param_1` is hashed using SHA256. The hashed plaintext is saved into `param_6`. Then, a 16-byte random IV  is generated with `get_random(&local_158,0x10)` and is passed to `AES_init_ctx_iv()` along with the 32-byte encryption key `param_3`. The plaintext is encrypted, and the IV is appended to the ciphertext before returning. 
 
-Back in the `process_directory` function, the encrypted is signed with `sign_data(local_1c8,param_4,param_3,local_1d8,local_1dc,local_1d0)`. Crucially, the AES key `param_3` is passed to this function along with the ciphertext `local_1d8`, curve parameters `param_4` and plaintext hash `local_1d0`.
+Back in the `process_directory` function, the ciphertext is signed with `sign_data(local_1c8,param_4,param_3,local_1d8,local_1dc,local_1d0)`. Crucially, the AES key `param_3` is passed to this function along with the ciphertext `local_1d8`, curve parameters `param_4` and plaintext hash `local_1d0`.
 
 ```c
 void sign_data(longlong param_1,longlong param_2,undefined8 param_3,undefined8 param_4, undefined4 param_5,undefined8 param_6){
@@ -204,7 +204,7 @@ IV (16 bytes)
 
 ##### Decrypting files
 
-With a solid overview over the encryption process, signing process ,and the file structure, the cryptographic vulnerability becomes quite apparent. 40/256 bits are leaked for all 18 signatures, allowing for the recovery of the private key $d$ by setting up and solving a hidden number problem instance. Since the private key $d$ is used for both signing and AES encryption, recovering the original plaintext file contents becomes trivial.  
+With a solid overview over the encryption process, signing process, and the file structure, the cryptographic vulnerability becomes quite apparent. 40/256 bits are leaked for all 18 signatures, allowing for the recovery of the private key $d$ by setting up and solving a hidden number problem instance. Since the private key $d$ is used for both signing and AES encryption, recovering the original plaintext file contents becomes trivial.  
 
 Like mentioned earlier, the custom signing algorithm uses the equation:
 
