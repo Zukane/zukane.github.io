@@ -190,7 +190,7 @@ strncpy(pcVar10,pcVar7,lVar8 + 1U);
 sVar6 = strlen(pcVar10);
 builtin_strncpy(pcVar10 + sVar6,".vlny",6);
 strncat(pcVar10,_Source,10);
-BVar4 = MoveFileA(pcVar7,pcVar10);
+BVar4 = MoveFileA(pcVar7,pcVar10); 
 ```
 
 This part essentially appends the suffix `.vlny` to the encrypted file's filename, followed by 10 hex digits (5 bytes) of the plaintext hash. This is a critical part, as the plaintext hash is used as the nonce during the signing process, meaning we have a partial nonce leak for every signature. The 5 bytes correspond to the 40 least significant bits. This final part also writes the encrypted file contents, consisting of the following:
