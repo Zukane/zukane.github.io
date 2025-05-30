@@ -32,7 +32,14 @@ permalink: /:title/
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-archives
 
+jekyll-archives:
+  enabled: [tags]            # only build tag archives
+  layout: tag                # you already have _layouts/tag.html
+  permalinks:
+    tag: /tags/:name/        # matches the links you output now
+    
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
