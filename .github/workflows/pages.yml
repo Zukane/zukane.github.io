@@ -1,40 +1,41 @@
-name: Build & deploy Jekyll (with tags)
+name: Deploy Jekyll with plugins
 
 on:
   push:
-    branches: [main]          # adapt if you use “master” or something else
+    branches: [main]      # adjust if you use “master”
 
 permissions:
-  contents: read
+  contents: write
   pages: write
-  id-token: write             # required by deploy-pages
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    # Tells the runner we’re about to create a Pages artifact
-    - uses: actions/configure-pages@v5
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
 
-    # Builds the site *inside* the runner.
-    # Your Jekyll source lives in /docs, so we pass that as `source`.
-    - uses: actions/jekyll-build-pages@v1
-      with:
-        source: ./docs           # where _config.yml and _posts live
-        destination: ./_site     # output directory (default)
+      # -- build the site WITH jekyll-archives -----------------
+      - name: Build site
+        run: |
+          cd docs                         # Jekyll source lives here
+          bundle exec jekyll build \
+            --source . \
+            --destination ../_site
 
-    # Store the generated _site folder as the “artifact” that Pages will deploy
-    - uses: actions/upload-pages-artifact@v3
-      with:
-        path: ./_site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: github-pages        # special environment Pages expects
+      name: github-pages
     steps:
-    - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
