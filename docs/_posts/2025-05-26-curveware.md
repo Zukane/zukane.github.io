@@ -154,8 +154,8 @@ void sign_data(longlong param_1,longlong param_2,undefined8 param_3,undefined8 p
 This signing routine essentially performs a series of computations like follows:
 
 - `sha256(param_4,param_5,local_678)` is the SHA256 of the ciphertext
--  `nn_init_from_buf(local_428,local_678,0x20)` loads the ciphertext hash $z$ to `local_428`
-- `nn_init]_from_buf(local_578,param_3,0x20)` loads the AES key $d$ to `local_578`
+- `nn_init_from_buf(local_428,local_678,0x20)` loads the ciphertext hash $z$ to `local_428`
+- `nn_init_from_buf(local_578,param_3,0x20)` loads the AES key $d$ to `local_578`
 - `nn_init_from_buf(local_5e8,param_6,0x20)` loads the nonce $k$ (plaintext hash) to `local_5e8`
 - `prj_pt_mul(local_1c8,local_5e8,param_2 + 0x560)` calculates $R = k \cdot G$
 - `prj_pt_to_aff(local_2d8,local_1c8)` gets the affine coordinate $R.x$
