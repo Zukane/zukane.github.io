@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Curveware (HTB Business CTF 2025)"
-date: 2025-05-026 10:00:00 -0000
+date: 2025-05-26 11:00:00 -0000
 categories: writeups
 tags: [Elliptic Curve, Hidden Number Problem, Ransomware, Reverse Engineering]
 ---
