@@ -1,0 +1,40 @@
+name: Build & deploy Jekyll (with tags)
+
+on:
+  push:
+    branches: [main]          # adapt if you use “master” or something else
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write             # required by deploy-pages
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Tells the runner we’re about to create a Pages artifact
+    - uses: actions/configure-pages@v5
+
+    # Builds the site *inside* the runner.
+    # Your Jekyll source lives in /docs, so we pass that as `source`.
+    - uses: actions/jekyll-build-pages@v1
+      with:
+        source: ./docs           # where _config.yml and _posts live
+        destination: ./_site     # output directory (default)
+
+    # Store the generated _site folder as the “artifact” that Pages will deploy
+    - uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages        # special environment Pages expects
+    steps:
+    - uses: actions/deploy-pages@v4
