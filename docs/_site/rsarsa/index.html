@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSARSA (ictf Round 52)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">RSARSA (ictf Round 52)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">secret</span> <span class="kn">import</span> <span class="n">flag</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">getPrime</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">urandom</span>
+
+<span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+<span class="k">while</span> <span class="n">p</span><span class="o">%</span><span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1001</span><span class="p">)</span>
+<span class="k">while</span> <span class="n">q</span><span class="o">%</span><span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1001</span><span class="p">)</span>
+<span class="k">while</span> <span class="n">P</span><span class="o">%</span><span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">P</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="k">while</span> <span class="n">Q</span><span class="o">%</span><span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">P</span><span class="o">*</span><span class="n">Q</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">.</span><span class="n">encode</span><span class="p">()</span> <span class="o">+</span> <span class="n">urandom</span><span class="p">(</span><span class="mi">250</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">)))</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">q</span><span class="p">)</span><span class="o">%</span><span class="n">N</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'out.txt'</span><span class="p">,</span><span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
+    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">n</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">c</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">N</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">C</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>As well as the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>n = 236165963974549843165116395504697902191713379536628118224442456369682302266394059291805550850454501790983078745877277808465242450967192483721221804260097540207577805062483656523327027127554710603966355779002569448126827875849586909708264874355346913072634179303036432164732044525075631421114547665911909245396864649081324916352615048804238378500443339490430805687717735684234839495464001575301049381927288871113238709183695134250935765261299598697578849137375656662373462784922948497996422774555641898913228531573884546030084889237337034678567704892293682351242487623366576639394595575585737748297628969
+c = 70937012742384298918498947273158135897378405817961054208468507698675885078698256087375111837428304573078062065633783770628342991758025350342481268180700230612722899026588541878904025893741429507151056686887872849449670311554735563584135338155830845926213289013822577616362794865255147852918994796746331323556683930502366845200103692080775988066038363189731329287562177600843653604176315077351590599271405298532429144976167210974674215140921019287905291182057378400248332045718636113089603523143042785670709665781815838353423684587315486764254364359269569359888642641186171777475467206816292957014109298
+N = 13559643931510231890645252059392928830324878403065777432078047001203751827960606291671049295745925572045928516195747933143730424354729124065331936456182264578676144427400292605461916569434409294456724314100819999479249740665646695282083306225220537019377541170020872360049287615554093874460563300874852415511897525645607710048718121342471391046511248087651223041929052149218448630378746909560110882899655656687984011210519333987281129803478797350285596913131043564417404130060868808451206852147929161483360924558387919617786314342462258102165618528861476250258876654302439406603504196138731002715669914240460335010891
+C = 8275456195949033635467084095519107709201520788369843769112612900914126045121100567953979244052722913960259224583894825296560682673296622047075175324016507276388107904876439908187727967560228110789357765846667845045209064071847259841181338077835834748735605960343420564692832127030070311244168918947119031684158691819391344400702542409477570193678230185099108849985093513086193902773249508226511128276263713550182135750315888219451287568184957554794890731479934946953654922694958015237442372049821287406228796371974841586661090969263065535555883597103891939136230373286602239899758144274469967582717851587584634595648
+</code></pre></div></div>
+
+<h5 id="recovering-the-prime-factors">Recovering the prime factors</h5>
+
+<p>We are given the standard ciphertext $c$, as well as the hint $C$:</p>
+
+\[\large C = (p^{3} \mod N) \cdot q \mod N\]
+
+<p>Because this is all $\mod N$, we can rewrite to:</p>
+
+\[\large C = p^{3}\cdot q \mod N\]
+
+<p>Since we also have $n = p\cdot q$, we can calculate:</p>
+
+\[\large C \cdot n^{-1} \equiv p^{2} \mod N\]
+
+<p>We can then recover the prime factor $p$ by taking the square root. We don’t need to find the modular square roots because $p^{2} &lt; P\cdot Q$. From here, decryption is simple.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">q</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">p</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">).</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">"}"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="sa">b</span><span class="s">"}"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">.</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1">#ictf{my_d0u813D_RSA_D!D_n07_Cook}
+</span></code></pre></div></div>
+
+<h5 id="solvepy">solve.py</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span> <span class="o">=</span> <span class="mi">236165963974549843165116395504697902191713379536628118224442456369682302266394059291805550850454501790983078745877277808465242450967192483721221804260097540207577805062483656523327027127554710603966355779002569448126827875849586909708264874355346913072634179303036432164732044525075631421114547665911909245396864649081324916352615048804238378500443339490430805687717735684234839495464001575301049381927288871113238709183695134250935765261299598697578849137375656662373462784922948497996422774555641898913228531573884546030084889237337034678567704892293682351242487623366576639394595575585737748297628969</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mi">70937012742384298918498947273158135897378405817961054208468507698675885078698256087375111837428304573078062065633783770628342991758025350342481268180700230612722899026588541878904025893741429507151056686887872849449670311554735563584135338155830845926213289013822577616362794865255147852918994796746331323556683930502366845200103692080775988066038363189731329287562177600843653604176315077351590599271405298532429144976167210974674215140921019287905291182057378400248332045718636113089603523143042785670709665781815838353423684587315486764254364359269569359888642641186171777475467206816292957014109298</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">13559643931510231890645252059392928830324878403065777432078047001203751827960606291671049295745925572045928516195747933143730424354729124065331936456182264578676144427400292605461916569434409294456724314100819999479249740665646695282083306225220537019377541170020872360049287615554093874460563300874852415511897525645607710048718121342471391046511248087651223041929052149218448630378746909560110882899655656687984011210519333987281129803478797350285596913131043564417404130060868808451206852147929161483360924558387919617786314342462258102165618528861476250258876654302439406603504196138731002715669914240460335010891</span>
+<span class="n">C</span> <span class="o">=</span> <span class="mi">8275456195949033635467084095519107709201520788369843769112612900914126045121100567953979244052722913960259224583894825296560682673296622047075175324016507276388107904876439908187727967560228110789357765846667845045209064071847259841181338077835834748735605960343420564692832127030070311244168918947119031684158691819391344400702542409477570193678230185099108849985093513086193902773249508226511128276263713550182135750315888219451287568184957554794890731479934946953654922694958015237442372049821287406228796371974841586661090969263065535555883597103891939136230373286602239899758144274469967582717851587584634595648</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">%</span> <span class="n">N</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> 
+<span class="n">q</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">p</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">).</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">"}"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="sa">b</span><span class="s">"}"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">.</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1">#ictf{my_d0u813D_RSA_D!D_n07_Cook}
+</span></code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

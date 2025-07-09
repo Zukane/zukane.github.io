@@ -21,33 +21,83 @@
         }
       };
     </script>
-    <script id="MathJax-script" async
-            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <style>
-      /* Custom styles for the homepage posts */
+      /* Existing styles for the writeups list */
       .post-item .post-link {
-        font-size: 1.5rem;       /* Adjust size as needed */
-        color: #ff5757;          /* Your desired header color */
+        font-size: 1.5rem;
+        color: #ff5757;
         text-decoration: none;
         transition: color 0.2s ease;
       }
       .post-item .post-link:hover {
         text-decoration: underline;
-        color: #ff7979;          /* Example hover color */
+        color: #ff7979;
       }
-      .post-tags{
-        margin-bottom: 2.0rem;
+      .post-tags {
+        margin-bottom: 2rem;
+      }
+
+      /* === Featured section styles === */
+      .featured-heading {
+        font-size: 2rem;
+        margin-top: 2rem;
+        color: #ffd700 !important; /* Gold accent */
+        font-weight: bold;
+      }
+      .featured-item {
+        margin-bottom: 1.5rem;
+      }
+      .featured-list {
+        margin-bottom: 5em;
+      }
+      .featured-item .post-link {
+        font-size: 1.75rem;
+        color: #ffd700;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      .featured-item .post-link:hover {
+        text-decoration: underline;
+        color: #ffdd55;
+      }
+      .featured-star {
+        font-size: smaller;
+        color: #ffd700;
       }
     </style>
   </head>
+
   <body class="theme-dark">
     <header>
       <h1>Zukane CTF</h1>
       <p>I sometimes post writeups for crypto challenges I find interesting</p>
     </header>
+
     <div class="container">
       <div class="home">
+        {% assign featured_posts = site.posts | where: "featured", true | sort: "date" %}
+        {% if featured_posts.size > 0 %}
+          <p class="featured-heading">Featured Writeups</p>
+          <div class="featured-list">
+            {% for post in featured_posts %}
+              <div class="featured-item">
+                <a class="post-link" href="{{ post.url | relative_url }}">
+                  <span class="featured-star" aria-hidden="true">⭐</span> {{ post.title }}
+                </a>
+                {% if post.tags %}
+                  <div class="post-tags">
+                    {% for tag in post.tags %}
+                      <a class="tag" href="/tags/{{ tag | slugify }}/">{{ tag }}</a>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
         <h2 class="post-list-heading">Writeups</h2>
         <div class="post-list">
           {% for post in site.posts %}
@@ -67,6 +117,7 @@
         </div>
       </div>
     </div>
+
     <footer>
       <p>&copy; {{ site.time | date: "%Y" }} Zukane</p>
     </footer>

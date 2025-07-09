@@ -54,6 +54,6 @@ m      = (g3_inv * e3) % modP
 
 bits   = ''.join(str(b) for b in m.list()) 
 flag   = bytes.fromhex(f"{int(bits, 2):x}").decode()
-print(f"UMDCTF{{{flag}}}")
+print("UMDCTF{" + flag + "}")
 # UMDCTF{no_logan_paul_here}
 ```

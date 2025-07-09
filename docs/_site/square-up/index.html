@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Up (UMDCTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Square Up (UMDCTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+            <a href="/tags/legendre-symbol/" class="tag">Legendre Symbol</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">getPrime</span><span class="p">,</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">long_to_bytes</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">urandom</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"flag.txt"</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">q</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">p</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span> <span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">384</span><span class="p">)</span>
+<span class="k">while</span> <span class="n">q</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span> <span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">384</span><span class="p">)</span>
+
+<span class="n">N</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">N</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">lp</span> <span class="o">=</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">lq</span> <span class="o">=</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">q</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">m</span> <span class="o">*</span> <span class="n">m</span> <span class="o">%</span> <span class="n">N</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span>
+
+<span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span><span class="p">):</span>
+        <span class="n">yq</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">yp</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">yq</span> <span class="o">*</span> <span class="n">q</span><span class="p">)</span> <span class="o">//</span> <span class="n">p</span>
+
+        <span class="n">mp</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">mq</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">lp</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mp</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">mp</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mq</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">-</span> <span class="n">lq</span><span class="p">)</span> <span class="o">%</span> <span class="n">q</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mq</span> <span class="o">=</span> <span class="n">q</span> <span class="o">-</span> <span class="n">mp</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">yp</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">mq</span> <span class="o">+</span> <span class="n">yq</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">mp</span><span class="p">)</span> <span class="o">%</span> <span class="n">N</span>
+
+
+<span class="n">c</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span> <span class="o">=</span> <span class="n">encrypt</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span><span class="p">)</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">decrypt</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span><span class="p">))</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>   
+</code></pre></div></div>
+
+<p>as well as the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>N = 1298690852855676717877172430649235439701166577296380685015744142960768447038281361897617173145966407353660262643273693068083328108519398663073368426744653753236312330497119252304579628565448615356293308415969827357877088267274695333
+(c, lp, lq) = (162345251908758036296170413099695514860545515965805244415511843227313118622229046299657295062100889503276740904118647336251473821440423216697485906153356736210597508871299190718706584361947325513349221296586217139380060755033205077, 1, -1)
+long_to_bytes(decrypt(c, lp, lq)) = b'\x1bR \xc4\xf0\x8f\xa7l\xa4\xdd\xbf\xf73\xf3\xe9(\xc8Q\xdd\xbd,\x08\xbd\x7f\xafm\x9b\xbf\xa0\xbe\xd4)t\xd4e\xc0,J\xb8H\x93i\xea\xbcy\x9a7AA\xeb]q\xae\x00\xebJ(Y\x8a\xa4B\xdc\t(\x8b\xcef&amp;@b\x91\x06Y~\x88m\xaf\x9bl\\\x12\xf2\x9f\xe1\x1f\x18q\x16\xd8\xb4\x9f$\x88%8\x0f'
+</code></pre></div></div>
+
+<p>We are given the modulus $N$, the ciphertext $c$, the legendre symbols $lp$ and $lq$, in addition to a broken plaintext $x$.</p>
+
+<p>The code implements a RSA-like system with public exponent $e=2$:</p>
+
+\[\large c = m^{2} \mod N\]
+
+<p>The legendre symbols are used to distinguish the four square roots of $c \mod N$</p>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>There is a mistake in the implementation of the decryption function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">lp</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mp</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">mp</span>
+<span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mq</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">-</span> <span class="n">lq</span><span class="p">)</span> <span class="o">%</span> <span class="n">q</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mq</span> <span class="o">=</span> <span class="n">q</span> <span class="o">-</span> <span class="n">mp</span> <span class="c1"># &lt;-- !!!
+</span></code></pre></div></div>
+
+<p>This section essentially checks whether the calculated modular square roots $mp$ and $mq$ match the given legendre symbols $lp$ and $lq$. If the wrong square root is picked, the other square root is picked instead. However, $mq$ is updated to an incorrect value. 
+The correct implementation would be to have:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mp</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">mp</span>
+<span class="n">mq</span> <span class="o">=</span> <span class="n">q</span> <span class="o">-</span> <span class="n">mq</span> <span class="c1"># &lt;-- use mq instead of mp again
+</span></code></pre></div></div>
+
+<p>This mistake means that the decrypted output $x$, recovered via CRT:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">return</span> <span class="p">(</span><span class="n">yp</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">mq</span> <span class="o">+</span> <span class="n">yq</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">mp</span><span class="p">)</span> <span class="o">%</span> <span class="n">N</span>
+</code></pre></div></div>
+
+<p>doesn’t hold for $x^{2} = c \mod N$. It only holds for $x^{2}=c \mod p$ but not for $q$.</p>
+
+<p>We can use this fact to recover the prime factors like so:</p>
+
+\[\large
+\begin{align}
+\nonumber x^{2} \equiv c \mod p \\
+\nonumber x^{2}- c \equiv 0 \mod p \\
+\nonumber N \equiv 0 \mod p \\
+\nonumber gcd(x^{2}-c, N) = p
+\end{align}\]
+
+<p>With the recovered prime factors, we can reimplement the decryption function with the bug fixed:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span><span class="p">):</span>
+        <span class="n">yq</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">yp</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">yq</span> <span class="o">*</span> <span class="n">q</span><span class="p">)</span> <span class="o">//</span> <span class="n">p</span>
+
+        <span class="n">mp</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">mq</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">lp</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mp</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">mp</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mq</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">-</span> <span class="n">lq</span><span class="p">)</span> <span class="o">%</span> <span class="n">q</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mq</span> <span class="o">=</span> <span class="n">q</span> <span class="o">-</span> <span class="n">mq</span> <span class="c1"># &lt;- fix bug
+</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">yp</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">mq</span> <span class="o">+</span> <span class="n">yq</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">mp</span><span class="p">)</span> <span class="o">%</span> <span class="n">N</span>
+</code></pre></div></div>
+
+<p>and we can simply decrypt to get the flag!</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>UMDCTF{e=3_has_many_attacks_and_e=2_has_its_own_problems...maybe_we_should_try_e=1_next?}
+</code></pre></div></div>
+
+<h5 id="solvepy">solve.py</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">gcd</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="sa">b</span><span class="s">'</span><span class="se">\x1b</span><span class="s">R </span><span class="se">\xc4\xf0\x8f\xa7</span><span class="s">l</span><span class="se">\xa4\xdd\xbf\xf7</span><span class="s">3</span><span class="se">\xf3\xe9</span><span class="s">(</span><span class="se">\xc8</span><span class="s">Q</span><span class="se">\xdd\xbd</span><span class="s">,</span><span class="se">\x08\xbd\x7f\xaf</span><span class="s">m</span><span class="se">\x9b\xbf\xa0\xbe\xd4</span><span class="s">)t</span><span class="se">\xd4</span><span class="s">e</span><span class="se">\xc0</span><span class="s">,J</span><span class="se">\xb8</span><span class="s">H</span><span class="se">\x93</span><span class="s">i</span><span class="se">\xea\xbc</span><span class="s">y</span><span class="se">\x9a</span><span class="s">7AA</span><span class="se">\xeb</span><span class="s">]q</span><span class="se">\xae\x00\xeb</span><span class="s">J(Y</span><span class="se">\x8a\xa4</span><span class="s">B</span><span class="se">\xdc\t</span><span class="s">(</span><span class="se">\x8b\xce</span><span class="s">f&amp;@b</span><span class="se">\x91\x06</span><span class="s">Y~</span><span class="se">\x88</span><span class="s">m</span><span class="se">\xaf\x9b</span><span class="s">l</span><span class="se">\\\x12\xf2\x9f\xe1\x1f\x18</span><span class="s">q</span><span class="se">\x16\xd8\xb4\x9f</span><span class="s">$</span><span class="se">\x88</span><span class="s">%8</span><span class="se">\x0f</span><span class="s">'</span><span class="p">)</span>
+<span class="n">N</span>  <span class="o">=</span> <span class="mi">1298690852855676717877172430649235439701166577296380685015744142960768447038281361897617173145966407353660262643273693068083328108519398663073368426744653753236312330497119252304579628565448615356293308415969827357877088267274695333</span>
+<span class="n">c</span>  <span class="o">=</span> <span class="mi">162345251908758036296170413099695514860545515965805244415511843227313118622229046299657295062100889503276740904118647336251473821440423216697485906153356736210597508871299190718706584361947325513349221296586217139380060755033205077</span>
+<span class="n">lp</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">lq</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">gcd</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="n">c</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">N</span> <span class="o">//</span> <span class="n">p</span>
+<span class="k">assert</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span> <span class="o">==</span> <span class="n">N</span>
+
+<span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span><span class="p">):</span>
+        <span class="n">yq</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">yp</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">yq</span> <span class="o">*</span> <span class="n">q</span><span class="p">)</span> <span class="o">//</span> <span class="n">p</span>
+
+        <span class="n">mp</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">mq</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">lp</span><span class="p">)</span> <span class="o">%</span> <span class="n">p</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mp</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">mp</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">mq</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">-</span> <span class="n">lq</span><span class="p">)</span> <span class="o">%</span> <span class="n">q</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="n">mq</span> <span class="o">=</span> <span class="n">q</span> <span class="o">-</span> <span class="n">mq</span> <span class="c1"># &lt;- fix bug
+</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">yp</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">mq</span> <span class="o">+</span> <span class="n">yq</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">mp</span><span class="p">)</span> <span class="o">%</span> <span class="n">N</span>
+
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">decrypt</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">lq</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

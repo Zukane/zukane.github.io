@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zukane CTF</title>
     <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <!-- MathJax configuration -->
     <script>
       window.MathJax = {
@@ -20,35 +21,260 @@
         }
       };
     </script>
-    <script id="MathJax-script" async
-            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <style>
-      /* Custom styles for the homepage posts */
+      /* Existing styles for the writeups list */
       .post-item .post-link {
-        font-size: 1.5rem;       /* Adjust size as needed */
-        color: #ff5757;          /* Your desired header color */
+        font-size: 1.5rem;
+        color: #ff5757;
         text-decoration: none;
         transition: color 0.2s ease;
       }
       .post-item .post-link:hover {
         text-decoration: underline;
-        color: #ff7979;          /* Example hover color */
+        color: #ff7979;
       }
-      .post-tags{
-        margin-bottom: 2.0rem;
+      .post-tags {
+        margin-bottom: 2rem;
+      }
+
+      /* === Featured section styles === */
+      .featured-heading {
+        font-size: 2rem;
+        margin-top: 2rem;
+        color: #ffd700 !important; /* Gold accent */
+        font-weight: bold;
+      }
+      .featured-item {
+        margin-bottom: 1.5rem;
+      }
+      .featured-list {
+        margin-bottom: 5em;
+      }
+      .featured-item .post-link {
+        font-size: 1.75rem;
+        color: #ffd700;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      .featured-item .post-link:hover {
+        text-decoration: underline;
+        color: #ffdd55;
+      }
+      .featured-star {
+        font-size: smaller;
+        color: #ffd700;
       }
     </style>
   </head>
+
   <body class="theme-dark">
     <header>
       <h1>Zukane CTF</h1>
       <p>I sometimes post writeups for crypto challenges I find interesting</p>
     </header>
+
     <div class="container">
       <div class="home">
+        
+        
+          <p class="featured-heading">Featured Writeups</p>
+          <div class="featured-list">
+            
+              <div class="featured-item">
+                <a class="post-link" href="/my-signed-nonsense/">
+                  <span class="featured-star" aria-hidden="true">⭐</span> My Signed Nonsense (HelseCTF 2025)
+                </a>
+                
+                  <div class="post-tags">
+                    
+                      <a class="tag" href="/tags/ecdsa/">ECDSA</a>
+                    
+                      <a class="tag" href="/tags/biased-nonces/">Biased Nonces</a>
+                    
+                      <a class="tag" href="/tags/hidden-number-problem/">Hidden Number Problem</a>
+                    
+                  </div>
+                
+              </div>
+            
+              <div class="featured-item">
+                <a class="post-link" href="/curveware/">
+                  <span class="featured-star" aria-hidden="true">⭐</span> Curveware (HTB Business CTF 2025)
+                </a>
+                
+                  <div class="post-tags">
+                    
+                      <a class="tag" href="/tags/elliptic-curve/">Elliptic Curve</a>
+                    
+                      <a class="tag" href="/tags/hidden-number-problem/">Hidden Number Problem</a>
+                    
+                      <a class="tag" href="/tags/ransomware/">Ransomware</a>
+                    
+                      <a class="tag" href="/tags/reverse-engineering/">Reverse Engineering</a>
+                    
+                  </div>
+                
+              </div>
+            
+          </div>
+        
+
         <h2 class="post-list-heading">Writeups</h2>
         <div class="post-list">
+          
+            <div class="post-item">
+              <a class="post-link" href="/curveware/">
+                Curveware (HTB Business CTF 2025)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/elliptic-curve/">Elliptic Curve</a>
+                  
+                    <a class="tag" href="/tags/hidden-number-problem/">Hidden Number Problem</a>
+                  
+                    <a class="tag" href="/tags/ransomware/">Ransomware</a>
+                  
+                    <a class="tag" href="/tags/reverse-engineering/">Reverse Engineering</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/dried-up-crypto/">
+                Dried Up Crypto (ictf Round 56)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/rsa/">RSA</a>
+                  
+                    <a class="tag" href="/tags/branch-and-prune/">Branch and prune</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/noise/">
+                Noise (ictf Round 49)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/rsa/">RSA</a>
+                  
+                    <a class="tag" href="/tags/coppersmith-small-roots/">Coppersmith small roots</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/rsarsa/">
+                RSARSA (ictf Round 52)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/rsa/">RSA</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/decision/">
+                Decision (ictf Round 53)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/knapsack/">Knapsack</a>
+                  
+                    <a class="tag" href="/tags/low-density-subset-problem/">Low density subset problem</a>
+                  
+                    <a class="tag" href="/tags/lll/">LLL</a>
+                  
+                    <a class="tag" href="/tags/decisional/">Decisional</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/univariate/">
+                Univariate (ictf Round 54)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/rsa/">RSA</a>
+                  
+                    <a class="tag" href="/tags/fermat-s-little-theorem/">Fermat's Little Theorem</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/bivariate/">
+                Bivariate (ictf Round 54)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/rsa/">RSA</a>
+                  
+                    <a class="tag" href="/tags/fermat-s-little-theorem/">Fermat's Little Theorem</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/square-up/">
+                Square Up (UMDCTF 2025)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/rsa/">RSA</a>
+                  
+                    <a class="tag" href="/tags/legendre-symbol/">Legendre Symbol</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/prime-sponsorship/">
+                Prime Sponsorship (UMDCTF 2025) (Coming soon)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/ntru/">NTRU</a>
+                  
+                </div>
+              
+            </div>
+          
+            <div class="post-item">
+              <a class="post-link" href="/cover-yourself-in-oil/">
+                Cover Yourself in Oil (UMDCTF 2025) (Coming soon)
+              </a>
+              
+                <div class="post-tags">
+                  
+                    <a class="tag" href="/tags/uov/">UOV</a>
+                  
+                </div>
+              
+            </div>
           
             <div class="post-item">
               <a class="post-link" href="/beslutningsvegring/">
@@ -60,6 +286,8 @@
                     <a class="tag" href="/tags/kyber/">Kyber</a>
                   
                     <a class="tag" href="/tags/mlwe/">MLWE</a>
+                  
+                    <a class="tag" href="/tags/decisional/">Decisional</a>
                   
                 </div>
               
@@ -254,6 +482,7 @@
         </div>
       </div>
     </div>
+
     <footer>
       <p>&copy; 2025 Zukane</p>
     </footer>

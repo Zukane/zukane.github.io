@@ -128,31 +128,18 @@ footer {
   text-align: center;
 }
 
-/* Add horizontal scrolling to MathJax display equations on mobile */
-.MathJax_Display {
-  overflow-x: auto;
-  white-space: nowrap;
-  max-width: 100%;
-  box-sizing: border-box;
-  padding-bottom: 1rem; /* Optional padding for better appearance */
-}
-
-mjx-container[display="true"] {
-  display: block;
-  overflow-x: auto;
-  white-space: nowrap;
-  max-width: 100%;
-  box-sizing: border-box;
-  padding-bottom: 1rem; /* Optional for extra spacing */
-}
-
-
-
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .container {
     margin: 1rem;
     padding: 1rem;
+  }
+  mjx-container[display="true"] {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

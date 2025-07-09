@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover Yourself in Oil (UMDCTF 2025) (Coming soon)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Cover Yourself in Oil (UMDCTF 2025) (Coming soon)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/uov/" class="tag">UOV</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <p>Coming Soon™</p>
+
+<h5 id="solvepy">solve.py</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">ast</span>
+
+<span class="n">F</span>        <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="mi">127</span><span class="p">)</span>
+<span class="n">n</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">l</span>  <span class="o">=</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">6</span>
+<span class="n">N</span>        <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="n">v</span>          <span class="c1"># 168
+</span><span class="n">G</span>        <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="n">v</span><span class="p">)</span><span class="o">//</span><span class="n">l</span>       <span class="c1"># 28 blocks
+</span><span class="n">pow2</span>     <span class="o">=</span> <span class="p">[</span><span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="mi">127</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">)]</span>
+
+<span class="c1"># read the compressed key
+</span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"public_key.txt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">pk_raw</span> <span class="o">=</span> <span class="n">ast</span><span class="p">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">())</span>
+<span class="n">C</span> <span class="o">=</span> <span class="p">[[</span><span class="n">vector</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pk_raw</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+
+<span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="c1"># 1) choose a non-zero vector
+</span>        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">F</span><span class="p">.</span><span class="n">random_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">G</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">si</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">s</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">rows</span><span class="p">,</span> <span class="n">rhs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+        <span class="c1"># 2) 48 linearised quadratic equations
+</span>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">*</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">g</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">G</span><span class="p">))</span>  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+            <span class="n">rows</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+            <span class="n">rhs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+        <span class="c1"># 3) 28 block-sum equations
+</span>        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">N</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+                <span class="n">coeff</span><span class="p">[</span><span class="n">g</span><span class="o">*</span><span class="n">l</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pow2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">rows</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+            <span class="n">rhs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">g</span><span class="p">])</span>
+
+        <span class="n">A</span>   <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+        <span class="n">b</span>   <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">solve_right</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>   
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># Message to sign
+</span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">118</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">91</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">87</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">122</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">85</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+
+<span class="n">sig</span> <span class="o">=</span> <span class="n">sign</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>proof of work:
+curl -sSfL https://pwn.red/pow | sh -s s.AAA6mA==.GzBfBERO5SxgYlEG0+exjA==
+solution: s.OxRwISyqf5aWf9fttd+fnu6tQbwqUkW4gIVbUbWxsSB2M5b90Z1cQeS8yaboeBb2I6sID1g76/hZfCLvV6YLSRu0AYMyIBHRZ0au+whOBs3qtMCYGO50KdmLfix6rv1HAbsyTlVayab9wi2nPrYeYguC4lyOGmcp0IpEaX6vnVWLT13QZs9OAiNModubUv0F34R1CHK0rJcQITUSF47Ssg==
+The message to sign is [48, 124, 82, 23, 117, 80, 75, 101, 118, 16, 24, 91, 0, 87, 17, 112, 68, 2, 119, 48, 49, 89, 115, 112, 42, 122, 116, 52, 61, 67, 69, 66, 63, 110, 83, 85, 47, 22, 92, 117, 98, 16, 44, 63, 108, 114, 11, 80]
+Input your signature in the form x1, x2, ..., x168
+125, 98, 38, 88, 23, 112, 0, 69, 8, 90, 7, 95, 16, 119, 112, 110, 80, 3, 69, 72, 42, 3, 92, 119, 14, 35, 109, 38, 98, 118, 60, 105, 73, 117, 35, 19, 105, 20, 108, 26, 89, 29, 112, 114, 70, 53, 10, 67, 75, 36, 26, 65, 107, 39, 69, 61, 54, 49, 0, 0, 48, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 67, 0, 0, 0, 0, 0, 98, 0, 0, 0, 0, 0, 126, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 87, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 122, 0, 0, 0, 0, 0, 102, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 102, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 117, 0, 0, 0, 0, 0, 94, 0, 0, 0, 0, 0, 113, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0
+UMDCTF{s0_much_0il_that_USA_1s_try1ng_t0_1nvad3}
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

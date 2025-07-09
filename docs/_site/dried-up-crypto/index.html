@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dried Up Crypto (ictf Round 56)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Dried Up Crypto (ictf Round 56)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+            <a href="/tags/branch-and-prune/" class="tag">Branch and prune</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge Overview</h5>
+
+<p>In this CTF challenge, we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">getPrime</span><span class="p">,</span> <span class="n">bytes_to_long</span>
+<span class="kn">from</span> <span class="nn">secrets</span> <span class="kn">import</span> <span class="n">randbits</span>
+
+<span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'ictf{REDACTED}'</span>
+
+<span class="n">p</span><span class="p">,</span><span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">),</span><span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="k">assert</span><span class="p">((</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">e</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="k">assert</span><span class="p">((</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">e</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mh">0x10001</span>
+
+<span class="n">M1</span><span class="p">,</span><span class="n">M2</span> <span class="o">=</span> <span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span> <span class="o">|</span> <span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span> <span class="p">,</span><span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span> <span class="o">|</span> <span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+
+<span class="n">P</span><span class="p">,</span><span class="n">Q</span> <span class="o">=</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="n">M1</span><span class="p">,</span> <span class="n">q</span> <span class="o">&amp;</span> <span class="n">M2</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
+<span class="n">c</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">),</span><span class="n">e</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"c = </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"n = </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"M1 = </span><span class="si">{</span><span class="n">M1</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"M2 = </span><span class="si">{</span><span class="n">M2</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"P = </span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Q = </span><span class="si">{</span><span class="n">Q</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>as well as the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c = 8727199524595926705764225400506509289328151131514216250729515468155056218121221736963201841068215034487098098953821401326608386786346273720157155314820322698467429532461275463492599870550737132469369170204135115917482423036582822051988921146256688643845978757358407310854847663288337574501668030413804655286776436934536537698538527143491308805754764317305745181888684722727299988112034122487006667085647945475968191154669980943257738894146053667458797138697522920065140999462467096217712503505631649242142240435841977317598886490888750486215707059341912936564463860839090693276780817194811851886409356689470673107532
+n = 10644244264245763932368979306576292154978169307980875431845848585515469979129741395711953185867051023317557615618234242176875251628599522772285258093327797679006324429376013569137018200577185349745003553221219229088693373960547344593762243714560234819514388391843307341206257538676824211613659149855441367734883320000869003833119510179206721701295702803923970241717612194010327944659540526556778579813186112749725822081690619963415418470255547473934066594150396804785237389851791915432015775405773476289374397136777722281258153565989398760008739331917818507905928387120867159103459386796293552147742130942785387667101
+M1 = 88914640319156584554519907036301003224288784208184838268121846462159927955700945270283676500515406136279062455494762039147468454696771001133686799200482356740310590971170822957938953133862391626427210893445970048978263432949487046574710938280744537191675594575399501647648365744088495505838716001393025318711
+M2 = 80710645955732183961498834296041390466353463350909365967073721088344234170831463482355150027971590908133797348848447302046512581471517653450640672441875363390417692734403220383748851502073357434012901646484453882427070643197703826675885986584075167513954328971199897226577585871016371987052379150617824721747
+P = 1454713629297571001528363141111343262783446611248718929759592692372410193692959981391616314247878825643517231716578815166717528906295323061858760318849863325461174191466111073232730195560930748935209775742509843564017912569158094461170983358891473208999861629367188907727554105902252420135214355007297361937
+Q = 23026771663186153673881188958499640470803688134356820454731962008947492131018559717122163720894546472163872899425608926369661262023609393522302590736445675570962275851657015555698875694838166833166542306554507099577746272183034587942732263335474963112075217970257365953713038351465989425740093838238205086529
+</code></pre></div></div>
+
+<p>This is a classic RSA setup. We are given some partial information of the prime factors $p$ and $q$.</p>
+
+<h5 id="recovering-the-prime-factors">Recovering the prime factors</h5>
+
+<p>The encryption script generates two bit-masks $M_{1}$ and $M_{2}$. The bit-masks are generated by OR-ing two series of random bits:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">M1</span> <span class="o">=</span> <span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span> <span class="o">|</span> <span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">M2</span> <span class="o">=</span> <span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span> <span class="o">|</span> <span class="n">randbits</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Our hints are then generated by AND-ing the prime factors with the bit-masks:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">P</span> <span class="o">=</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="n">M1</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">&amp;</span> <span class="n">M2</span>
+</code></pre></div></div>
+
+<p>Because $M_{1}$ and $M_{2}$ are generated using OR, around 75% of the prime factors’ bits are leaked. The prime factors can be recovered using a branch-and-prune method. For this, we can utilize the implementation of the good old reliable https://github.com/jvdsn/crypto-attacks/.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p_part</span> <span class="o">=</span> <span class="n">PartialInteger</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">M1</span><span class="p">,</span> <span class="n">bitlen</span><span class="p">)</span>
+<span class="n">q_part</span> <span class="o">=</span> <span class="n">PartialInteger</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">M2</span><span class="p">,</span> <span class="n">bitlen</span><span class="p">)</span>
+<span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">factorize_pq</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">p_part</span><span class="p">,</span> <span class="n">q_part</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>After recovering the prime factors, decryption is trivial.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ictf{4_p4r714l_1nf0rm4710n_r54_w17h0u7_l4771c35}
+</code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PartialInteger</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">bits</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">bit_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">bits</span>
+    <span class="k">def</span> <span class="nf">to_bits_le</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">((</span><span class="bp">self</span><span class="p">.</span><span class="n">v</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">'?'</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">bit_length</span><span class="p">)]</span>
+
+<span class="k">def</span> <span class="nf">_branch_and_prune_pq</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">p_</span><span class="p">,</span> <span class="n">q_</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>     
+        <span class="k">yield</span> <span class="n">p_</span><span class="p">,</span> <span class="n">q_</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">c1</span> <span class="o">=</span> <span class="p">((</span><span class="n">N</span> <span class="o">-</span> <span class="n">p_</span> <span class="o">*</span> <span class="n">q_</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span>
+        <span class="n">p_prev</span><span class="p">,</span> <span class="n">q_prev</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p_bit</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">p_prev</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">p_prev</span><span class="p">,):</span>
+            <span class="k">for</span> <span class="n">q_bit</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">q_prev</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">q_prev</span><span class="p">,):</span>
+                <span class="k">if</span> <span class="n">p_bit</span> <span class="o">^^</span> <span class="n">q_bit</span> <span class="o">==</span> <span class="n">c1</span><span class="p">:</span>
+                    <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_bit</span><span class="p">,</span> <span class="n">q_bit</span>
+                    <span class="k">yield</span> <span class="k">from</span> <span class="n">_branch_and_prune_pq</span><span class="p">(</span>
+                        <span class="n">N</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span>
+                        <span class="n">p_</span> <span class="o">|</span> <span class="p">(</span><span class="n">p_bit</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                        <span class="n">q_</span> <span class="o">|</span> <span class="p">(</span><span class="n">q_bit</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                        <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_prev</span><span class="p">,</span> <span class="n">q_prev</span> 
+
+<span class="k">def</span> <span class="nf">factorize_pq</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">p_part</span><span class="p">,</span> <span class="n">q_part</span><span class="p">):</span>
+    <span class="n">p_bits</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span> <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="s">'?'</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">p_part</span><span class="p">.</span><span class="n">to_bits_le</span><span class="p">()]</span>
+    <span class="n">q_bits</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span> <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="s">'?'</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">q_part</span><span class="p">.</span><span class="n">to_bits_le</span><span class="p">()]</span>
+    <span class="k">for</span> <span class="n">p_val</span><span class="p">,</span> <span class="n">q_val</span> <span class="ow">in</span> <span class="n">_branch_and_prune_pq</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">p_bits</span><span class="p">,</span> <span class="n">q_bits</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">q_val</span> <span class="o">==</span> <span class="n">N</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">p_val</span><span class="p">,</span> <span class="n">q_val</span>
+
+<span class="n">e</span>  <span class="o">=</span> <span class="mh">0x10001</span>
+<span class="n">c</span>  <span class="o">=</span> <span class="mi">8727199524595926705764225400506509289328151131514216250729515468155056218121221736963201841068215034487098098953821401326608386786346273720157155314820322698467429532461275463492599870550737132469369170204135115917482423036582822051988921146256688643845978757358407310854847663288337574501668030413804655286776436934536537698538527143491308805754764317305745181888684722727299988112034122487006667085647945475968191154669980943257738894146053667458797138697522920065140999462467096217712503505631649242142240435841977317598886490888750486215707059341912936564463860839090693276780817194811851886409356689470673107532</span>
+<span class="n">n</span>  <span class="o">=</span> <span class="mi">10644244264245763932368979306576292154978169307980875431845848585515469979129741395711953185867051023317557615618234242176875251628599522772285258093327797679006324429376013569137018200577185349745003553221219229088693373960547344593762243714560234819514388391843307341206257538676824211613659149855441367734883320000869003833119510179206721701295702803923970241717612194010327944659540526556778579813186112749725822081690619963415418470255547473934066594150396804785237389851791915432015775405773476289374397136777722281258153565989398760008739331917818507905928387120867159103459386796293552147742130942785387667101</span>
+<span class="n">M1</span> <span class="o">=</span> <span class="mi">88914640319156584554519907036301003224288784208184838268121846462159927955700945270283676500515406136279062455494762039147468454696771001133686799200482356740310590971170822957938953133862391626427210893445970048978263432949487046574710938280744537191675594575399501647648365744088495505838716001393025318711</span>
+<span class="n">M2</span> <span class="o">=</span> <span class="mi">80710645955732183961498834296041390466353463350909365967073721088344234170831463482355150027971590908133797348848447302046512581471517653450640672441875363390417692734403220383748851502073357434012901646484453882427070643197703826675885986584075167513954328971199897226577585871016371987052379150617824721747</span>
+<span class="n">P</span>  <span class="o">=</span> <span class="mi">1454713629297571001528363141111343262783446611248718929759592692372410193692959981391616314247878825643517231716578815166717528906295323061858760318849863325461174191466111073232730195560930748935209775742509843564017912569158094461170983358891473208999861629367188907727554105902252420135214355007297361937</span>
+<span class="n">Q</span>  <span class="o">=</span> <span class="mi">23026771663186153673881188958499640470803688134356820454731962008947492131018559717122163720894546472163872899425608926369661262023609393522302590736445675570962275851657015555698875694838166833166542306554507099577746272183034587942732263335474963112075217970257365953713038351465989425740093838238205086529</span>
+
+<span class="n">bitlen</span> <span class="o">=</span> <span class="mi">1024</span>   
+<span class="n">p_part</span> <span class="o">=</span> <span class="n">PartialInteger</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">M1</span><span class="p">,</span> <span class="n">bitlen</span><span class="p">)</span>
+<span class="n">q_part</span> <span class="o">=</span> <span class="n">PartialInteger</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">M2</span><span class="p">,</span> <span class="n">bitlen</span><span class="p">)</span>
+<span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">factorize_pq</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">p_part</span><span class="p">,</span> <span class="n">q_part</span><span class="p">)</span>
+
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span>   <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1"># ictf{4_p4r714l_1nf0rm4710n_r54_w17h0u7_l4771c35}
+</span></code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
