@@ -113,7 +113,7 @@ roots = cuso.find_small_roots(
 assert roots, "no roots found"
 s1 = int(roots[0][s1])
 s2 = int(roots[0][s2])
-print(f"L3AK{{{bytes.fromhex(f'{s1:x}{s2:x}').decode()}}}")
+print("L3AK{" + f"{bytes.fromhex(f'{s1:x}{s2:x}').decode()}" + "}")
 # L3AK{Squ4R1ng_mY_s3cr3t_w4Snt_5m4rT_b1Vari4Te_p0lyN0MiaLs_4r3_s0Lvabl3}
 ```
 
