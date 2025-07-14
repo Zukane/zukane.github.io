@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Secret² (L3AK 2025)"
+title: "Secret^2 (L3AK 2025)"
 date: 2025-07-11 10:00:00 -0000
 categories: writeups
 tags: [Coppersmith small roots]
