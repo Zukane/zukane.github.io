@@ -95,7 +95,7 @@ $$
 
 Like previously mentioned, the nonce $k$ can be recovered with enough signatures. This is done by using advanced cryptanalysis to set up and solve the "Hidden Number Problem"
 
-##### The Hidden Number Problem (math warning)
+##### The Hidden Number Problem
 *Note, a lot of this math is sourced from Joseph Surin's "A Gentle Tutorial for Lattice-Based Cryptanalysis". I recommend reading it if you are interested in learning more about lattices!*
 
 Let $p$ be a prime and let $\alpha \in [1, p-1]$ be a secret integer. Recover $\alpha$ given $m$ pairs of integers $\{(t_{i},a_{i})\}^{m}_{i=1}$ such that:
