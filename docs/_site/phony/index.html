@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phony (CryptoCTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Phony (CryptoCTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+            <a href="/tags/coppersmith-small-roots/" class="tag">Coppersmith small roots</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are given the following encryption script, as well as a host and port to connect to.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="p">,</span> <span class="n">os</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">flag</span> <span class="kn">import</span> <span class="n">flag</span>
+
+<span class="k">def</span> <span class="nf">die</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">pr</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">quit</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">pr</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">" "</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+        <span class="n">sys</span><span class="p">.</span><span class="n">stdout</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">sys</span><span class="p">.</span><span class="n">stdout</span><span class="p">.</span><span class="n">flush</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">sc</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">sys</span><span class="p">.</span><span class="n">stdin</span><span class="p">.</span><span class="nb">buffer</span><span class="p">.</span><span class="n">readline</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">keygen</span><span class="p">(</span><span class="n">nbit</span><span class="p">):</span>
+        <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="n">getPrime</span><span class="p">(</span><span class="n">nbit</span> <span class="o">+</span> <span class="p">(</span><span class="n">nbit</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+        <span class="n">border</span> <span class="o">=</span> <span class="s">"┃"</span>
+        <span class="n">pr</span><span class="p">(</span>        <span class="s">"┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"</span><span class="p">)</span>
+        <span class="n">pr</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s">" Welcome to the Phoney crypto-system task, a nice cryptosystem   "</span><span class="p">,</span> <span class="n">border</span><span class="p">)</span>
+        <span class="n">pr</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s">" that's so good, it's theoretically unbreakable because it exists"</span><span class="p">,</span> <span class="n">border</span><span class="p">)</span>
+        <span class="n">pr</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s">" only in the realm of imagination!! Try the get the long flag :-)"</span><span class="p">,</span> <span class="n">border</span><span class="p">)</span>
+        <span class="n">pr</span><span class="p">(</span>        <span class="s">"┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"</span><span class="p">)</span>
+        <span class="k">global</span> <span class="n">flag</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">))</span> <span class="o">+</span> <span class="n">flag</span> <span class="o">+</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">flag</span><span class="p">)))</span>
+        <span class="n">nbit</span> <span class="o">=</span> <span class="mi">512</span>
+        <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">keygen</span><span class="p">(</span><span class="n">nbit</span><span class="p">)</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span> <span class="n">inverse</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">1234567891</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">pr</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="s"> Options: </span><span class="se">\n</span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="se">\t</span><span class="s">[E]ncrypt the flag! </span><span class="se">\n</span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="se">\t</span><span class="s">[P]ublic information </span><span class="se">\n</span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="se">\t</span><span class="s">[Q]uit"</span><span class="p">)</span>
+                <span class="n">ans</span> <span class="o">=</span> <span class="n">sc</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">().</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="s">'e'</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="n">n</span>
+                        <span class="n">c</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                        <span class="n">pr</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">c</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">ans</span> <span class="o">==</span> <span class="s">'p'</span><span class="p">:</span>
+                        <span class="n">pr</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">n</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+                        <span class="n">pr</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">s</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+                        <span class="n">pr</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">q</span> <span class="o">%</span> <span class="n">p</span> <span class="o">=</span> <span class="si">}</span><span class="s">'</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">ans</span> <span class="o">==</span> <span class="s">'q'</span><span class="p">:</span>
+                        <span class="n">die</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s">"Quitting..."</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                        <span class="n">die</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s">"Bye..."</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>  
+</code></pre></div></div>
+
+<p>By connecting to the host, we are given some parameters:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c = 6869860867050333958899459281380169365224860725191141490075681906921285491146868469402924407937586752602837270188417362698698432410645612767176659341773981474956667075905162196530581138090668035380527629936507938083351225221764373058697174991005915834617167971014590329567873587411280896708327508300000380436210779160971169732950060789651351851118197920235412555409856566771235934800199725530146544692622204638420681024709553733579632544440316928742635345488552585477308018879605401386083632773124260425537471704361270484
+n = 7593182903146811406435471791518649687495414242882290735012260860376531253817852809889056324416625293328336902814033416817885049198231261658575996571173050362548418752191140228401121790728216545279595354039266794764391641456534625225792086731913555135968347381141768054313651417425174249608933255246607612139992917832326481150388513002349951254458456726813282961483706607801158152631829134593355178831985262912282527824542674089294563518520637393822269227734326318416000202832970945614787755290083730313250861320246580607
+s = 408090971571018322541813922483180473677053198626231795703512988713148003287852666320118777537915800591251623270019431071055073761901852807133561327188793849601691060300945653929089492414728804506355613740171489217849409547504090029963007153700898456243760945317209450011285770935513349812984386394905043517448605752738202406721452527001589670740463592746693105274845
+q % p = 9306850992856150821106831016751373801819672057267955676046215879463293889689158245940844448621629363248578706865630660666356930840954191009944889404229867
+</code></pre></div></div>
+
+<h5 id="recovering-the-prime-factors">Recovering the prime factors</h5>
+
+<p>The service leaks three pieces of information besides the ciphertext $c$:</p>
+<ul>
+  <li>the composite modulus $n = p \cdot q \cdot r$</li>
+  <li>the integer $s = p + p^{-1}<em>{\;qr}$ (where $p^{-1}</em>{\;qr}$ is the inverse of $p\bmod q\cdot r$</li>
+  <li>the residue $r \equiv q \bmod p$</li>
+</ul>
+
+<p>Because $s = p + p^{-1}_{\;qr}$ we have</p>
+
+\[\large
+\begin{align}
+\nonumber p^{-1}_{\;qr} &amp;= s-p \\
+\nonumber (s-p)\,p &amp;\equiv 1\mod{qr}
+\end{align}\]
+
+<p>Multiplying by $p$ gives a relation that is zero modulo $n$:</p>
+
+\[\large
+\begin{align}
+\nonumber p\bigl((s-p)p-1\bigr) &amp;\equiv 0 \mod{n} \\
+\nonumber f(p)=p^{3}-s\,p^{2}+p &amp;\equiv 0\mod{n}
+\end{align}\]
+
+<p>The prime $p$ is only $512$ bits, while $n$ is about $1728$ bits, so $p$ is a small root of the monic cubic</p>
+
+\[\large f(x)=x^{3}-s\,x^{2}+x\mod{n}\]
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">x</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s">'x'</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="n">s</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">520</span><span class="p">)}</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">cuso</span><span class="p">.</span><span class="n">find_small_roots</span><span class="p">(</span>
+    <span class="n">relations</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="p">],</span>         
+    <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span>
+    <span class="n">modulus</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>               
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">roots</span><span class="p">,</span> <span class="s">"no root found"</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"p = </span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="c1">#x</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="c1"># p = 0xda7a510e37d4c24fbed858e74371c3b199b7163f04e87be5cc36345419443a48ae80c16a4634b2754b543326e30ac45d35e13a20274a94bd662ea96f7d7121b9
+</span></code></pre></div></div>
+
+<p>Once $p$ is known, the extra leak $q\bmod p$ lets us write</p>
+
+\[\large
+\begin{align}
+\nonumber q &amp;= p \cdot k + r \\
+\nonumber r &amp;= q \bmod p
+\end{align}\]
+
+<p>Here $k &lt; 2^{64}$ because $q$ is $576$ bits, only $64$ bits longer than $p$.  Substituting into $n$ shows that the linear polynomial</p>
+
+\[\large g(k)=p\,k+r\equiv 0 \mod{q}\]
+
+<p>This can also be easily solved using <code class="language-plaintext highlighter-rouge">cuso</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">q_mod_p</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span><span class="p">)}</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">cuso</span><span class="p">.</span><span class="n">find_small_roots</span><span class="p">(</span>
+    <span class="n">relations</span>        <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">],</span>
+    <span class="n">bounds</span>           <span class="o">=</span> <span class="n">bounds</span><span class="p">,</span>
+    <span class="n">modulus</span>          <span class="o">=</span> <span class="s">"q"</span><span class="p">,</span>    
+    <span class="n">modulus_multiple</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">p</span><span class="p">,</span>      
+    <span class="n">modulus_lower_bound</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">560</span>  
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">roots</span><span class="p">,</span> <span class="s">"no root found"</span>
+
+<span class="n">q</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">"q"</span><span class="p">])</span> 
+</code></pre></div></div>
+
+<p>From here, its just standard RSA decryption.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">q</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">"q"</span><span class="p">])</span> 
+<span class="n">r</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="p">)</span>
+<span class="n">e</span>   <span class="o">=</span> <span class="mi">1234567891</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span>   <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>b'ax\x90\xda\xea\xefa\x9f\xce\xb8&amp;n\x85~\xf4\xbe\xef|\x9eF\xc4x\xa039\xf1\x8a=\xdf\x10\x17\x96\x97\xe3h@\xb6\xae\xea\xf3\x84K\x03\x9a\xb4\xe6i\xd8\x04CCTF{c0UlD_b3_ReCoVEr3d_v!4_Coppersmiths_m3ThOd?}_(\x9a\x9e\x9b,\xbb\xde\x15\xf3\x0fP\x1e\xbc\xd5C\x1au\x1b3d\x18\x15X$^\x83\x17\xbd\xa3&amp;\xb9\xa7H\xe0\x19Y\xf7\x8f0`\xd6J`\xf7\xd22\xfb\xd8'
+</code></pre></div></div>
+
+<p>So the flag is <code class="language-plaintext highlighter-rouge">CCTF{c0UlD_b3_ReCoVEr3d_v!4_Coppersmiths_m3ThOd?}</code></p>
+
+<h5 id="solve-script">Solve script</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">cuso</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="mi">6869860867050333958899459281380169365224860725191141490075681906921285491146868469402924407937586752602837270188417362698698432410645612767176659341773981474956667075905162196530581138090668035380527629936507938083351225221764373058697174991005915834617167971014590329567873587411280896708327508300000380436210779160971169732950060789651351851118197920235412555409856566771235934800199725530146544692622204638420681024709553733579632544440316928742635345488552585477308018879605401386083632773124260425537471704361270484</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">7593182903146811406435471791518649687495414242882290735012260860376531253817852809889056324416625293328336902814033416817885049198231261658575996571173050362548418752191140228401121790728216545279595354039266794764391641456534625225792086731913555135968347381141768054313651417425174249608933255246607612139992917832326481150388513002349951254458456726813282961483706607801158152631829134593355178831985262912282527824542674089294563518520637393822269227734326318416000202832970945614787755290083730313250861320246580607</span>
+<span class="n">s</span> <span class="o">=</span> <span class="mi">408090971571018322541813922483180473677053198626231795703512988713148003287852666320118777537915800591251623270019431071055073761901852807133561327188793849601691060300945653929089492414728804506355613740171489217849409547504090029963007153700898456243760945317209450011285770935513349812984386394905043517448605752738202406721452527001589670740463592746693105274845</span>
+<span class="n">q_mod_p</span> <span class="o">=</span> <span class="mi">9306850992856150821106831016751373801819672057267955676046215879463293889689158245940844448621629363248578706865630660666356930840954191009944889404229867</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s">'x'</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="n">s</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">520</span><span class="p">)}</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">cuso</span><span class="p">.</span><span class="n">find_small_roots</span><span class="p">(</span>
+    <span class="n">relations</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="p">],</span>         
+    <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span>
+    <span class="n">modulus</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>               
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">roots</span><span class="p">,</span> <span class="s">"no root found"</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"p = </span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="c1">#x</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">q_mod_p</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span><span class="p">)}</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">cuso</span><span class="p">.</span><span class="n">find_small_roots</span><span class="p">(</span>
+    <span class="n">relations</span>        <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">],</span>
+    <span class="n">bounds</span>           <span class="o">=</span> <span class="n">bounds</span><span class="p">,</span>
+    <span class="n">modulus</span>          <span class="o">=</span> <span class="s">"q"</span><span class="p">,</span>    
+    <span class="n">modulus_multiple</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">p</span><span class="p">,</span>      
+    <span class="n">modulus_lower_bound</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">560</span>  
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">roots</span><span class="p">,</span> <span class="s">"no root found"</span>
+
+<span class="n">q</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">"q"</span><span class="p">])</span> 
+<span class="n">r</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="p">)</span>
+<span class="n">e</span>   <span class="o">=</span> <span class="mi">1234567891</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span>   <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

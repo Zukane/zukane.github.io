@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mancity (CryptoCTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Mancity (CryptoCTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+            <a href="/tags/coppersmith-small-roots/" class="tag">Coppersmith small roots</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">flag</span> <span class="kn">import</span> <span class="n">flag</span>
+
+<span class="k">def</span> <span class="nf">man</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">n</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="s">''</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">B</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="s">'0'</span><span class="p">:</span>
+                        <span class="n">M</span> <span class="o">+=</span> <span class="s">'01'</span>
+                <span class="k">else</span><span class="p">:</span>
+                        <span class="n">M</span> <span class="o">+=</span> <span class="s">'11'</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">keygen</span><span class="p">(</span><span class="n">nbit</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="n">nbit</span><span class="p">)</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">man</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">B</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">p</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">+</span> <span class="s">'1'</span> <span class="o">*</span> <span class="n">nbit</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">isPrime</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="ow">and</span> <span class="n">isPrime</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+                                <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span>
+
+<span class="n">nbit</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">keygen</span><span class="p">(</span><span class="n">nbit</span><span class="p">)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="n">n</span>
+<span class="n">e</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">1234567891</span><span class="p">,</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span>
+<span class="n">c</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'n = </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'c = </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>  
+</code></pre></div></div>
+
+<p>as well as output.txt:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>n = 147170819334030469053514652921356515888015711942553338463409772437981228515273287953989706666936875524451626901247038180594875568558137526484665015890594045767912340169965961750130156341999306808017498374501001042628249176543370525803456692022546235595791111819909503496986338431136130272043196908119165239297
+c = 77151713996168344370880352082934801122524956107256445231326053049976568087412199358725058612262271922128984783428798480191211811217854076875727477848490840660333035334309193217618178091153472265093622822195960145852562781183839474868269109313543427082414220136748700364027714272845969723750108397300867408537     
+</code></pre></div></div>
+
+<p>This is an RSA-like implementation with some funky key generation</p>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>The encryption script implements a Manchester encoding scheme in the function <code class="language-plaintext highlighter-rouge">man()</code>. The number passed to this function is converted to bits, and each bit is replaced with either <code class="language-plaintext highlighter-rouge">01</code> or <code class="language-plaintext highlighter-rouge">11</code>. The resulting bitstream is converted back into an integer.</p>
+
+<p>The key generation algorithm produces a 256-bit prime integer $p$, which is used to generate both RSA prime factors. One is generated by passing $p$ to <code class="language-plaintext highlighter-rouge">man()</code>, resulting in a 512-bit integer, while the other prime is generated by appending 256 bits to $p$’s bitstream. This tells us a lot about the structure of the prime factors.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>r: ?1?1?1?1?1?1?1?1...?1?1?1?1?1?1?1?1 
+q: ????????????????...1111111111111111
+</code></pre></div></div>
+
+<p>Since half of the prime factor $q$ is known, recovering the prime using coppersmith is a promising idea. However, even with 50% consecutive bits, the approach failed. Another approach may be to use branch and prune, since 50% of both primes are known and are scattered in $r$, but this also did not work out, probably due to $q$ missing too many consecutive bits.</p>
+
+<p>Instead, we take advantage of the prime factor’s unique structure and relationship with the modulus $n$. First, for clarity, I will refer to the prime factors $q$ and $r$ as $p$ and $q$ respectively, due to the way the encryption script reuses variable names and returns the factors from the keygen algorithm</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>p: ????????????????...1111111111111111
+q: ?1?1?1?1?1?1?1?1...?1?1?1?1?1?1?1?1 
+</code></pre></div></div>
+
+<p>We can represent $p$ as the following:</p>
+
+\[\large p = 2^{256}\cdot x + 2^{256}-1\]
+
+<p>for some unknown $x$ (upper bits). Taking $p$ modulo $2^{256}$, we get:</p>
+
+\[\large p = -1 \mod 2^{256}\]
+
+<p>Which means:</p>
+
+\[\large \begin{align}
+\nonumber n = p \cdot q \mod 2^{256} \\
+\nonumber n = -1 \cdot q \mod 2^{256} \\
+\nonumber n = -q \mod 2^{256} \\
+\nonumber -n = q \mod 2^{256}
+\end{align}\]
+
+<p>So by taking $-n \mod 2^{256}$, we are able to recover the bottom $256$ bits of $q$. Remember, $q$ (r) was generated using the Manchester encoding. The $256$ bottom bits of $q$ include the $128$ least significant bits of the random prime. Since $p$ and $q$ are generated using the same prime, this leaks another $128$ bits of $p$, for a total of $384$. With 75% of a prime factor’s bits, the primes are recovered from coppersmith in a trivial manner.</p>
+
+<h5 id="recovering-the-prime-factors">Recovering the prime factors</h5>
+
+<p>Recovering 75% of $p$’s bits can be done like so:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">rlow</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="o">^</span><span class="mi">256</span>
+<span class="n">rbits</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">rlow</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span>
+
+<span class="c1"># Undoing manchester encoding
+</span><span class="n">qlow</span> <span class="o">=</span> <span class="s">""</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">rbits</span><span class="p">),</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">qlow</span> <span class="o">+=</span> <span class="n">rbits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="n">qlow</span> <span class="o">+=</span> <span class="s">"1"</span><span class="o">*</span><span class="mi">256</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qlow</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>With the leaked value, the prime is instantly recovered using <code class="language-plaintext highlighter-rouge">cuso</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">T</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s">"x"</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">384</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">leak</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">cuso</span><span class="p">.</span><span class="n">find_small_roots</span><span class="p">(</span>
+    <span class="n">relations</span>           <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">],</span>
+    <span class="n">bounds</span>              <span class="o">=</span> <span class="p">{</span><span class="n">T</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">^</span><span class="mi">128</span><span class="p">)},</span>
+    <span class="n">modulus</span>             <span class="o">=</span> <span class="s">"p"</span><span class="p">,</span>     
+    <span class="n">modulus_multiple</span>    <span class="o">=</span> <span class="n">n</span><span class="p">,</span>   
+    <span class="n">modulus_lower_bound</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">511</span><span class="p">,</span> 
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">roots</span><span class="p">,</span> <span class="s">"CuSO found no root"</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">"p"</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>From here, its just regular RSA decryption</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">"p"</span><span class="p">]</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">n</span> <span class="o">//</span> <span class="n">p</span>
+<span class="k">assert</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span> <span class="o">==</span> <span class="n">n</span>
+
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span>   <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="n">m</span>   <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">m</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1"># CCTF{M4nch3sReR_c0D!ng_wI7H_RSA}
+</span></code></pre></div></div>
+
+<h5 id="solve-script">Solve script</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">cuso</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="mi">147170819334030469053514652921356515888015711942553338463409772437981228515273287953989706666936875524451626901247038180594875568558137526484665015890594045767912340169965961750130156341999306808017498374501001042628249176543370525803456692022546235595791111819909503496986338431136130272043196908119165239297</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mi">77151713996168344370880352082934801122524956107256445231326053049976568087412199358725058612262271922128984783428798480191211811217854076875727477848490840660333035334309193217618178091153472265093622822195960145852562781183839474868269109313543427082414220136748700364027714272845969723750108397300867408537</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mi">1234567891</span>
+
+<span class="n">M</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">256</span>
+<span class="n">rlow</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">n</span><span class="p">)</span><span class="o">%</span><span class="n">M</span>
+<span class="n">rbits</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">rlow</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span>
+
+<span class="n">qlow</span> <span class="o">=</span> <span class="s">""</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">rbits</span><span class="p">),</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">qlow</span> <span class="o">+=</span> <span class="n">rbits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="n">qlow</span> <span class="o">+=</span> <span class="s">"1"</span><span class="o">*</span><span class="mi">256</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qlow</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s">"x"</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">384</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">leak</span>
+
+<span class="n">roots</span> <span class="o">=</span> <span class="n">cuso</span><span class="p">.</span><span class="n">find_small_roots</span><span class="p">(</span>
+    <span class="n">relations</span>           <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">],</span>
+    <span class="n">bounds</span>              <span class="o">=</span> <span class="p">{</span><span class="n">T</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">^</span><span class="mi">128</span><span class="p">)},</span>
+    <span class="n">modulus</span>             <span class="o">=</span> <span class="s">"p"</span><span class="p">,</span>     
+    <span class="n">modulus_multiple</span>    <span class="o">=</span> <span class="n">n</span><span class="p">,</span>   
+    <span class="n">modulus_lower_bound</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">511</span><span class="p">,</span> 
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">roots</span><span class="p">,</span> <span class="s">"CuSO found no root"</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">"p"</span><span class="p">]</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">n</span> <span class="o">//</span> <span class="n">p</span>
+<span class="k">assert</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span> <span class="o">==</span> <span class="n">n</span>
+
+<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span>   <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="n">m</span>   <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">m</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1"># CCTF{M4nch3sReR_c0D!ng_wI7H_RSA}
+</span></code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
