@@ -65,6 +65,7 @@ Since we have scaled up our known values, we can recover $a$ and $b$ using latti
 $$
 \large (a \cdot cos(x) + b \cdot sin(y) - enc, a, b, 1)
 $$
+
 We can construct the matrix basis in SageMath like so:
 
 ```python
