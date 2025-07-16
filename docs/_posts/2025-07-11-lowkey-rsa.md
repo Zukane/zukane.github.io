@@ -68,6 +68,7 @@ $$
 \nonumber \phi(n) &= N^{4}-(p^{4}+q^{4}) + 1
 \end{align}
 $$
+
 We rewrite $p^{4}+q^{4}$:
 
 $$
