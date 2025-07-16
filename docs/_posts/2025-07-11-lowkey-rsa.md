@@ -93,7 +93,7 @@ $$\large
 \nonumber e \cdot d + 1 - k\cdot \phi &= 0 \\
 \nonumber 1 - k\cdot \phi &= 0 &\mod e  \\
 \nonumber 1 - k\cdot (N^{4}-(p^{2}+q^{2})^{2} + 2N^{2} + 1) &= 0 &\mod e \\
-\nonumber 1 - k\cdot (N^{4}-u^{2} + 2N^{2} + 1)| &= 0 &\mod e
+\nonumber 1 - k\cdot (N^{4}-u^{2} + 2N^{2} + 1) &= 0 &\mod e
 \end{align}
 $$
 
