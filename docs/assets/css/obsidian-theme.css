@@ -140,10 +140,7 @@ footer {
     margin: 1rem;
     padding: 1rem;
   }
-  body.theme-dark code {
-    white-space: pre-wrap;   
-    word-break: break-word; 
-  }
+
   mjx-container[display="true"] {
     display: block;
     max-width: 100%;
