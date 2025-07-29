@@ -140,7 +140,6 @@ footer {
     margin: 1rem;
     padding: 1rem;
   }
-
   mjx-container[display="true"] {
     display: block;
     max-width: 100%;
@@ -152,6 +151,10 @@ footer {
   h1 { font-size: 2rem; }
   h2 { font-size: 1.6rem; }
   h3 { font-size: 1.4rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 1rem; }
+  p {font-size: 1.6rem;}
 }
 
 /* Code Blocks & Syntax Highlighting (Rouge-inspired) */
