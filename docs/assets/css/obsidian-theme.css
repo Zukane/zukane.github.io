@@ -134,8 +134,9 @@ footer {
 }
 
 /* Responsive Adjustments */
-/* @media (max-width: 768px) {
+@media (max-width: 768px) {
   .container {
+    max-width: 100%;
     margin: 1rem;
     padding: 1rem;
   }
@@ -150,7 +151,7 @@ footer {
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
   }
-} */
+}
 
 /* Code Blocks & Syntax Highlighting (Rouge-inspired) */
 .highlight, pre {
