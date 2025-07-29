@@ -57,6 +57,11 @@ body.theme-dark h6,
   border-radius: 8px;
 }
 
+.container, .post-content, body.theme-dark p, body.theme-dark a { 
+  overflow-wrap: anywhere;
+  word-wrap: break-word; 
+  word-break: break-word;}
+  
 /* Typography */
 h1 { font-size: 2.5rem; margin-bottom: 1rem; }
 h2 { font-size: 2rem; margin-bottom: 0.75rem; }
@@ -129,14 +134,14 @@ footer {
 }
 
 /* Responsive Adjustments */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .container {
     margin: 1rem;
     padding: 1rem;
   }
   body.theme-dark code {
-    white-space: pre-wrap;   /* keep spaces/tabs but allow wrapping        */
-    word-break: break-word;  /* break very long, un‑hyphenable strings     */
+    white-space: pre-wrap;   
+    word-break: break-word; 
   }
   mjx-container[display="true"] {
     display: block;
@@ -145,7 +150,7 @@ footer {
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
   }
-}
+} */
 
 /* Code Blocks & Syntax Highlighting (Rouge-inspired) */
 .highlight, pre {
