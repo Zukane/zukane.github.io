@@ -151,6 +151,10 @@ footer {
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
   }
+  html { font-size: 87.5%; }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.6rem; }
+  h3 { font-size: 1.4rem; }
 }
 
 /* Code Blocks & Syntax Highlighting (Rouge-inspired) */
