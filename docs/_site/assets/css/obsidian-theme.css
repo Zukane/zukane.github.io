@@ -134,6 +134,10 @@ footer {
     margin: 1rem;
     padding: 1rem;
   }
+  body.theme-dark code {
+    white-space: pre-wrap;   /* keep spaces/tabs but allow wrapping        */
+    word-break: break-word;  /* break very long, un‑hyphenable strings     */
+  }
   mjx-container[display="true"] {
     display: block;
     max-width: 100%;
@@ -189,4 +193,22 @@ body.theme-dark code {
 
 .post-tags a.tag:hover {
   color: var(--text-title-h5);
+}
+
+.post-item{
+  margin-bottom: 2rem;
+}
+
+.post-list a.post-link,
+.post-item a.post-link {
+  font-size: 1.5rem !important;
+  color: #ff5757 !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.post-list a.post-link:hover,
+.post-item a.post-link:hover {
+  text-decoration: underline;
+  color: #ff7979 !important;
 }

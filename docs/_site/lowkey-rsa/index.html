@@ -101,11 +101,12 @@ c = 4323184196594280140760873888779221921406692838206184372853784052006066772207
 
 <p>We begin by expanding phi like so:</p>
 
-<p>\(\large \begin{align}
+\[\large \begin{align}
 \nonumber \phi(n) &amp;= (p^{4}-1)\cdot(q^{4}-1) \\
 \nonumber \phi(n) &amp;= N^{4}-(p^{4}+q^{4}) + 1
-\end{align}\)
-We rewrite $p^{4}+q^{4}$:</p>
+\end{align}\]
+
+<p>We rewrite $p^{4}+q^{4}$:</p>
 
 \[\large p^{4}+q^{4} = (p^{2}+q^{2})^{2}-2N^{2}\]
 
@@ -125,7 +126,7 @@ We rewrite $p^{4}+q^{4}$:</p>
 \nonumber e \cdot d + 1 - k\cdot \phi &amp;= 0 \\
 \nonumber 1 - k\cdot \phi &amp;= 0 &amp;\mod e  \\
 \nonumber 1 - k\cdot (N^{4}-(p^{2}+q^{2})^{2} + 2N^{2} + 1) &amp;= 0 &amp;\mod e \\
-\nonumber 1 - k\cdot (N^{4}-u^{2} + 2N^{2} + 1)| &amp;= 0 &amp;\mod e
+\nonumber 1 - k\cdot (N^{4}-u^{2} + 2N^{2} + 1) &amp;= 0 &amp;\mod e
 \end{align}\]
 
 <p>With this polynomial, we can recover $k$ and $u$ using a bivariate coppersmith’s attack. We will have to know the bounds for both $k$ and $u$. 

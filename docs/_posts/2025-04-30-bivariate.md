@@ -3,7 +3,7 @@ layout: default
 title: "Bivariate (ictf Round 54)"
 date: 2025-04-30 10:00:00 -0000
 categories: writeups
-tags: [RSA, Fermat's Little Theorem]
+tags: [RSA, Fermats Little Theorem]
 ---
 
 

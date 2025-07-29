@@ -95,8 +95,9 @@ sin(x) &amp; 0 &amp; 1 &amp; 0 \\
 
 <p>Since we have scaled up our known values, we can recover $a$ and $b$ using lattice reduction. After LLL, this will leave us with a short vector in the form of:</p>
 
-<p>\(\large (a \cdot cos(x) + b \cdot sin(y) - enc, a, b, 1)\)
-We can construct the matrix basis in SageMath like so:</p>
+\[\large (a \cdot cos(x) + b \cdot sin(y) - enc, a, b, 1)\]
+
+<p>We can construct the matrix basis in SageMath like so:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">M</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="p">[</span>
     <span class="p">[</span><span class="n">cos_x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>

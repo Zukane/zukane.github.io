@@ -3,7 +3,7 @@ layout: default
 title: "Copperbox (HTB Cyber Appocalypse 2025)"
 date: 2025-03-26 10:00:00 -0000
 categories: writeups
-tags: [Coppersmith small roots, LCG]
+tags: [Coppersmith small roots, PRNG, LCG]
 ---
 
 ##### Challenge overview

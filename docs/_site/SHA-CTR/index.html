@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHA-CTR (CERT.PL 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">SHA-CTR (CERT.PL 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/sha2/" class="tag">SHA2</a>
+            
+            <a href="/tags/length-extension/" class="tag">Length extension</a>
+            
+            <a href="/tags/stream-cipher/" class="tag">Stream cipher</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the source code for a remote instance:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">binascii</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha512</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">xor</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">aa</span> <span class="o">^</span> <span class="n">bb</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)])</span>
+
+
+<span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">nonce</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">block_size</span> <span class="o">=</span> <span class="mi">512</span> <span class="o">//</span> <span class="mi">8</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itertools</span><span class="p">.</span><span class="n">batched</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)):</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="mi">010</span><span class="si">}</span><span class="s">"</span><span class="p">.</span><span class="n">encode</span><span class="p">()</span>
+        <span class="n">keystream</span> <span class="o">=</span> <span class="n">sha512</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="n">nonce</span> <span class="o">+</span> <span class="n">counter</span><span class="p">).</span><span class="n">digest</span><span class="p">()</span>
+        <span class="n">res</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">xor</span><span class="p">(</span><span class="n">keystream</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">block</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="sa">b</span><span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_ciphertext</span><span class="p">(</span><span class="n">nonce</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"flag.bmp"</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">nonce</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">nonce</span> <span class="o">=</span> <span class="n">binascii</span><span class="p">.</span><span class="n">unhexlify</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">"nonce:"</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">binascii</span><span class="p">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">get_ciphertext</span><span class="p">(</span><span class="n">nonce</span><span class="p">)).</span><span class="n">decode</span><span class="p">())</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>as well as an example_flag.bmp image.</p>
+
+<h5 id="length-extension">Length extension</h5>
+
+<p>The encryption service implements a custom stream cipher using SHA512. We have the ability to encrypt the flag.bmp file with a chosen nonce. The plaintext data is split into blocks of size 64, and for each block, a keystream is generated and XORed with the block:</p>
+
+\[\large \begin{align}
+\nonumber keystream_{i} &amp;= SHA512(key \space \| \space nonce \space \| \space ctr_{i}) \\
+\nonumber ct _{i} &amp;= keystream_{i} \oplus block_{i}
+\end{align}\]
+
+<p>Using SHA512 in this fashion is dangerous, as it opens up the possibility for a length extension attack. A length extension attack allows a user to calculate the hash $Hash(secret \space | \space message)$ if the length of the <code class="language-plaintext highlighter-rouge">secret</code> is known, and the <code class="language-plaintext highlighter-rouge">message</code> is known. If we can generate the hash (keystream) for each of the predictable counters, even without knowing the key, we can decrypt the encrypted flag image. In our case, this <code class="language-plaintext highlighter-rouge">message</code> is comprised of the chosen nonce and the known counter. In addition to this, SHA512 includes some internal padding since it handles 128-byte chunks at a time.</p>
+
+<p>We begin by sending an empty nonce <code class="language-plaintext highlighter-rouge">b''</code> in the first round. The encryption service will generate a keystream by hashing:</p>
+
+\[\large keystream_{0} = SHA512(key \space \| \space ctr_{0} \space \| \space padding)\]
+
+<p>We have a 32 byte key and a 10 byte counter, which means we have 86 bytes of padding being hashed. This $keystream_{0}$ will be a vital piece of information later. We can denote this keystream or hash as $H_{0}$. On the second (and last) query, we set the nonce to $(ctr_{0} \space | \space padding)$. The encryption service will then generate a keystream by hashing:</p>
+
+\[\large keystream_{0} = SHA512(key \space \| \space ctr_{0} \space \| \space padding_{0} \space \| \space ctr_{i} \space \| \space padding_{i})\]
+
+<p>Now, the data to be hashed has surpassed 128 bytes in length. Internally, SHA512 will digest the first block $key \space | \space ctr_{0} \space | \space padding_{0}$, update the internal state, then digest the second block $ctr_{i} \space | \space padding_{i}$. The updated internal state will be $H_{0}$. If we are able to recover this $H_{0}$, we can set the known internal state of a SHA512 copy locally, and process each $i$ possible second blocks. This way, we are able to recover all keystreams and hence decrypt the encrypted flag by XOR.</p>
+
+<h5 id="attack-implementation">Attack implementation</h5>
+
+<p>The attack hinges on knowing $H_{0}$ or rather $keystream_{0}$. By sending in an empty nonce to the encryption service, we receive</p>
+
+\[\large ct_{0} = pt_{0} \oplus H_{0}\]
+
+<p>If we knew the first plaintext block of the flag, then $H_{0}$ would be recoverable. Luckily for us, the challenge gave us an example_flag.bmp file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xxd -p -l 64 example_flag.bmp
+424dee3b0000000000003600000028000000c40000001a00000001001800
+00000000b83b000000000000000000000000000000000000ffffffffffff
+ffffffff
+</code></pre></div></div>
+
+<p>The BMP header consists of magic bytes, dimension fields, size fields, and some <code class="language-plaintext highlighter-rouge">ffffffffff</code> pixel values at the end (white pixels). This is all predictable information, as the flag will most likely have the same dimensions, the same size (can be verified by the ciphertext size) and also include white pixels in that position. Therefore, with high likelihood, the first plaintext block of the example flag, and the actual flag, is the same.</p>
+
+<p>This way, we can recover $H_{0}$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">known_plain</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span>
+    <span class="s">"424dee3b0000000000003600000028000000c40000001a00000001001800"</span>
+    <span class="s">"00000000b83b000000000000000000000000000000000000ffffffffffff"</span>
+    <span class="s">"ffffffff"</span>
+<span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"nonce:"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">""</span><span class="p">)</span> <span class="c1"># empty nonce
+</span><span class="n">cipher0</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span> <span class="c1"># get ciphertext
+</span><span class="n">state_ints</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">xor</span><span class="p">(</span><span class="n">cipher0</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">],</span><span class="n">known_plain</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span> <span class="c1"># xor 
+</span></code></pre></div></div>
+
+<p>$H_{0}$ is split up into <code class="language-plaintext highlighter-rouge">state_ints</code> to be later processed as the SHA512 internal state. From here, we can prepare the second step. Padding in SHA2 is structured like so:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>\x80 + many \x00 + 16-byte length field 
+</code></pre></div></div>
+
+<p>We recall that we have 86 bytes of padding, since the counter is 10 bytes and the key is 32 bytes. With the <code class="language-plaintext highlighter-rouge">\x80</code> padding “header” and the 16 byte length field, we are left with 69 null-bytes. We construct the padding and nonce like so:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">KEY_LEN</span>      <span class="o">=</span> <span class="mi">32</span>
+<span class="n">CTR_LEN</span>      <span class="o">=</span> <span class="mi">10</span>
+<span class="n">first_ctr</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"0"</span> <span class="o">*</span> <span class="n">CTR_LEN</span>
+<span class="n">pad</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x80</span><span class="s">"</span> <span class="o">+</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="o">*</span><span class="mi">69</span> <span class="o">+</span> <span class="p">((</span><span class="n">KEY_LEN</span> <span class="o">+</span> <span class="n">CTR_LEN</span><span class="p">)</span><span class="o">*</span><span class="mi">8</span><span class="p">).</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">nonce</span> <span class="o">=</span> <span class="n">first_ctr</span> <span class="o">+</span> <span class="n">pad</span>
+</code></pre></div></div>
+
+<p>After sending the nonce, we receive the corresponding encrypted flag.bmp. This data has to be handled in blocks of 64. For each block, we generate the predictable counter $ctr_{i}$, then we generate it’s corresponding padding (now 118 bytes since the second block consists of just the counter), before the block is fed to the internal SHA512 copy with the <code class="language-plaintext highlighter-rouge">state_ints</code> from $H_{0}$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">second_block</span><span class="p">(</span><span class="n">counter</span><span class="p">):</span>
+    <span class="n">total_bits</span> <span class="o">=</span> <span class="p">(</span><span class="n">KEY_LEN</span> <span class="o">+</span> <span class="n">CTR_LEN</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span> <span class="o">+</span> <span class="n">CTR_LEN</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span>
+    <span class="k">return</span> <span class="n">counter</span> <span class="o">+</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x80</span><span class="s">"</span> <span class="o">+</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="o">*</span><span class="mi">101</span> <span class="o">+</span> <span class="n">total_bits</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">block_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cipher</span><span class="p">),</span> <span class="n">BLOCK_SIZE</span><span class="p">):</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">block_index</span><span class="o">//</span><span class="n">BLOCK_SIZE</span><span class="si">:</span><span class="mi">010</span><span class="si">}</span><span class="s">"</span><span class="p">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="n">ks_words</span> <span class="o">=</span> <span class="n">sha512_compress</span><span class="p">(</span><span class="n">second_block</span><span class="p">(</span><span class="n">counter</span><span class="p">),</span> <span class="n">state_ints</span><span class="p">)</span>
+    <span class="n">keystream</span> <span class="o">=</span> <span class="sa">b</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">ks_words</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">sha512_compress()</code> functions is a boilerplate SHA512 implementation in python from here: https://github.com/KelCodesStuff/Cryptographic-Algorithms/blob/42441605679ee0aa9ad94611c21512cab93ea559/src/sha512.py</p>
+
+<p>With the keystream for each block, we are able to easily recover the plaintext bytes through XOR. The complete plaintext byte-array is written to <code class="language-plaintext highlighter-rouge">flag.bmp</code>, which reveals the flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ecsc25{never_cross_the_streams}
+</code></pre></div></div>
+
+<h5 id="solve-script">Solve script</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">struct</span>
+
+<span class="c1"># sha512 implementation from https://github.com/KelCodesStuff/Cryptographic-Algorithms/blob/42441605679ee0aa9ad94611c21512cab93ea559/src/sha512.py
+</span><span class="n">K</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mh">0x428a2f98d728ae22</span><span class="p">,</span> <span class="mh">0x7137449123ef65cd</span><span class="p">,</span> <span class="mh">0xb5c0fbcfec4d3b2f</span><span class="p">,</span> <span class="mh">0xe9b5dba58189dbbc</span><span class="p">,</span>
+    <span class="mh">0x3956c25bf348b538</span><span class="p">,</span> <span class="mh">0x59f111f1b605d019</span><span class="p">,</span> <span class="mh">0x923f82a4af194f9b</span><span class="p">,</span> <span class="mh">0xab1c5ed5da6d8118</span><span class="p">,</span>
+    <span class="mh">0xd807aa98a3030242</span><span class="p">,</span> <span class="mh">0x12835b0145706fbe</span><span class="p">,</span> <span class="mh">0x243185be4ee4b28c</span><span class="p">,</span> <span class="mh">0x550c7dc3d5ffb4e2</span><span class="p">,</span>
+    <span class="mh">0x72be5d74f27b896f</span><span class="p">,</span> <span class="mh">0x80deb1fe3b1696b1</span><span class="p">,</span> <span class="mh">0x9bdc06a725c71235</span><span class="p">,</span> <span class="mh">0xc19bf174cf692694</span><span class="p">,</span>
+    <span class="mh">0xe49b69c19ef14ad2</span><span class="p">,</span> <span class="mh">0xefbe4786384f25e3</span><span class="p">,</span> <span class="mh">0x0fc19dc68b8cd5b5</span><span class="p">,</span> <span class="mh">0x240ca1cc77ac9c65</span><span class="p">,</span>
+    <span class="mh">0x2de92c6f592b0275</span><span class="p">,</span> <span class="mh">0x4a7484aa6ea6e483</span><span class="p">,</span> <span class="mh">0x5cb0a9dcbd41fbd4</span><span class="p">,</span> <span class="mh">0x76f988da831153b5</span><span class="p">,</span>
+    <span class="mh">0x983e5152ee66dfab</span><span class="p">,</span> <span class="mh">0xa831c66d2db43210</span><span class="p">,</span> <span class="mh">0xb00327c898fb213f</span><span class="p">,</span> <span class="mh">0xbf597fc7beef0ee4</span><span class="p">,</span>
+    <span class="mh">0xc6e00bf33da88fc2</span><span class="p">,</span> <span class="mh">0xd5a79147930aa725</span><span class="p">,</span> <span class="mh">0x06ca6351e003826f</span><span class="p">,</span> <span class="mh">0x142929670a0e6e70</span><span class="p">,</span>
+    <span class="mh">0x27b70a8546d22ffc</span><span class="p">,</span> <span class="mh">0x2e1b21385c26c926</span><span class="p">,</span> <span class="mh">0x4d2c6dfc5ac42aed</span><span class="p">,</span> <span class="mh">0x53380d139d95b3df</span><span class="p">,</span>
+    <span class="mh">0x650a73548baf63de</span><span class="p">,</span> <span class="mh">0x766a0abb3c77b2a8</span><span class="p">,</span> <span class="mh">0x81c2c92e47edaee6</span><span class="p">,</span> <span class="mh">0x92722c851482353b</span><span class="p">,</span>
+    <span class="mh">0xa2bfe8a14cf10364</span><span class="p">,</span> <span class="mh">0xa81a664bbc423001</span><span class="p">,</span> <span class="mh">0xc24b8b70d0f89791</span><span class="p">,</span> <span class="mh">0xc76c51a30654be30</span><span class="p">,</span>
+    <span class="mh">0xd192e819d6ef5218</span><span class="p">,</span> <span class="mh">0xd69906245565a910</span><span class="p">,</span> <span class="mh">0xf40e35855771202a</span><span class="p">,</span> <span class="mh">0x106aa07032bbd1b8</span><span class="p">,</span>
+    <span class="mh">0x19a4c116b8d2d0c8</span><span class="p">,</span> <span class="mh">0x1e376c085141ab53</span><span class="p">,</span> <span class="mh">0x2748774cdf8eeb99</span><span class="p">,</span> <span class="mh">0x34b0bcb5e19b48a8</span><span class="p">,</span>
+    <span class="mh">0x391c0cb3c5c95a63</span><span class="p">,</span> <span class="mh">0x4ed8aa4ae3418acb</span><span class="p">,</span> <span class="mh">0x5b9cca4f7763e373</span><span class="p">,</span> <span class="mh">0x682e6ff3d6b2b8a3</span><span class="p">,</span>
+    <span class="mh">0x748f82ee5defb2fc</span><span class="p">,</span> <span class="mh">0x78a5636f43172f60</span><span class="p">,</span> <span class="mh">0x84c87814a1f0ab72</span><span class="p">,</span> <span class="mh">0x8cc702081a6439ec</span><span class="p">,</span>
+    <span class="mh">0x90befffa23631e28</span><span class="p">,</span> <span class="mh">0xa4506cebde82bde9</span><span class="p">,</span> <span class="mh">0xbef9a3f7b2c67915</span><span class="p">,</span> <span class="mh">0xc67178f2e372532b</span><span class="p">,</span>
+    <span class="mh">0xca273eceea26619c</span><span class="p">,</span> <span class="mh">0xd186b8c721c0c207</span><span class="p">,</span> <span class="mh">0xeada7dd6cde0eb1e</span><span class="p">,</span> <span class="mh">0xf57d4f7fee6ed178</span><span class="p">,</span>
+    <span class="mh">0x06f067aa72176fba</span><span class="p">,</span> <span class="mh">0x0a637dc5a2c898a6</span><span class="p">,</span> <span class="mh">0x113f9804bef90dae</span><span class="p">,</span> <span class="mh">0x1b710b35131c471b</span><span class="p">,</span>
+    <span class="mh">0x28db77f523047d84</span><span class="p">,</span> <span class="mh">0x32caab7b40c72493</span><span class="p">,</span> <span class="mh">0x3c9ebe0a15c9bebc</span><span class="p">,</span> <span class="mh">0x431d67c49c100d4c</span><span class="p">,</span>
+    <span class="mh">0x4cc5d4becb3e42b6</span><span class="p">,</span> <span class="mh">0x597f299cfc657e2a</span><span class="p">,</span> <span class="mh">0x5fcb6fab3ad6faec</span><span class="p">,</span> <span class="mh">0x6c44198c4a475817</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">right_rotate</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">64</span> <span class="o">-</span> <span class="n">n</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="mh">0xffffffffffffffff</span>
+
+<span class="k">def</span> <span class="nf">sha512_compress</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">hash_state</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">128</span><span class="p">:</span>
+        <span class="n">chunk</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span> <span class="o">*</span> <span class="p">(</span><span class="mi">128</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">80</span>
+    <span class="n">w</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="s">'&gt;16Q'</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">80</span><span class="p">):</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">15</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span> <span class="o">^</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">15</span><span class="p">],</span> <span class="mi">8</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">15</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">],</span> <span class="mi">19</span><span class="p">)</span> <span class="o">^</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">],</span> <span class="mi">61</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">16</span><span class="p">]</span> <span class="o">+</span> <span class="n">s0</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">s1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffffffffffff</span>
+
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">hash_state</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">80</span><span class="p">):</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span> <span class="o">^</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span> <span class="o">^</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">41</span><span class="p">)</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="p">(</span><span class="n">e</span> <span class="o">&amp;</span> <span class="n">f</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="o">~</span><span class="n">e</span> <span class="o">&amp;</span> <span class="n">g</span><span class="p">)</span>
+        <span class="n">temp1</span> <span class="o">=</span> <span class="p">(</span><span class="n">h</span> <span class="o">+</span> <span class="n">s1</span> <span class="o">+</span> <span class="n">ch</span> <span class="o">+</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0xffffffffffffffff</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">28</span><span class="p">)</span> <span class="o">^</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">34</span><span class="p">)</span> <span class="o">^</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">39</span><span class="p">)</span>
+        <span class="n">maj</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">a</span> <span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">b</span> <span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span>
+        <span class="n">temp2</span> <span class="o">=</span> <span class="p">(</span><span class="n">s0</span> <span class="o">+</span> <span class="n">maj</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffffffffffff</span>
+
+        <span class="n">h</span> <span class="o">=</span> <span class="n">g</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">e</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span> <span class="o">+</span> <span class="n">temp1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffffffffffff</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">+</span> <span class="n">temp2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffffffffffff</span>
+
+    <span class="n">hash_state</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffffffffffff</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">hash_state</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="n">hash_state</span>
+
+
+
+
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="n">remote</span><span class="p">,</span> <span class="n">xor</span>
+
+<span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span>   <span class="o">=</span> <span class="s">"shactr.ecsc25.hack.cert.pl"</span><span class="p">,</span> <span class="mi">5203</span>
+<span class="n">BLOCK_SIZE</span>   <span class="o">=</span> <span class="mi">64</span>
+<span class="n">KEY_LEN</span>      <span class="o">=</span> <span class="mi">32</span>
+<span class="n">CTR_LEN</span>      <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># xxd -p -l 64 example_flag.bmp
+</span><span class="n">known_plain</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span>
+    <span class="s">"424dee3b0000000000003600000028000000c40000001a00000001001800"</span>
+    <span class="s">"00000000b83b000000000000000000000000000000000000ffffffffffff"</span>
+    <span class="s">"ffffffff"</span>
+<span class="p">)</span>
+<span class="n">file_size</span> <span class="o">=</span> <span class="mh">0x3bee</span>
+
+<span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"nonce:"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">""</span><span class="p">)</span>
+<span class="n">cipher0</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span>
+
+<span class="n">state_ints</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">xor</span><span class="p">(</span><span class="n">cipher0</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">],</span><span class="n">known_plain</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="n">first_ctr</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"0"</span> <span class="o">*</span> <span class="n">CTR_LEN</span>
+<span class="c1"># 0x80 + many 0x00 + 16 bytes length-field
+</span><span class="n">pad</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x80</span><span class="s">"</span> <span class="o">+</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="o">*</span><span class="mi">69</span> <span class="o">+</span> <span class="p">((</span><span class="n">KEY_LEN</span> <span class="o">+</span> <span class="n">CTR_LEN</span><span class="p">)</span><span class="o">*</span><span class="mi">8</span><span class="p">).</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">nonce</span> <span class="o">=</span> <span class="n">first_ctr</span> <span class="o">+</span> <span class="n">pad</span>
+
+<span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"nonce:"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">nonce</span><span class="p">.</span><span class="nb">hex</span><span class="p">().</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># ctr(i) \| padding
+</span><span class="k">def</span> <span class="nf">second_block</span><span class="p">(</span><span class="n">counter</span><span class="p">):</span>
+    <span class="n">total_bits</span> <span class="o">=</span> <span class="p">(</span><span class="n">KEY_LEN</span> <span class="o">+</span> <span class="n">CTR_LEN</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span> <span class="o">+</span> <span class="n">CTR_LEN</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span>
+    <span class="c1"># 0x80 + many 0x00 + 16 bytes length-field
+</span>    <span class="k">return</span> <span class="n">counter</span> <span class="o">+</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x80</span><span class="s">"</span> <span class="o">+</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="o">*</span><span class="mi">101</span> <span class="o">+</span> <span class="n">total_bits</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">plaintext</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cipher</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">block_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cipher</span><span class="p">),</span> <span class="n">BLOCK_SIZE</span><span class="p">):</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">block_index</span><span class="o">//</span><span class="n">BLOCK_SIZE</span><span class="si">:</span><span class="mi">010</span><span class="si">}</span><span class="s">"</span><span class="p">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="n">ks_words</span> <span class="o">=</span> <span class="n">sha512_compress</span><span class="p">(</span><span class="n">second_block</span><span class="p">(</span><span class="n">counter</span><span class="p">),</span> <span class="n">state_ints</span><span class="p">)</span>
+    <span class="n">keystream</span> <span class="o">=</span> <span class="sa">b</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">ks_words</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">byte_index</span><span class="p">,</span> <span class="p">(</span><span class="n">ct_byte</span><span class="p">,</span> <span class="n">keystream_byte</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cipher</span><span class="p">[</span><span class="n">block_index</span><span class="p">:</span><span class="n">block_index</span><span class="o">+</span><span class="n">BLOCK_SIZE</span><span class="p">],</span> <span class="n">keystream</span><span class="p">)):</span>
+        <span class="n">plaintext</span><span class="p">[</span><span class="n">block_index</span> <span class="o">+</span> <span class="n">byte_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">ct_byte</span> <span class="o">^</span> <span class="n">keystream_byte</span>
+
+<span class="nb">open</span><span class="p">(</span><span class="s">"flag.bmp"</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">).</span><span class="n">write</span><span class="p">(</span><span class="n">plaintext</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"flag.bmp written"</span><span class="p">)</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
