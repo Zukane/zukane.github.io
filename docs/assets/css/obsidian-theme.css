@@ -151,6 +151,12 @@ footer {
   h1 { font-size: 2rem; }
   h2 { font-size: 1.6rem; }
   h3 { font-size: 1.4rem; }
+  .featured-heading {
+    font-size: 1.5rem !important;   /* was 2rem */
+  }
+  .featured-item .post-link {
+    font-size: 1.3rem !important;   /* was 1.75rem */
+  }
 }
 
 /* Code Blocks & Syntax Highlighting (Rouge-inspired) */
