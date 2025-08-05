@@ -1,4 +1,226 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-29T15:48:27+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zukane CTF</title><subtitle>CTF Writeups, mostly focused on crypto</subtitle><author><name>Zukane</name></author><entry><title type="html">SHA-CTR (CERT.PL 2025)</title><link href="http://localhost:4000/SHA-CTR/" rel="alternate" type="text/html" title="SHA-CTR (CERT.PL 2025)" /><published>2025-07-15T13:00:00+02:00</published><updated>2025-07-15T13:00:00+02:00</updated><id>http://localhost:4000/SHA-CTR</id><content type="html" xml:base="http://localhost:4000/SHA-CTR/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-08-05T08:29:08+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zukane CTF</title><subtitle>CTF Writeups, mostly focused on crypto</subtitle><author><name>Zukane</name></author><entry><title type="html">Diamond Ticket (idekCTF 2025)</title><link href="http://localhost:4000/diamond-ticket/" rel="alternate" type="text/html" title="Diamond Ticket (idekCTF 2025)" /><published>2025-08-02T12:00:00+02:00</published><updated>2025-08-02T12:00:00+02:00</updated><id>http://localhost:4000/diamond-ticket</id><content type="html" xml:base="http://localhost:4000/diamond-ticket/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1">#Some magic from Willy Wonka
+</span><span class="n">p</span> <span class="o">=</span> <span class="mi">170829625398370252501980763763988409583</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mi">164164878498114882034745803752027154293</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">125172356708896457197207880391835698381</span>
+
+<span class="k">def</span> <span class="nf">chocolate_generator</span><span class="p">(</span><span class="n">m</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="nb">pow</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="o">%</span> <span class="n">p</span>
+
+<span class="c1">#The diamond ticket is hiding inside chocolate
+</span><span class="n">diamond_ticket</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"flag.txt"</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diamond_ticket</span><span class="p">)</span> <span class="o">==</span> <span class="mi">26</span>
+<span class="k">assert</span> <span class="n">diamond_ticket</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s">"idek{"</span>
+<span class="k">assert</span> <span class="n">diamond_ticket</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="sa">b</span><span class="s">"}"</span>
+<span class="n">diamond_ticket</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">diamond_ticket</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">flag_chocolate</span> <span class="o">=</span> <span class="n">chocolate_generator</span><span class="p">(</span><span class="n">diamond_ticket</span><span class="p">)</span>
+<span class="n">chocolate_bag</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1">#Willy Wonka are making chocolates
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1337</span><span class="p">):</span> <span class="c1"># 1337 random szám
+</span>    <span class="n">chocolate_bag</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">getRandomRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+
+<span class="c1">#And he put the golden ticket at the end
+</span><span class="n">chocolate_bag</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag_chocolate</span><span class="p">)</span> <span class="c1"># az utolsó a flag
+</span>
+<span class="c1">#Augustus ate lots of chocolates, but he can't eat all cuz he is full now :D
+</span><span class="n">remain</span> <span class="o">=</span> <span class="n">chocolate_bag</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span> <span class="c1"># az első 4 random szám, az utolsó a flag
+</span>
+<span class="c1">#Compress all remain chocolates into one
+</span><span class="n">remain_bytes</span> <span class="o">=</span> <span class="sa">b</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="n">c</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">bit_length</span><span class="p">()</span><span class="o">//</span><span class="mi">8</span><span class="p">,</span> <span class="s">"big"</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">remain</span><span class="p">])</span> 
+
+<span class="c1">#The last chocolate is too important, so Willy Wonka did magic again
+</span><span class="n">P</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="n">Q</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="sa">b</span><span class="s">"idek{this_is_a_fake_flag_lolol}"</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">),</span> <span class="n">e</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="c1"># A small gift
+</span>
+<span class="c1">#How can you get it ?
+</span><span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">N</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">c1</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">c2</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span> 
+</code></pre></div></div>
+
+<p>As well as the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>N = 85494791395295332945307239533692379607357839212287019473638934253301452108522067416218735796494842928689545564411909493378925446256067741352255455231566967041733698260315140928382934156213563527493360928094724419798812564716724034316384416100417243844799045176599197680353109658153148874265234750977838548867
+c1 = 27062074196834458670191422120857456217979308440332928563784961101978948466368298802765973020349433121726736536899260504828388992133435359919764627760887966221328744451867771955587357887373143789000307996739905387064272569624412963289163997701702446706106089751532607059085577031825157942847678226256408018301
+c2 = 30493926769307279620402715377825804330944677680927170388776891152831425786788516825687413453427866619728035923364764078434617853754697076732657422609080720944160407383110441379382589644898380399280520469116924641442283645426172683945640914810778133226061767682464112690072473051344933447823488551784450844649
+</code></pre></div></div>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>This challenge consists of multiple parts. Firstly, we are given two RSA ciphertexts of the same message with the same modulus. The encrypted message is <code class="language-plaintext highlighter-rouge">remain_bytes</code>, which consists of five concatenated elements of <code class="language-plaintext highlighter-rouge">chocolate_bag</code>. Four of these are random numbers, while the final element is <code class="language-plaintext highlighter-rouge">flag_chocolate</code>.</p>
+
+<p><code class="language-plaintext highlighter-rouge">flag_chocolate</code> is the flag output of the <code class="language-plaintext highlighter-rouge">chocolate_generator(m)</code> function.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">chocolate_generator</span><span class="p">(</span><span class="n">m</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="nb">pow</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="o">%</span> <span class="n">p</span>
+</code></pre></div></div>
+
+<p>We must recover <code class="language-plaintext highlighter-rouge">flag_chocolate</code> from the RSA output, and then recover the message $m$ from the equation</p>
+
+\[\large a^{m} + b^{m} \mod p\]
+
+<p>Where $m$ is the 20-byte plaintext flag</p>
+
+<h5 id="recovering-flag_chocolate">Recovering flag_chocolate</h5>
+
+<p>Like previously mentioned, we are given two RSA samples of the same message, encrypted with different exponents but the same modulus. This makes the plaintext susceptible to an RSA common modulus attack. We can use the implementation from <code class="language-plaintext highlighter-rouge">jvdsn</code>’s repo: https://github.com/jvdsn/crypto-attacks/blob/master/attacks/rsa/common_modulus.py</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">e1</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">e2</span><span class="p">,</span> <span class="n">c2</span><span class="p">):</span>
+    <span class="n">g</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">xgcd</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">)</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="o">-</span><span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">p1</span> <span class="o">*</span> <span class="n">p2</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">).</span><span class="n">nth_root</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>We can simply input the parameters from the source code, and we easily recover <code class="language-plaintext highlighter-rouge">flag_chooclate</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">85494791395295332945307239533692379607357839212287019473638934253301452108522067416218735796494842928689545564411909493378925446256067741352255455231566967041733698260315140928382934156213563527493360928094724419798812564716724034316384416100417243844799045176599197680353109658153148874265234750977838548867</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="mi">27062074196834458670191422120857456217979308440332928563784961101978948466368298802765973020349433121726736536899260504828388992133435359919764627760887966221328744451867771955587357887373143789000307996739905387064272569624412963289163997701702446706106089751532607059085577031825157942847678226256408018301</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="mi">30493926769307279620402715377825804330944677680927170388776891152831425786788516825687413453427866619728035923364764078434617853754697076732657422609080720944160407383110441379382589644898380399280520469116924641442283645426172683945640914810778133226061767682464112690072473051344933447823488551784450844649</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="sa">b</span><span class="s">"idek{this_is_a_fake_flag_lolol}"</span><span class="p">)</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">remain_bytes</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">attack</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">e1</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">e2</span><span class="p">,</span><span class="n">c2</span><span class="p">))</span>
+<span class="n">remain</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">16</span><span class="p">],</span> <span class="s">"big"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">),</span> <span class="mi">16</span><span class="p">)]</span>
+<span class="n">flag_chocolate</span> <span class="o">=</span> <span class="n">remain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="c1"># 99584795316725433978492646071734128819
+</span></code></pre></div></div>
+
+<h5 id="recovering-the-original-m">Recovering the original m</h5>
+
+<p>With <code class="language-plaintext highlighter-rouge">flag_chocolate</code> recovered, we now must recover the original flag from the equation.</p>
+
+\[\large \text{flag\_chocolate} \equiv a^{m} + b^{m} \mod p\]
+
+<p>Firstly, we notice that $p$ is a prime. We therefore work in the finite field $\mathbb{F}_{p}$. In SageMath, we can check the order $r$ of the field:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">p</span>  <span class="o">=</span> <span class="mi">170829625398370252501980763763988409583</span>
+<span class="p">....:</span> <span class="n">a</span>  <span class="o">=</span> <span class="mi">164164878498114882034745803752027154293</span>
+<span class="p">....:</span> <span class="n">b</span>  <span class="o">=</span> <span class="mi">125172356708896457197207880391835698381</span>
+<span class="p">....:</span> <span class="n">F</span>  <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">).</span><span class="n">multiplicative_order</span><span class="p">()</span>
+<span class="mi">85414812699185126250990381881994204791</span>
+</code></pre></div></div>
+
+<p>It turns out, the order of the field is surprisingly smooth:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">factor</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">).</span><span class="n">multiplicative_order</span><span class="p">())</span>
+<span class="mi">40841</span> <span class="o">*</span> <span class="mi">50119</span> <span class="o">*</span> <span class="mi">51193</span> <span class="o">*</span> <span class="mi">55823</span> <span class="o">*</span> <span class="mi">57809</span> <span class="o">*</span> <span class="mi">61991</span> <span class="o">*</span> <span class="mi">63097</span> <span class="o">*</span> <span class="mi">64577</span>
+</code></pre></div></div>
+
+<p>This means calculating discrete logs is quite easy. We can calculate the discrete log</p>
+
+\[\large b = a^{k} \mod p\]
+
+<p>for some $k$. Afterwards, we can rewrite our equation to:</p>
+
+\[\large \text{flag\_chocolate} \equiv a^{m} + a^{mk} \mod p\]
+
+<p>The discrete log is easily calculable in SageMath, and since the order is smooth, it is almost instant:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">).</span><span class="n">multiplicative_order</span><span class="p">()</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">k</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">ord</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
+<span class="c1"># 73331
+</span></code></pre></div></div>
+
+<p>The exponent $k = 73331$, which seems intentional considering it is $13337$ backwards. We denote $a^{m}$ as $x$, and we are now left with the polynomial:</p>
+
+\[\large x + x^{k} - \text{flag\_chocolate} \equiv 0 \mod p\]
+
+<p>By finding the root of this polynomial, we can find $a^{m} \bmod p$, where we can again solve for the discrete log, retrieving $m$. However, simply attempting <code class="language-plaintext highlighter-rouge">f.roots(multiplicities=False)</code> in SageMath is not enough. I used the <code class="language-plaintext highlighter-rouge">Cantor - Zassnehaus</code> method to find the root:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="n">k</span> <span class="o">-</span> <span class="n">flag_chocolate</span>
+
+<span class="k">def</span> <span class="nf">unique_root</span><span class="p">(</span><span class="n">poly</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">F</span><span class="p">.</span><span class="n">characteristic</span><span class="p">()</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">random_element</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="n">poly</span><span class="p">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">power_mod</span><span class="p">(</span><span class="n">g</span><span class="p">,(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">poly</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">).</span><span class="n">gcd</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">h</span><span class="p">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">poly</span><span class="p">.</span><span class="n">degree</span><span class="p">():</span>
+            <span class="n">poly</span> <span class="o">=</span> <span class="n">h</span>  
+            <span class="k">if</span> <span class="n">poly</span><span class="p">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  
+
+<span class="n">root</span> <span class="o">=</span> <span class="n">unique_root</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>  
+<span class="c1"># 126961729658296101306560858021273501485
+</span></code></pre></div></div>
+
+<p>With the root $a^{m} \bmod p$ recovered, we can now recover $m$ using the discrete log:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">m</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">ord</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>  
+<span class="c1"># 4807895356063327854843653048517090061
+</span></code></pre></div></div>
+
+<p>However, the recovered $m$ is not the complete plaintext. The original plaintext is 20 bytes, or rather 159 bits (because of leading 0 bit in ascii) while our modulus $p$ is 128 bits. To recover the complete 160 bit plaintext flag, we must lift the modulus and brute-force the missing factor $k$:</p>
+
+\[\large \text{flag} = m + k \cdot r\]
+
+<p>To verify if the flag is correct (or at least a candidate), we can check whether all flag bytes are printable ascii (between 32 and 126). With a 127 bit modulus $r$ and a 160 bit plaintext, the missing factor $k$ has an upper bound of $2^{33}$. This is doable in python/SageMath, but can be done a lot faster in a low-level language like c++ or rust. I wrote a brute-force code in c++ which iterates over possible values $k$ and prints the flag candidates:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>idek{ cm &amp;d@05 CS*q_[6Xxo}, k = 2164788270
+idek{"pVJWCNmgg59#/c,A1lf}, k = 2301835951
+idek{**}iVY9U:VhDtYv|Z@Un}, k = 2818307047
+idek{+MUks($7Mgr}k^M9EMB0}, k = 2894242741
+idek{,uMCt7xQoGqB+=Vkz"X0}, k = 2971516341
+idek{-'0v|lsh/#JFnY?_!S\S}, k = 3017960554
+idek{-;dC^#LP]I\3ke*iKIzV}, k = 3023235135
+idek{-{=G(2|N955PXau;%,;"}, k = 3039904979
+idek{9nRCVJsLMOij?QU/&amp;Dj4}, k = 3838593233
+idek{=rL&gt;7&gt;`HH?z dwF#\Rsb}, k = 4106985107
+idek{&gt;Xs\C7)bg1"_CB5p('| }, k = 4167075141
+idek{&gt;`6D\-v^1DVo9nAbY{f?}, k = 4169101534
+idek{@cL5&amp;a3iu~~jwMu~?68`}, k = 4303584005
+idek{A-;4;6kR&amp;xjp"ebkaFYf}, k = 4356306351
+idek{ALZ&gt;fE\}Lu,\6ku;5v/S}, k = 4364431722
+idek{Aqcll#(*wLKg{k: 9x!a}, k = 4374101324
+idek{D=7q7ZmjJU+/_SET(k&lt;Z}, k = 4560995163
+idek{DjeT|t!M&amp;o#~TYeKTaL^}, k = 4572790903
+idek{ETJ|+J+~B{q;f1$cJdO?}, k = 4633858014
+idek{F\eth:*"=Oq5qXM0@I(Q}, k = 4702812636
+idek{GGqO`:j0, OVhGk6`QI=}, k = 4764180304
+idek{H+@B~2[q{UtzIEEU+&lt;7r}, k = 4823658243
+idek{J$\Gu~.)Be{/#`@Y@a"7}, k = 4955536038
+idek{L[&amp;RdOPDT2*D}q?Oi^Xu}, k = 5103517656
+idek{N`(&lt;}~b*iHSmtz4'X68g}, k = 5238501878
+idek{OH&amp;F`@GGUpsVMHkX![hM}, k = 5299072192
+idek{P5bxoo)'46];&gt;`])&gt;)pE}, k = 5361011336
+idek{Q.=k;. PCu,q#}OZ}|f6}, k = 5425984351
+idek{TK%_6N?GvA@z.F Vvi$P}, k = 5634046613
+idek{T}bLK\y7=7h"EKU&amp;!@PU}, k = 5647163128
+idek{W)pA[}X(cS&gt;`w16l'cYn}, k = 5825761255
+idek{Y6'g2eA?&lt;DfH$33f}:+@}, k = 5962757925
+idek{YoFMQ?|I!,U'?hAYTwL`}, k = 5977671429
+idek{^Swy+98nqf3F#M5 ZD- }, k = 6304603205
+idek{a_DUV.bwgVg0G5=Q1Z+B}, k = 6508199347
+idek{dX5Z:`_B:w E?2g`A96&gt;}, k = 6706871703
+idek{d}Okl]'GAP^Re#-aPEHM}, k = 6716558528
+idek{hdmhF2o7XO#XIY=&lt;7&amp;a[}, k = 6977415586
+idek{iD(*_@q"aQ 6&gt;H#H' Mw}, k = 7035828582
+idek{kV*_rGI-Q]z8z{+A[-v&lt;}, k = 7174207241
+idek{l=Mt0@&amp;;3]+))wOQxxLW}, k = 7234554246
+idek{n }W~-LJ(qb&lt;\kw4aR,#}, k = 7360708378
+idek{ng0qo1rmR2_jS[;,Q1UM}, k = 7379167168
+idek{o-Z4t_oZ[_.Fng} W0`&lt;}, k = 7430905097
+idek{tks_f0r_ur_t1ck3t_xD}, k = 7781310273 &lt;- our flag
+idek{u]aAv}2(KI~?.yrgmhxS}, k = 7844474986
+idek{w_"knU](04jH_hi*&lt;.xy}, k = 7978609908
+idek{zxZmPiv]iZ,1fSH|9_m,}, k = 8185709465
+idek{~&gt;AkP(C2`p-DWPSe2=_t}, k = 8437894545
+</code></pre></div></div>
+
+<p>With $k = 7781310273$ we recover our flag: <code class="language-plaintext highlighter-rouge">idek{tks_f0r_ur_t1ck3t_xD}</code> !</p>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="RSA" /><category term="Common Modulus attack" /><category term="Diophantine" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">SHA-CTR (CERT.PL 2025)</title><link href="http://localhost:4000/SHA-CTR/" rel="alternate" type="text/html" title="SHA-CTR (CERT.PL 2025)" /><published>2025-07-15T13:00:00+02:00</published><updated>2025-07-15T13:00:00+02:00</updated><id>http://localhost:4000/SHA-CTR</id><content type="html" xml:base="http://localhost:4000/SHA-CTR/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge, we are given the source code for a remote instance:</p>
 
@@ -1504,117 +1726,6 @@ For $f(p,q)$, the terms $x^{i}y^{j}$ become $p^{i} q^{j}$. However, if we instea
 <span class="n">w</span> <span class="o">=</span> <span class="mi">15989670860487110440149242708963326378222417402274922693109917884050744558426262015391394948248787707275063436118071762352120567031556081355002123446258001515700442370180130234425828020876205206138411646169530066935290884923582522784445410472996067725745321733529202293253140485085104533833013732203780391490</span>
 
 <span class="n">p</span> <span class="o">=</span> <span class="n">gcd</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">),</span><span class="n">n</span><span class="p">)</span><span class="o">-</span><span class="n">w</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
-<span class="n">q</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">p</span>
-<span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">phi</span><span class="p">)</span>
-<span class="n">pt</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">))</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="RSA" /><category term="Fermats Little Theorem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Univariate (ictf Round 54)</title><link href="http://localhost:4000/univariate/" rel="alternate" type="text/html" title="Univariate (ictf Round 54)" /><published>2025-04-30T12:00:00+02:00</published><updated>2025-04-30T12:00:00+02:00</updated><id>http://localhost:4000/univariate</id><content type="html" xml:base="http://localhost:4000/univariate/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
-
-<p>In this CTF challenge we are given the following encryption script:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">getPrime</span><span class="p">,</span> <span class="n">bytes_to_long</span>
-<span class="kn">from</span> <span class="nn">secret</span> <span class="kn">import</span> <span class="n">flag</span>
-
-<span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
-<span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
-<span class="n">n</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
-
-<span class="n">m</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span>
-<span class="n">e</span> <span class="o">=</span> <span class="mi">65537</span>
-<span class="n">c</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
-
-<span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">P</span><span class="p">.</span><span class="n">gens</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">137</span><span class="p">)]</span>
-
-<span class="n">T</span> <span class="o">=</span> <span class="n">RealDistribution</span><span class="p">(</span><span class="s">'gaussian'</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">coefs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">T</span><span class="p">.</span><span class="n">get_random_element</span><span class="p">())</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">terms</span><span class="p">))]</span>
-
-<span class="n">f</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">term</span><span class="o">*</span><span class="n">coef</span> <span class="k">for</span> <span class="n">term</span><span class="p">,</span><span class="n">coef</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span><span class="n">coefs</span><span class="p">)])</span>
-<span class="n">w</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">f</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="n">n</span><span class="p">)</span>
-
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'out.txt'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
-    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">n</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
-    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">e</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
-    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">c</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
-    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">f</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
-    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">w</span> <span class="o">=</span> <span class="si">}</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
-</code></pre></div></div>
-
-<p>as well as the output:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>n = 151510886600487624888537926759375027338192556324330182365859112926770109752858284462159488504727238764120612593911292154858008775463001345641311051184326218974685701057787672193003745574697137968457609530135969033403360561333863943223407215732526198691453110628598401583407984162075630768455052482583101773637
-e = 65537
-c = 74468088842131664480394073891613024559473817230309311952320910922177130990996003196602702376336093457990873018154873841543712071422931358036924937335888815556064840522100618318507080665149514719351519909821468981883880543654015414713368018500970500498936910817336501949914675483148862843329341461828563728789
-f = -x^136 + x^135 - 2*x^134 - 4*x^132 + 2*x^130 - x^128 - 3*x^127 + 4*x^126 + 3*x^125 + 3*x^124 + x^123 + x^122 - 5*x^121 - 3*x^120 - x^119 - x^118 + x^117 + x^116 - 4*x^114 - 2*x^112 + 2*x^110 + x^109 + 2*x^108 - 2*x^107 + 3*x^106 - x^104 + 2*x^103 - x^102 + x^101 - 2*x^100 + 3*x^99 - 2*x^98 - x^97 - x^96 - 3*x^95 - x^94 - 2*x^93 - 2*x^91 + 3*x^90 - 2*x^89 - 2*x^88 + x^86 + x^85 - 2*x^84 - 3*x^83 + 2*x^82 + 3*x^79 - x^76 + 2*x^75 - x^74 + x^71 - 5*x^70 - x^67 + x^66 + x^65 + x^63 - x^61 + x^59 - 2*x^58 + 6*x^56 + x^55 + 3*x^54 - x^53 + 2*x^52 + 3*x^51 + x^50 + 2*x^49 + 3*x^47 + 2*x^46 - 4*x^45 + 3*x^44 + 3*x^43 - x^42 - 2*x^40 - 5*x^39 + x^38 + x^37 + 2*x^36 + 2*x^35 + x^34 - x^33 + x^32 - 5*x^31 + x^30 + x^29 + 2*x^28 - 2*x^27 + 3*x^26 - x^25 - x^23 - x^22 - 3*x^21 + 2*x^20 - x^19 - x^17 + 2*x^16 - 2*x^15 - 2*x^14 - 2*x^13 - 2*x^12 + 2*x^11 - 2*x^9 + 3*x^8 - 4*x^7 + 2*x^6 - 2*x^5 - 5*x^4 - 3*x^3 + 5*x^2 - 2
-w = 86258923706084556733053644452456806418792871483898871193707132372143291757396867798433017660985422614532352743658877188445517898648519256573663299464811234251773841741466280567326570167017786562044635756348763128567054349991798640926148221279889174229551074668002853442182664523748992260830782387602048836221
-</code></pre></div></div>
-
-<p>The encryption script uses RSA to encrypt the flag. However, we are given some hints about the prime factor $p$.</p>
-
-\[\large w = 2^{f(p)} \mod n\]
-
-<h5 id="recovering-p">Recovering p</h5>
-
-<p>We utilize the polynomial identity:</p>
-
-\[\large f(x) - f(1) = (x-1)\cdot g(x)\]
-
-<p>for some polynomial $g(x)$. We can evaluate $f$ at $x=1$ in sagemath:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="o">-</span><span class="mi">12</span>
-</code></pre></div></div>
-
-<p>So, for $f(p)$, we have:</p>
-
-\[\large f(p) + 12 = (p-1)\cdot g(x)\]
-
-<p>This means $f(p)+12$ is a multiple of $p-1$!</p>
-
-<p>We can then utilize fermat’s little theorem:</p>
-
-\[\large 2^{p-1} \equiv 1 \mod (p)\]
-
-<p>Any exponent that is a multiple of $p-1$ will also be congruent to $1 \mod p$.</p>
-
-\[\large 
-\begin{align}
-\nonumber 2^{f(p)+12} \equiv 1 \mod p \\
-\nonumber 2^{f(p)}\cdot 2^{12} \equiv 1 \mod p \\
-\nonumber w \cdot 2^{12} - 1 \equiv 0 \mod p
-\end{align}\]
-
-<p>From here, we can use $gcd$ with $N$ to recover $p$ and $q$:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">p</span> <span class="o">=</span> <span class="n">gcd</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="mi">2</span><span class="o">^</span><span class="mi">12</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
-<span class="n">sage</span><span class="p">:</span> <span class="n">q</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">p</span>
-<span class="n">sage</span><span class="p">:</span> <span class="k">assert</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span> <span class="o">==</span> <span class="n">n</span>
-</code></pre></div></div>
-
-<p>With the prime factors recovered, the decryption is trivial:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">phi</span><span class="p">)</span>
-<span class="n">pt</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">))</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
-<span class="c1"># ictf{p-1_g0es_aB$olU7eLy_w1lD!!!}
-</span></code></pre></div></div>
-
-<h5 id="solvepy">solve.py</h5>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">P</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">ZZ</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">P</span><span class="p">.</span><span class="n">gens</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="n">n</span> <span class="o">=</span> <span class="mi">151510886600487624888537926759375027338192556324330182365859112926770109752858284462159488504727238764120612593911292154858008775463001345641311051184326218974685701057787672193003745574697137968457609530135969033403360561333863943223407215732526198691453110628598401583407984162075630768455052482583101773637</span>
-<span class="n">e</span> <span class="o">=</span> <span class="mi">65537</span>
-<span class="n">c</span> <span class="o">=</span> <span class="mi">74468088842131664480394073891613024559473817230309311952320910922177130990996003196602702376336093457990873018154873841543712071422931358036924937335888815556064840522100618318507080665149514719351519909821468981883880543654015414713368018500970500498936910817336501949914675483148862843329341461828563728789</span>
-<span class="n">f</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span><span class="o">^</span><span class="mi">136</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">135</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">134</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">132</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">130</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">128</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">127</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">126</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">125</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">124</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">123</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">122</span> <span class="o">-</span> <span class="mi">5</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">121</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">120</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">119</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">118</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">117</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">116</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">114</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">112</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">110</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">109</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">108</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">107</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">106</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">104</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">103</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">102</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">101</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">100</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">99</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">98</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">97</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">96</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">95</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">94</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">93</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">91</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">90</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">89</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">88</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">86</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">85</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">84</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">83</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">82</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">79</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">76</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">75</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">74</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">71</span> <span class="o">-</span> <span class="mi">5</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">70</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">67</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">66</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">65</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">63</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">61</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">59</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">58</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">56</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">55</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">54</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">53</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">52</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">51</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">50</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">49</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">47</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">46</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">45</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">44</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">43</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">42</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">40</span> <span class="o">-</span> <span class="mi">5</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">39</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">38</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">37</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">36</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">35</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">34</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">33</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">32</span> <span class="o">-</span> <span class="mi">5</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">31</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">30</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">29</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">28</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">27</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">26</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">25</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">23</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">22</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">21</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">20</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">19</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">17</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">16</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">15</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">14</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">13</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">12</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">11</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">9</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">8</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">7</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">6</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">5</span> <span class="o">-</span> <span class="mi">5</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">5</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span>
-<span class="n">w</span> <span class="o">=</span> <span class="mi">86258923706084556733053644452456806418792871483898871193707132372143291757396867798433017660985422614532352743658877188445517898648519256573663299464811234251773841741466280567326570167017786562044635756348763128567054349991798640926148221279889174229551074668002853442182664523748992260830782387602048836221</span>
-
-<span class="n">p</span> <span class="o">=</span> <span class="n">gcd</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="mi">2</span><span class="o">^</span><span class="mi">12</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
 <span class="n">q</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">p</span>
 <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">phi</span><span class="p">)</span>

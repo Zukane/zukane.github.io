@@ -202,7 +202,6 @@ To verify if the flag is correct (or at least a candidate), we can check whether
 ```
 idek{ cm &d@05 CS*q_[6Xxo}, k = 2164788270
 idek{"pVJWCNmgg59#/c,A1lf}, k = 2301835951
-idek{%?{aZB7]tSBv~lclSoN~}, k = 2489595735
 idek{**}iVY9U:VhDtYv|Z@Un}, k = 2818307047
 idek{+MUks($7Mgr}k^M9EMB0}, k = 2894242741
 idek{,uMCt7xQoGqB+=Vkz"X0}, k = 2971516341

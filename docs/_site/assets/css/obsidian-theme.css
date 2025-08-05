@@ -57,6 +57,11 @@ body.theme-dark h6,
   border-radius: 8px;
 }
 
+.container, .post-content, body.theme-dark p, body.theme-dark a { 
+  overflow-wrap: anywhere;
+  word-wrap: break-word; 
+  word-break: break-word;}
+  
 /* Typography */
 h1 { font-size: 2.5rem; margin-bottom: 1rem; }
 h2 { font-size: 2rem; margin-bottom: 0.75rem; }
@@ -131,12 +136,9 @@ footer {
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .container {
+    max-width: 100%;
     margin: 1rem;
     padding: 1rem;
-  }
-  body.theme-dark code {
-    white-space: pre-wrap;   /* keep spaces/tabs but allow wrapping        */
-    word-break: break-word;  /* break very long, un‑hyphenable strings     */
   }
   mjx-container[display="true"] {
     display: block;
@@ -144,6 +146,16 @@ footer {
     overflow-x: auto;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
+  }
+  html { font-size: 87.5%; }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.6rem; }
+  h3 { font-size: 1.4rem; }
+  .featured-heading {
+    font-size: 1.6rem !important;   /* was 2rem */
+  }
+  .featured-item .post-link {
+    font-size: 1.5rem !important;   /* was 1.75rem */
   }
 }
 
