@@ -114,10 +114,10 @@ flag_chocolate = remain[-1]
 
 ##### Recovering the original m
 
-With `flag_chocolate` recovered, we now must recover the original flag from the equation.
+With `flag_chocolate` recovered, we now must recover the original flag from the equation. From here on, we denote `flag_chocolate` as $S$.
 
 $$
-\large \text{flag\_chocolate} \equiv a^{m} + b^{m} \mod p
+\large S \equiv a^{m} + b^{m} \mod p
 $$
 
 Firstly, we notice that $p$ is a prime. We therefore work in the finite field $\mathbb{F}_{p}$. In SageMath, we can check the order $r$ of the field:
@@ -147,7 +147,7 @@ $$
 for some $k$. Afterwards, we can rewrite our equation to:
 
 $$
-\large \text{flag\_chocolate} \equiv a^{m} + a^{mk} \mod p
+\large S \equiv a^{m} + a^{mk} \mod p
 $$
 
 The discrete log is easily calculable in SageMath, and since the order is smooth, it is almost instant:
@@ -161,7 +161,7 @@ sage: k = discrete_log(F(b), F(a), ord=r)
 The exponent $k = 73331$, which seems intentional considering it is $13337$ backwards. We denote $a^{m}$ as $x$, and we are now left with the polynomial:
 
 $$
-\large x + x^{k} - \text{flag\_chocolate} \equiv 0 \mod p
+\large x + x^{k} - S \equiv 0 \mod p
 $$
 
 By finding the root of this polynomial, we can find $a^{m} \bmod p$, where we can again solve for the discrete log, retrieving $m$. However, simply attempting `f.roots(multiplicities=False)` in SageMath is not enough. I used the `Cantor - Zassnehaus` method to find the root:
