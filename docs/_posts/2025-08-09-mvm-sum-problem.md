@@ -53,9 +53,9 @@ for each row $a_{i}$ in $A$. The user is then given the following:
 
 $$
 \large \begin{align}
-A_{mod} &\equiv A \mod p \\
-b &\equiv x \mod p \\
-t &= x >> 48
+\nonumber A_{mod} &\equiv A \mod p \\
+\nonumber b &\equiv x \mod p \\
+\nonumber t &= x >> 48
 \end{align}
 $$
 
@@ -67,9 +67,9 @@ This already almost seems like a subset sum problem, but only the most significa
 
 $$
 \large \begin{align}
-b &= x \mod p \\
-b &= x + k \cdot p \\
-b - x &= k \cdot p
+\nonumber b &= x \mod p \\
+\nonumber b &= x + k \cdot p \\
+\nonumber b - x &= k \cdot p
 \end{align}
 $$
 
