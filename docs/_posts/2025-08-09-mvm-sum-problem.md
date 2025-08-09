@@ -1,0 +1,112 @@
+---
+layout: default
+title: "mvm sum problem (DREAM 2025)"
+date: 2025-08-09 11:00:00 -0000
+categories: writeups
+tags: [AGCD, subset sum problem]
+---
+
+##### Challenge overview
+
+```python
+from Crypto.Util.number import getPrime, bytes_to_long, long_to_bytes
+import secrets, os, hashlib
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+
+flag = b"DREAM{???????????????????????????????????????????????????????????????}"
+
+n = 64
+p = getPrime(2*n)
+A = [[secrets.randbits(2*n) for _ in range(n)] for __ in range(n)]
+s = [secrets.randbits(1) for _ in range(n)]
+x = [sum(ai*si for ai, si in zip(row, s)) for row in A]
+b = [xi % p for xi in x]
+t = [xi >> 48 for xi in x]
+A_mod = [[ai % p for ai in a] for a in A]
+
+print(f"A = {A_mod}")
+print(f"b = {b}")
+print(f"t = {t}")
+
+key = hashlib.sha256("".join([str(bit) for bit in s]).encode()).digest()
+iv = os.urandom(16)
+cipher = AES.new(key, AES.MODE_CBC, iv)
+ct = cipher.encrypt(pad(flag, 16))
+print(f"iv = '{iv.hex()}'")
+print(f"ct = '{ct.hex()}'")
+```
+
+##### solve.sage
+
+```python
+from Crypto.Util.number import getPrime, bytes_to_long, long_to_bytes
+import secrets, os, hashlib, ast
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+
+with open("output.txt") as f:
+    A  = ast.literal_eval(f.readline().split("=", 1)[1].strip())
+    b  = ast.literal_eval(f.readline().split("=", 1)[1].strip())
+    t  = ast.literal_eval(f.readline().split("=", 1)[1].strip())
+    iv = bytes.fromhex(f.readline().split("'")[1])
+    ct = bytes.fromhex(f.readline().split("'")[1])
+
+def symmetric_mod(x, m):
+    return int((x + m + m // 2) % m) - int(m // 2)
+
+# https://github.com/jvdsn/crypto-attacks/blob/master/attacks/acd/ol.py
+def AGCD(x, rho):
+    R = 2 ** rho
+
+    B = matrix(ZZ, len(x), len(x) + 1)
+    for i, xi in enumerate(x):
+        B[i, 0] = xi
+        B[i, i + 1] = R
+
+    B = B.LLL()
+
+    K = B.submatrix(row=0, col=1, nrows=len(x) - 1, ncols=len(x)).right_kernel()
+    q = K.an_element()
+    r0 = symmetric_mod(x[0], q[0])
+    p = abs((x[0] - r0) // q[0])
+    r = [symmetric_mod(xi, p) for xi in x]
+    if all(-R < ri < R for ri in r):
+        return int(p), r
+
+# https://hackmd.io/@L4m/B1Vpr_vK0
+def Multiple_Modular_Subset_Sum_Problem(multi,result,modul):
+    n = len(multi[0])
+    n1 = len(result)
+    N = int(sqrt((n+1)//4)) + 1
+    M = Matrix(QQ,n,n+1)
+    
+    multi = Matrix(multi).T
+    M = M.augment(N*multi)
+    for _ in range(n1) :
+        tmp_ =  Matrix([0]*(n+1) + [0]*_ + [N*modul] + [0]*(n1-_-1))
+        M = M.stack(tmp_)
+    tmp = Matrix([1/2]*(n+1) + [-N*i for i in result])
+    M = M.stack(tmp)
+    
+    for i in range(n) :
+        M[i,i] = 1
+    M = M.LLL()[0][:n]
+    M = [i-1/2 for i in M]
+    return M
+
+y = [(ti << 48) - bi for ti, bi in zip(t, b)]
+print(f"Solving AGCD...")
+p = AGCD(y, 48)[0]
+print(f"Recovered p: {p}")
+
+print(f"Solving MMSSP...")
+sol = Multiple_Modular_Subset_Sum_Problem(A,b,p)
+print(f"Potential solution: {sol}")
+
+key = hashlib.sha256("".join([str(bit) for bit in sol]).encode()).digest()
+cipher = AES.new(key, AES.MODE_CBC, iv)
+pt = unpad(cipher.decrypt(bytes.fromhex(ct.hex())),16).decode()
+print(pt)
+```
+
