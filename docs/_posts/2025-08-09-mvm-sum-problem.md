@@ -3,7 +3,7 @@ layout: default
 title: "mvm sum problem (DREAM 2025)"
 date: 2025-08-09 11:00:00 -0000
 categories: writeups
-tags: [AGCD, subset sum problem]
+tags: [AGCD, Subset sum problem]
 ---
 
 ##### Challenge overview

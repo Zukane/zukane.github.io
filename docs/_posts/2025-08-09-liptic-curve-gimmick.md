@@ -3,7 +3,7 @@ layout: default
 title: "L-iptic Curve Gimmick (DREAM 2025)"
 date: 2025-08-09 11:00:00 -0000
 categories: writeups
-tags: [Elliptic Curves, LCG, Truncated attack]
+tags: [Elliptic Curve, LCG, Truncated attack]
 ---
 
 ##### Challenge Overview
