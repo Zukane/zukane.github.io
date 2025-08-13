@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>dripfeed (DREAM 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="dripfeed (DREAM 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge source" />
+<meta property="og:description" content="Challenge source" />
+<link rel="canonical" href="http://localhost:4000/dripfeed/" />
+<meta property="og:url" content="http://localhost:4000/dripfeed/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-08-09T13:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="dripfeed (DREAM 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-08-09T13:00:00+02:00","datePublished":"2025-08-09T13:00:00+02:00","description":"Challenge source","headline":"dripfeed (DREAM 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/dripfeed/"},"url":"http://localhost:4000/dripfeed/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dripfeed (DREAM 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">dripfeed (DREAM 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/coppersmith-small-roots/" class="tag">Coppersmith small roots</a>
+            
+            <a href="/tags/rsa/" class="tag">RSA</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-source">Challenge source</h5>
+
+<p>In this CTF challenge we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mh">0x10001</span>
+<span class="n">z</span> <span class="o">=</span> <span class="mi">768</span>
+
+<span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"DREAM{???????????????????}"</span>
+<span class="n">c</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">flag</span><span class="p">),</span> <span class="n">e</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">dinv</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+<span class="n">hint1</span> <span class="o">=</span> <span class="n">dinv</span><span class="o">&gt;&gt;</span><span class="n">z</span>
+<span class="n">hint2</span> <span class="o">=</span> <span class="n">d</span><span class="o">&gt;&gt;</span><span class="n">z</span>
+<span class="n">hint3</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="o">+</span><span class="n">dinv</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="o">^</span><span class="n">z</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">c</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">N</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">hint1</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">hint2</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">hint3</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>as well as the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># c = 22157594335444536824539804957503224316011530105000213270082208221066593944954014666682649028694133674560156641233395573360668940167815220144267273966287820743390179842825813921564442940898448403649268126138366346541999383516847671392288475450503228921663055710261222736364832390636399799464290497677394001206519642230355468553180304124754273599272037090190669770012042290863893500557064375980418378974146770317534675349918371288413139540568026717131002910661522889107223072629684473816850628927719500755853803826053326864257172197282550241873511858288263828888477514571946188043879000715780664003346592804294011506971
+# N = 25959541354095379330014211523736588310397407563027174748207817754002783083191533477890701227080867897432606754059572855046962831514143019657762820875501757389522439963278185424652050988351722479628525750386024849935812556785023617595192645219002837901875925863581668399339831969660066794677364550759132546080418952727814971975516789298857515890709426151641917337099113196461301621097058914304208257653769808452628154352488765790619868730683895851799316355220677011268783490458072512607009187871657751973095691749268293154373565622703034299847474396773677657530377712298202962607412888316384251050171382195892089032357
+# hint1 = 15464998351280885049978241250677908550052088921543412055926782552569730114201666247473246055105315399223369010505411177494944031761554111167815968593847467862816540005306296674691731101951155559188695276576391852694850824877331682887724674655622324597900452774223029587809308492341771478213616624501365158861467752871506595868846315715135486074129927582766119159732319777572491731729171
+# hint2 = 7029540180149905451539102727640301157454585448744864593652215724504532500936678968396248056235311937620576932024119332483872809008873452228603492327252210340060398181762267906930140059244295569523008698632999425529950595502067137205887611567798060711937625579291545624591051982915725104082620929153365192057370102698459062120006997479591134423962335183745677834764356654024492868260852
+# hint3 = 190722270955073623160671606729858536606154237775586896348182992398405372984126236409160453609793655987256674610721019302148710014962419023950073167692224689931891238034456934018927853575507080194214703887834623936620950946151655803
+</code></pre></div></div>
+
+<p>We are given three hints about the RSA private key d.</p>
+
+<h5 id="recovering-d">Recovering d</h5>
+
+<p>Challenges involving partial information leaks are often solved by using coppersmith’s small roots method. The information given in this challenge is:</p>
+
+<ul>
+  <li>The MSBs of $d$ (1280/2048 bits)</li>
+  <li>The MSBs of $d^{-1}$ (1280/2048 bits)</li>
+  <li>The LSBs of the sum $d + d^{-1}$ (768/2048 bits)</li>
+</ul>
+
+<p>We can set up equations for these hints with the unknowns:</p>
+
+\[\large \begin{align}
+\nonumber d &amp;= 2^{768} \cdot \text{hint2} + x \\
+\nonumber d^{-1} &amp;= 2^{768} \cdot \text{hint1} + y \\
+\nonumber x+y &amp;= \text{hint3}
+\end{align}\]
+
+<p>We can utilize $hint_{3}$ to eliminate the variable $y$:</p>
+
+\[\large \begin{align}
+\nonumber d^{-1} &amp;= 2^{768} \cdot \text{hint1} + y \\
+\nonumber d^{-1} &amp;= 2^{768} \cdot \text{hint1} + \text{hint3} - x 
+\end{align}\]
+
+<p>However, we must take into consideration that $hint_{3} \equiv d+d^{-1} \bmod 2^{768}$. There may be an extra $2^{768}$ term in $d^{-1}$ depending on the carry bit. In the case of the handout, this term is present:</p>
+
+\[\large d^{-1} = 2^{768} \cdot \text{hint1} + \text{hint3} - x\]
+
+<p>With an expression for $d$ and $d^{-1}$ in terms of $x$, we can set up the following univariate polynomial:</p>
+
+\[\large d \cdot d^{-1} - 1\equiv 0 \mod N\]
+
+<p>The root $x$ has an upper bound of $2^{768}$. This univariate case can easily be solved in SageMath:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">z</span> <span class="o">=</span> <span class="mi">768</span>
+<span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+
+<span class="n">d</span>    <span class="o">=</span> <span class="p">(</span><span class="n">hint2</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span>
+<span class="n">dinv</span> <span class="o">=</span> <span class="p">(</span><span class="n">hint1</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">hint3</span><span class="o">-</span><span class="n">x</span><span class="o">+</span><span class="mi">2</span><span class="o">^</span><span class="n">z</span><span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">d</span><span class="o">*</span><span class="n">dinv</span><span class="o">-</span><span class="mi">1</span>
+<span class="n">roots</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">monic</span><span class="p">().</span><span class="n">small_roots</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="mi">2</span><span class="o">^</span><span class="n">z</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And with the root recovered, $d$ can be reconstructed, letting us decrypt the ciphertext:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">hint2</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">N</span><span class="p">)))</span>
+<span class="c1"># b'DREAM{sm4ll_r00ts_2_sm4ll}'
+</span></code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="mi">22157594335444536824539804957503224316011530105000213270082208221066593944954014666682649028694133674560156641233395573360668940167815220144267273966287820743390179842825813921564442940898448403649268126138366346541999383516847671392288475450503228921663055710261222736364832390636399799464290497677394001206519642230355468553180304124754273599272037090190669770012042290863893500557064375980418378974146770317534675349918371288413139540568026717131002910661522889107223072629684473816850628927719500755853803826053326864257172197282550241873511858288263828888477514571946188043879000715780664003346592804294011506971</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">25959541354095379330014211523736588310397407563027174748207817754002783083191533477890701227080867897432606754059572855046962831514143019657762820875501757389522439963278185424652050988351722479628525750386024849935812556785023617595192645219002837901875925863581668399339831969660066794677364550759132546080418952727814971975516789298857515890709426151641917337099113196461301621097058914304208257653769808452628154352488765790619868730683895851799316355220677011268783490458072512607009187871657751973095691749268293154373565622703034299847474396773677657530377712298202962607412888316384251050171382195892089032357</span>
+<span class="n">hint1</span> <span class="o">=</span> <span class="mi">15464998351280885049978241250677908550052088921543412055926782552569730114201666247473246055105315399223369010505411177494944031761554111167815968593847467862816540005306296674691731101951155559188695276576391852694850824877331682887724674655622324597900452774223029587809308492341771478213616624501365158861467752871506595868846315715135486074129927582766119159732319777572491731729171</span>
+<span class="n">hint2</span> <span class="o">=</span> <span class="mi">7029540180149905451539102727640301157454585448744864593652215724504532500936678968396248056235311937620576932024119332483872809008873452228603492327252210340060398181762267906930140059244295569523008698632999425529950595502067137205887611567798060711937625579291545624591051982915725104082620929153365192057370102698459062120006997479591134423962335183745677834764356654024492868260852</span>
+<span class="n">hint3</span> <span class="o">=</span> <span class="mi">190722270955073623160671606729858536606154237775586896348182992398405372984126236409160453609793655987256674610721019302148710014962419023950073167692224689931891238034456934018927853575507080194214703887834623936620950946151655803</span>
+
+<span class="n">z</span> <span class="o">=</span> <span class="mi">768</span>
+<span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">Zmod</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+
+<span class="n">d</span>    <span class="o">=</span> <span class="p">(</span><span class="n">hint2</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span>
+<span class="n">dinv</span> <span class="o">=</span> <span class="p">(</span><span class="n">hint1</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">hint3</span><span class="o">-</span><span class="n">x</span><span class="o">+</span><span class="mi">2</span><span class="o">^</span><span class="n">z</span><span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">d</span><span class="o">*</span><span class="n">dinv</span><span class="o">-</span><span class="mi">1</span>
+<span class="n">roots</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">monic</span><span class="p">().</span><span class="n">small_roots</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="mi">2</span><span class="o">^</span><span class="n">z</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">hint2</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">N</span><span class="p">)))</span>
+</code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

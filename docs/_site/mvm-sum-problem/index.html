@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>mvm sum problem (DREAM 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="mvm sum problem (DREAM 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge overview" />
+<meta property="og:description" content="Challenge overview" />
+<link rel="canonical" href="http://localhost:4000/mvm-sum-problem/" />
+<meta property="og:url" content="http://localhost:4000/mvm-sum-problem/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-08-09T13:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="mvm sum problem (DREAM 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-08-09T13:00:00+02:00","datePublished":"2025-08-09T13:00:00+02:00","description":"Challenge overview","headline":"mvm sum problem (DREAM 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/mvm-sum-problem/"},"url":"http://localhost:4000/mvm-sum-problem/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mvm sum problem (DREAM 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">mvm sum problem (DREAM 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/agcd/" class="tag">AGCD</a>
+            
+            <a href="/tags/subset-sum-problem/" class="tag">Subset sum problem</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">getPrime</span><span class="p">,</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">long_to_bytes</span>
+<span class="kn">import</span> <span class="nn">secrets</span><span class="p">,</span> <span class="n">os</span><span class="p">,</span> <span class="n">hashlib</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span>
+
+<span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"DREAM{???????????????????????????????????????????????????????????????}"</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+<span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="n">secrets</span><span class="p">.</span><span class="n">randbits</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span> <span class="k">for</span> <span class="n">__</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+<span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">secrets</span><span class="p">.</span><span class="n">randbits</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">ai</span><span class="o">*</span><span class="n">si</span> <span class="k">for</span> <span class="n">ai</span><span class="p">,</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">A</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">xi</span> <span class="o">%</span> <span class="n">p</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+<span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="n">xi</span> <span class="o">&gt;&gt;</span> <span class="mi">48</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+<span class="n">A_mod</span> <span class="o">=</span> <span class="p">[[</span><span class="n">ai</span> <span class="o">%</span> <span class="n">p</span> <span class="k">for</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">A</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"A = </span><span class="si">{</span><span class="n">A_mod</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"b = </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"t = </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">bit</span><span class="p">)</span> <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"iv = '</span><span class="si">{</span><span class="n">iv</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">'"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"ct = '</span><span class="si">{</span><span class="n">ct</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">'"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>as well as the output in <code class="language-plaintext highlighter-rouge">output.txt</code></p>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>The encryption script generates an $n \times n$ matrix $A$ and a vector $s$, then calculates:</p>
+
+\[\large x = \sum_{i=0}^{n}a_{i} s_{i}\]
+
+<p>for each row $a_{i}$ in $A$. The user is then given the following:</p>
+
+\[\large \begin{align}
+\nonumber A_{mod} &amp;\equiv A \mod p \\
+\nonumber b &amp;\equiv x \mod p \\
+\nonumber t &amp;= x &gt;&gt; 48
+\end{align}\]
+
+<p>The secret vector $s$ is concatenated, then hashed to produce the AES-CBC key which encrypts the flag.</p>
+
+<h5 id="recovering-p">Recovering p</h5>
+
+<p>This already almost seems like a subset sum problem, but only the most significant bits of $x$ are given. It also almost looks like a modular subset sum problem, but the modulo $p$ is not given. However, with both $b$ and $t$ given, we can set up an <code class="language-plaintext highlighter-rouge">AGCD</code> or an “Approximate Greatest Common Divisor” instance to recover the modulo $p$:</p>
+
+\[\large \begin{align}
+\nonumber b &amp;= x \mod p \\
+\nonumber b &amp;= x + k \cdot p \\
+\nonumber b - x &amp;= k \cdot p
+\end{align}\]
+
+<p>we are not given $x$ exactly, but $x = t \cdot 2^{48} + r$ for some lower bits remainder $r &lt; 2^{48}$. So, the AGCD instance is:</p>
+
+\[\large b_{i} - t_{i} \cdot 2^{48} = k_{i} \cdot p + r_{i}\]
+
+<p>We can use the orthogonal lattice AGCD implementation from https://github.com/jvdsn/crypto-attacks/blob/master/attacks/acd/ol.py to solve for $p$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># https://github.com/jvdsn/crypto-attacks/blob/master/attacks/acd/ol.py
+</span><span class="k">def</span> <span class="nf">AGCD</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">rho</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">xi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">xi</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">LLL</span><span class="p">()</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">submatrix</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)).</span><span class="n">right_kernel</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">an_element</span><span class="p">()</span>
+    <span class="n">r0</span> <span class="o">=</span> <span class="n">symmetric_mod</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r0</span><span class="p">)</span> <span class="o">//</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="n">symmetric_mod</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="o">-</span><span class="n">R</span> <span class="o">&lt;</span> <span class="n">ri</span> <span class="o">&lt;</span> <span class="n">R</span> <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">r</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">r</span>
+        
+<span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ti</span> <span class="o">&lt;&lt;</span> <span class="mi">48</span><span class="p">)</span> <span class="o">-</span> <span class="n">bi</span> <span class="k">for</span> <span class="n">ti</span><span class="p">,</span> <span class="n">bi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="p">)]</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">AGCD</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">48</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div></div>
+
+<h5 id="recovering-s">Recovering s</h5>
+
+<p>With the modulus $p$ recovered, we now have a multiple modular subset sum problem:</p>
+
+\[\large b\equiv \sum_{i=0}^{n} a_{i} s_{i} \mod p\]
+
+<p>for each row $a$ in $A$. With $b$, $A$ and $p$, we can use MMSSP to solve for $s$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># https://hackmd.io/@L4m/B1Vpr_vK0
+</span><span class="k">def</span> <span class="nf">Multiple_Modular_Subset_Sum_Problem</span><span class="p">(</span><span class="n">multi</span><span class="p">,</span><span class="n">result</span><span class="p">,</span><span class="n">modul</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">multi</span><span class="p">).</span><span class="n">T</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">augment</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">multi</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">tmp_</span> <span class="o">=</span>  <span class="n">Matrix</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">_</span> <span class="o">+</span> <span class="p">[</span><span class="n">N</span><span class="o">*</span><span class="n">modul</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n1</span><span class="o">-</span><span class="n">_</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp_</span><span class="p">)</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="n">N</span><span class="o">*</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">result</span><span class="p">])</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">LLL</span><span class="p">()[</span><span class="mi">0</span><span class="p">][:</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">M</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">M</span>
+
+<span class="n">sol</span> <span class="o">=</span> <span class="n">Multiple_Modular_Subset_Sum_Problem</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>With the secret vector $s$ recovered, decryption becomes trivial. The bits are concatenated, hashed, and then the resulting key is used for AES-CBC decryption:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">bit</span><span class="p">)</span> <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">sol</span><span class="p">]).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">.</span><span class="nb">hex</span><span class="p">())),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+<span class="c1"># DREAM{AGCD_4nd_MvMSSP_2_m4ny_4bbr3v14t10ns_but_pl34s3_d3l3t3_GPT5_n0w}
+</span></code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">getPrime</span><span class="p">,</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">long_to_bytes</span>
+<span class="kn">import</span> <span class="nn">secrets</span><span class="p">,</span> <span class="n">os</span><span class="p">,</span> <span class="n">hashlib</span><span class="p">,</span> <span class="n">ast</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">unpad</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"output.txt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">A</span>  <span class="o">=</span> <span class="n">ast</span><span class="p">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">readline</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"="</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">b</span>  <span class="o">=</span> <span class="n">ast</span><span class="p">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">readline</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"="</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">t</span>  <span class="o">=</span> <span class="n">ast</span><span class="p">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">readline</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"="</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">iv</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">readline</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"'"</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ct</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">readline</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"'"</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">symmetric_mod</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">x</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="n">m</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span><span class="p">)</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># https://github.com/jvdsn/crypto-attacks/blob/master/attacks/acd/ol.py
+</span><span class="k">def</span> <span class="nf">AGCD</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">rho</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">xi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">xi</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">LLL</span><span class="p">()</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">submatrix</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)).</span><span class="n">right_kernel</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">an_element</span><span class="p">()</span>
+    <span class="n">r0</span> <span class="o">=</span> <span class="n">symmetric_mod</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r0</span><span class="p">)</span> <span class="o">//</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="n">symmetric_mod</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="o">-</span><span class="n">R</span> <span class="o">&lt;</span> <span class="n">ri</span> <span class="o">&lt;</span> <span class="n">R</span> <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">r</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">r</span>
+
+<span class="c1"># https://hackmd.io/@L4m/B1Vpr_vK0
+</span><span class="k">def</span> <span class="nf">Multiple_Modular_Subset_Sum_Problem</span><span class="p">(</span><span class="n">multi</span><span class="p">,</span><span class="n">result</span><span class="p">,</span><span class="n">modul</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">multi</span><span class="p">).</span><span class="n">T</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">augment</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">multi</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">tmp_</span> <span class="o">=</span>  <span class="n">Matrix</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">_</span> <span class="o">+</span> <span class="p">[</span><span class="n">N</span><span class="o">*</span><span class="n">modul</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n1</span><span class="o">-</span><span class="n">_</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp_</span><span class="p">)</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="n">N</span><span class="o">*</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">result</span><span class="p">])</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">LLL</span><span class="p">()[</span><span class="mi">0</span><span class="p">][:</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">M</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">M</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ti</span> <span class="o">&lt;&lt;</span> <span class="mi">48</span><span class="p">)</span> <span class="o">-</span> <span class="n">bi</span> <span class="k">for</span> <span class="n">ti</span><span class="p">,</span> <span class="n">bi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="p">)]</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Solving AGCD..."</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">AGCD</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">48</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Recovered p: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Solving MMSSP..."</span><span class="p">)</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="n">Multiple_Modular_Subset_Sum_Problem</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Potential solution: </span><span class="si">{</span><span class="n">sol</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">bit</span><span class="p">)</span> <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">sol</span><span class="p">]).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">.</span><span class="nb">hex</span><span class="p">())),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+<span class="c1"># DREAM{AGCD_4nd_MvMSSP_2_m4ny_4bbr3v14t10ns_but_pl34s3_d3l3t3_GPT5_n0w}
+</span></code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

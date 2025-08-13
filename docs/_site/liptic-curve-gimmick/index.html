@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>L-iptic Curve Gimmick (DREAM 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="L-iptic Curve Gimmick (DREAM 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge Overview" />
+<meta property="og:description" content="Challenge Overview" />
+<link rel="canonical" href="http://localhost:4000/liptic-curve-gimmick/" />
+<meta property="og:url" content="http://localhost:4000/liptic-curve-gimmick/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-08-09T13:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="L-iptic Curve Gimmick (DREAM 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-08-09T13:00:00+02:00","datePublished":"2025-08-09T13:00:00+02:00","description":"Challenge Overview","headline":"L-iptic Curve Gimmick (DREAM 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/liptic-curve-gimmick/"},"url":"http://localhost:4000/liptic-curve-gimmick/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L-iptic Curve Gimmick (DREAM 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">L-iptic Curve Gimmick (DREAM 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/elliptic-curve/" class="tag">Elliptic Curve</a>
+            
+            <a href="/tags/lcg/" class="tag">LCG</a>
+            
+            <a href="/tags/truncated-attack/" class="tag">Truncated attack</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge Overview</h5>
+
+<p>In this CTF challenge we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="p">,</span> <span class="n">hashlib</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="mi">289938057806527723758225206013420438469</span> 
+<span class="n">a</span> <span class="o">=</span> <span class="mi">131472054804376335219486973894036812363</span> 
+<span class="n">b</span> <span class="o">=</span> <span class="mi">168821582640259041697285427337782028716</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">])</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">E</span><span class="p">.</span><span class="n">gen</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">state</span><span class="p">).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">LCG</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">state</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6364136223846793005</span><span class="o">*</span><span class="n">state</span> <span class="o">+</span> <span class="mi">1442695040888963407</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">64</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">state</span><span class="o">&gt;&gt;</span><span class="mi">32</span>
+
+<span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"DREAM{?????????????????????????????????}"</span>
+
+<span class="c1"># mix it up!
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1337</span><span class="p">):</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">LCG</span><span class="p">()</span><span class="o">*</span><span class="n">G</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">LCG</span><span class="p">()</span><span class="o">*</span><span class="n">G</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"P</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s"> = E(</span><span class="si">{</span><span class="n">P</span><span class="p">.</span><span class="n">x</span><span class="p">()</span><span class="si">}</span><span class="s">, </span><span class="si">{</span><span class="n">P</span><span class="p">.</span><span class="n">y</span><span class="p">()</span><span class="si">}</span><span class="s">)"</span><span class="p">)</span>
+
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"iv = '</span><span class="si">{</span><span class="n">iv</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">'"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"ct = '</span><span class="si">{</span><span class="n">ct</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">'"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>As well as the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>P1 = E(122037775221140048457289031201689495704, 122951420735275891082341998031602353733)
+P2 = E(184410941665585900129539390660771625087, 171416669794932710291436536477699627840)
+P3 = E(273827286896900834170681338812413416705, 75421249071279152991789476076300962651)
+iv = '3d7c4da2defd1b78a0feccbb553dd4da'
+ct = '081393130914bdd8c625786160f8de0dfd0dd5a4f3c2ca946b803cfe565082849827c9c0794db358ee81bc734f0fb361'
+</code></pre></div></div>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>The encryption script creates an Elliptic Curve with some non-standard curve parameters.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">289938057806527723758225206013420438469</span> 
+<span class="n">a</span> <span class="o">=</span> <span class="mi">131472054804376335219486973894036812363</span> 
+<span class="n">b</span> <span class="o">=</span> <span class="mi">168821582640259041697285427337782028716</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>The first step is often to investigate properties of the curve parameters. In our case, it turns out that the curve order is quite smooth:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">factor</span><span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">order</span><span class="p">())</span>
+<span class="mi">11</span> <span class="o">*</span> <span class="mi">117101</span> <span class="o">*</span> <span class="mi">457517</span> <span class="o">*</span> <span class="mi">682657</span> <span class="o">*</span> <span class="mi">1814651</span> <span class="o">*</span> <span class="mi">6542287</span> <span class="o">*</span> <span class="mi">60704299</span>
+</code></pre></div></div>
+
+<p>A smooth curve order makes the discrete logarithm easy to solve by using a subgroup attack, for example by using the baby-step giant-step method.</p>
+
+<p>The script also generates an initial state, hashes the state with SHA256 to generate a key, and generates an initialization vector. The key and IV are later used to encrypt the flag.</p>
+
+<p>The encryption script also defines a Linear Congruential Generator</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">LCG</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">state</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6364136223846793005</span><span class="o">*</span><span class="n">state</span> <span class="o">+</span> <span class="mi">1442695040888963407</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">64</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">state</span><span class="o">&gt;&gt;</span><span class="mi">32</span>
+</code></pre></div></div>
+
+<p>An LCG is a pseudo-random number generator which updates the state by multiplying, adding and then reducing modulo some number. We are given the LCG parameters, but the returned state is shifted by 32 bytes, giving us only half of the state. The LCG is iterated $1337$ times, before giving us three leaks:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">LCG</span><span class="p">()</span><span class="o">*</span><span class="n">G</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"P</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s"> = E(</span><span class="si">{</span><span class="n">P</span><span class="p">.</span><span class="n">x</span><span class="p">()</span><span class="si">}</span><span class="s">, </span><span class="si">{</span><span class="n">P</span><span class="p">.</span><span class="n">y</span><span class="p">()</span><span class="si">}</span><span class="s">)"</span><span class="p">)</span>
+<span class="c1"># P1 = E(122037775221140048457289031201689495704, 122951420735275891082341998031602353733)
+# P2 = E(184410941665585900129539390660771625087, 171416669794932710291436536477699627840)
+# P3 = E(273827286896900834170681338812413416705, 75421249071279152991789476076300962651)
+</span></code></pre></div></div>
+
+<p>We have to use these points to recover the initial state of the LCG, which we can hash to recover the AES encryption key and decrypt the flag.</p>
+
+<h5 id="implementing-the-solution">Implementing the solution</h5>
+
+<p>Like previously mentioned, the smooth order of the elliptic curve means that the discrete logarithm problem is easy to solve with a subgroup attack. We begin by defining our known values:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">289938057806527723758225206013420438469</span> 
+<span class="n">a</span> <span class="o">=</span> <span class="mi">131472054804376335219486973894036812363</span> 
+<span class="n">b</span> <span class="o">=</span> <span class="mi">168821582640259041697285427337782028716</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">])</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">E</span><span class="p">.</span><span class="n">gen</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">117101</span><span class="p">,</span> <span class="mi">457517</span><span class="p">,</span> <span class="mi">682657</span><span class="p">,</span> <span class="mi">1814651</span><span class="p">,</span> <span class="mi">6542287</span><span class="p">,</span> <span class="mi">60704299</span><span class="p">]</span> <span class="c1"># factor(E.order())
+</span>
+<span class="n">P1</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mi">122037775221140048457289031201689495704</span><span class="p">,</span> <span class="mi">122951420735275891082341998031602353733</span><span class="p">)</span>
+<span class="n">P2</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mi">184410941665585900129539390660771625087</span><span class="p">,</span> <span class="mi">171416669794932710291436536477699627840</span><span class="p">)</span>
+<span class="n">P3</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mi">273827286896900834170681338812413416705</span><span class="p">,</span> <span class="mi">75421249071279152991789476076300962651</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The subgroup attack works by solving the discrete log for each individual factor, then combining the results with the Chinese Remainder Theorem.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">bsgs</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">primes</span><span class="p">):</span>
+    <span class="n">dlogs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fac</span> <span class="ow">in</span> <span class="n">primes</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"[+] Iteration for </span><span class="si">{</span><span class="n">fac</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">P</span><span class="p">.</span><span class="n">order</span><span class="p">()</span> <span class="o">//</span> <span class="n">fac</span>
+        <span class="n">dlog</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">Q</span><span class="p">,</span> <span class="n">t</span> <span class="o">*</span> <span class="n">P</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">"+"</span><span class="p">)</span>
+        <span class="n">dlogs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">dlog</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">crt</span><span class="p">(</span><span class="n">dlogs</span><span class="p">,</span> <span class="n">primes</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>By running this function on each $P_{1},P_{2},P_{3}$ and the curve’s generator point $G$, we can recover the three outputs of the <code class="language-plaintext highlighter-rouge">LCG()</code> function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">truncated_states</span> <span class="o">=</span> <span class="p">[</span><span class="n">bsgs</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="k">for</span> <span class="n">P</span> <span class="ow">in</span> <span class="p">[</span><span class="n">P1</span><span class="p">,</span><span class="n">P2</span><span class="p">,</span><span class="n">P3</span><span class="p">]]</span>
+<span class="c1"># [1939624097, 3628133847, 3055123311]
+</span></code></pre></div></div>
+
+<p>These bit shifted states, or rather <code class="language-plaintext highlighter-rouge">truncated</code> states, can actually be used along with the LCG parameters to recover the complete states. Implementations for a <code class="language-plaintext highlighter-rouge">truncated state recovery attack</code> exist online, for example in https://github.com/jvdsn/crypto-attacks/blob/master/attacks/lcg/truncated_state_recovery.py. The details of this attack can be a bit complicated, but using the function is quite plug-and-play.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># https://github.com/jvdsn/crypto-attacks/blob/master/attacks/lcg/truncated_state_recovery.py
+</span><span class="k">def</span> <span class="nf">truncated_lcg_attack</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="n">diff_bit_length</span> <span class="o">=</span> <span class="n">k</span> <span class="o">-</span> <span class="n">s</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">c</span> <span class="o">%</span> <span class="n">m</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">diff_bit_length</span><span class="p">)</span> <span class="o">-</span> <span class="n">delta</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="n">B</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span> <span class="o">**</span> <span class="n">i</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">LLL</span><span class="p">()</span>
+
+    <span class="n">b</span> <span class="o">=</span> <span class="n">B</span> <span class="o">*</span> <span class="n">y</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)):</span>
+        <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">QQ</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">c</span> <span class="o">%</span> <span class="n">m</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">B</span><span class="p">.</span><span class="n">solve_right</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">state</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span>
+
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="n">states</span> <span class="o">=</span> <span class="n">truncated_lcg_attack</span><span class="p">(</span><span class="n">truncated_states</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">64</span><span class="p">,</span> <span class="mi">6364136223846793005</span><span class="p">,</span> <span class="mi">1442695040888963407</span><span class="p">)</span>
+<span class="c1"># [8330622065471768203, 15582716220711197886, 13121654707256889525]
+</span></code></pre></div></div>
+
+<p>With the full states recovered, we can construct a function to perform the inverse steps of the LCG. The encryption script performed $1337$ iterations, then $3$ more for the elliptic curve points. We can pick the first recovered state and step back 1338 iterations:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">M</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span>
+<span class="n">A</span>  <span class="o">=</span> <span class="mi">6364136223846793005</span>
+<span class="n">C</span>  <span class="o">=</span> <span class="mi">1442695040888963407</span>
+<span class="n">Ainv</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">%</span><span class="n">M</span>
+<span class="k">def</span> <span class="nf">inverse_LCG</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">state</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ainv</span> <span class="o">*</span> <span class="p">(</span><span class="n">state</span> <span class="o">-</span> <span class="n">C</span><span class="p">))</span> <span class="o">%</span> <span class="n">M</span>
+    <span class="k">return</span> <span class="n">state</span>
+
+<span class="n">state0</span> <span class="o">=</span> <span class="p">[</span><span class="n">inverse_LCG</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1338</span><span class="p">)][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Finally, we can hash <code class="language-plaintext highlighter-rouge">state0</code> to get the AES-CBC encryption key, and decrypt the flag:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">state0</span><span class="p">).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">iv</span><span class="p">))</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">)),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+<span class="c1"># DREAM{E_1n_LCG_st4nd5_4_Ell1pt1c_Curv3s}
+</span></code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="p">,</span> <span class="n">hashlib</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">unpad</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="mi">289938057806527723758225206013420438469</span> 
+<span class="n">a</span> <span class="o">=</span> <span class="mi">131472054804376335219486973894036812363</span> 
+<span class="n">b</span> <span class="o">=</span> <span class="mi">168821582640259041697285427337782028716</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">])</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">E</span><span class="p">.</span><span class="n">gen</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">117101</span><span class="p">,</span> <span class="mi">457517</span><span class="p">,</span> <span class="mi">682657</span><span class="p">,</span> <span class="mi">1814651</span><span class="p">,</span> <span class="mi">6542287</span><span class="p">,</span> <span class="mi">60704299</span><span class="p">]</span> <span class="c1"># factor(E.order())
+</span>
+<span class="n">P1</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mi">122037775221140048457289031201689495704</span><span class="p">,</span> <span class="mi">122951420735275891082341998031602353733</span><span class="p">)</span>
+<span class="n">P2</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mi">184410941665585900129539390660771625087</span><span class="p">,</span> <span class="mi">171416669794932710291436536477699627840</span><span class="p">)</span>
+<span class="n">P3</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mi">273827286896900834170681338812413416705</span><span class="p">,</span> <span class="mi">75421249071279152991789476076300962651</span><span class="p">)</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="s">'3d7c4da2defd1b78a0feccbb553dd4da'</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="s">'081393130914bdd8c625786160f8de0dfd0dd5a4f3c2ca946b803cfe565082849827c9c0794db358ee81bc734f0fb361'</span>
+
+<span class="k">def</span> <span class="nf">bsgs</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">primes</span><span class="p">):</span>
+    <span class="n">dlogs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fac</span> <span class="ow">in</span> <span class="n">primes</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"[+] Iteration for </span><span class="si">{</span><span class="n">fac</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">P</span><span class="p">.</span><span class="n">order</span><span class="p">()</span> <span class="o">//</span> <span class="n">fac</span>
+        <span class="n">dlog</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">Q</span><span class="p">,</span> <span class="n">t</span> <span class="o">*</span> <span class="n">P</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">"+"</span><span class="p">)</span>
+        <span class="n">dlogs</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">dlog</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">crt</span><span class="p">(</span><span class="n">dlogs</span><span class="p">,</span> <span class="n">primes</span><span class="p">)</span>
+
+<span class="n">truncated_states</span> <span class="o">=</span> <span class="p">[</span><span class="n">bsgs</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="k">for</span> <span class="n">P</span> <span class="ow">in</span> <span class="p">[</span><span class="n">P1</span><span class="p">,</span><span class="n">P2</span><span class="p">,</span><span class="n">P3</span><span class="p">]]</span>
+
+<span class="c1"># https://github.com/jvdsn/crypto-attacks/blob/master/attacks/lcg/truncated_state_recovery.py
+</span><span class="k">def</span> <span class="nf">truncated_lcg_attack</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="n">diff_bit_length</span> <span class="o">=</span> <span class="n">k</span> <span class="o">-</span> <span class="n">s</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">c</span> <span class="o">%</span> <span class="n">m</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">vector</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">diff_bit_length</span><span class="p">)</span> <span class="o">-</span> <span class="n">delta</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">ZZ</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="n">B</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span> <span class="o">**</span> <span class="n">i</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">LLL</span><span class="p">()</span>
+
+    <span class="n">b</span> <span class="o">=</span> <span class="n">B</span> <span class="o">*</span> <span class="n">y</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)):</span>
+        <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">QQ</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">c</span> <span class="o">%</span> <span class="n">m</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">B</span><span class="p">.</span><span class="n">solve_right</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">state</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span>
+
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="n">states</span> <span class="o">=</span> <span class="n">truncated_lcg_attack</span><span class="p">(</span><span class="n">truncated_states</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">64</span><span class="p">,</span> <span class="mi">6364136223846793005</span><span class="p">,</span> <span class="mi">1442695040888963407</span><span class="p">)</span>
+
+<span class="n">M</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span>
+<span class="n">A</span>  <span class="o">=</span> <span class="mi">6364136223846793005</span>
+<span class="n">C</span>  <span class="o">=</span> <span class="mi">1442695040888963407</span>
+<span class="n">Ainv</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">%</span><span class="n">M</span>
+<span class="k">def</span> <span class="nf">inverse_LCG</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">state</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ainv</span> <span class="o">*</span> <span class="p">(</span><span class="n">state</span> <span class="o">-</span> <span class="n">C</span><span class="p">))</span> <span class="o">%</span> <span class="n">M</span>
+    <span class="k">return</span> <span class="n">state</span>
+
+<span class="n">state0</span> <span class="o">=</span> <span class="p">[</span><span class="n">inverse_LCG</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1338</span><span class="p">)][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">state0</span><span class="p">).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">iv</span><span class="p">))</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">)),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
