@@ -104,9 +104,9 @@ We want $\phi$ so we can evaluate $\phi(P)$, because it will allow us to set up 
 $$
 \large
 \begin{align}
-\phi(R) &= \phi(P + nQ) \\
-O &= \phi(P) + n \cdot \phi(Q) \\
--\phi(P) &= n \cdot \phi(Q)
+\nonumber \phi(R) &= \phi(P + nQ) \\
+\nonumber O &= \phi(P) + n \cdot \phi(Q) \\
+\nonumber -\phi(P) &= n \cdot \phi(Q)
 \end{align}
 $$
 
