@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>One Point Wonder (NNS CTF 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="One Point Wonder (NNS CTF 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge overview" />
+<meta property="og:description" content="Challenge overview" />
+<link rel="canonical" href="https://zukane.github.io/one-point-wonder/" />
+<meta property="og:url" content="https://zukane.github.io/one-point-wonder/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-08-31T12:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="One Point Wonder (NNS CTF 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-08-31T12:00:00+02:00","datePublished":"2025-08-31T12:00:00+02:00","description":"Challenge overview","headline":"One Point Wonder (NNS CTF 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"https://zukane.github.io/one-point-wonder/"},"url":"https://zukane.github.io/one-point-wonder/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Point Wonder (NNS CTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <meta name="google-site-verification" content="dyMwt_XPwaeGY1MubEtKTorF4C368AHqIwugUO8c6P8" />
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">One Point Wonder (NNS CTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/isogeny/" class="tag">Isogeny</a>
+            
+            <a href="/tags/dlp/" class="tag">DLP</a>
+            
+            <a href="/tags/parameter-recovery/" class="tag">Parameter recovery</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>oops, I left the codomain at home
+</code></pre></div></div>
+
+<p>In this crypto CTF challenge we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">getPrime</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span>
+<span class="kn">import</span> <span class="nn">hashlib</span><span class="p">,</span> <span class="n">os</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">216</span>
+<span class="n">B</span> <span class="o">=</span> <span class="mi">3</span><span class="o">^</span><span class="mi">137</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">-</span><span class="mi">1</span>  
+<span class="n">F</span><span class="p">.</span><span class="o">&lt;</span><span class="n">i</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="o">^</span><span class="mi">2</span><span class="p">,</span> <span class="n">modulus</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">E</span>  <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">P</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="n">B</span> <span class="o">*</span> <span class="n">E</span><span class="p">.</span><span class="n">random_point</span><span class="p">(),</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="n">B</span> <span class="o">*</span> <span class="n">E</span><span class="p">.</span><span class="n">random_point</span><span class="p">()</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">192</span><span class="p">)</span>
+<span class="n">R</span> <span class="o">=</span> <span class="n">P</span><span class="o">+</span><span class="n">n</span><span class="o">*</span><span class="n">Q</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="n">E</span><span class="p">.</span><span class="n">isogeny</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"factored"</span><span class="p">)</span>
+<span class="n">E1</span> <span class="o">=</span> <span class="n">phi</span><span class="p">.</span><span class="n">codomain</span><span class="p">()</span>
+<span class="n">phi_Q</span> <span class="o">=</span> <span class="n">phi</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>  
+
+<span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"NNS{????????????????????????????????????????}"</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">(),</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">ct</span>     <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="mi">16</span><span class="p">)).</span><span class="nb">hex</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"j = </span><span class="si">{</span><span class="n">E1</span><span class="p">.</span><span class="n">j_invariant</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"phi_Q = </span><span class="si">{</span><span class="n">phi_Q</span><span class="p">.</span><span class="n">xy</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Px = </span><span class="si">{</span><span class="n">P</span><span class="p">.</span><span class="n">x</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"iv = 0x</span><span class="si">{</span><span class="n">iv</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"ct = 0x</span><span class="si">{</span><span class="n">ct</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>as well as the output.txt:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>j = 18163004825157450466842625431561808301580119032536690641389327607343782773061546639751762998393779196539875597064310424073920961685*i + 10476361833492339295306564304815024338976340768866376334255986099098584965912219696568648092211110609272091912464632625421909839215
+phi_Q = (22257315184457286111748155005425025792825802063434466962473902411614730361444321425941165084133078904123470449975579476128819778071*i + 18061845855380636312674581051317565846290213869393739515881756589750971883163716804746762468096421853876338415747328404551860424738, 21239731363163147620981043943699308042763543730631463607019787471251640856215020805155900823401536718518291296362081601409379355568*i + 8779826832019778481255845391809051816439178142702979062563902351719032536488132695732061179503752527439223190037985972241319740694)
+P.x = 5742624188458182376342316433128292705785222467523243855400928831210046626067548089223190334236246885842905182649500944382581000934*i + 7663161849826271980659169578693116528205934627239444675180416649810833094415206594178398886032480427742749796072416769297624604592
+iv = 0x7da8f855ac70f87cc7fabc60f559047b
+ct = 0x70914c9c205858e6cdffa72b5c5cabe45e0a85fda2e1caf3e511a8181a971525ec3a9da2e5bbaa0d158feff5c81f
+</code></pre></div></div>
+
+<p>We are given $\phi(Q)$ and $P.x$, and it seems like we have to solve a DLP to recover the AES key.</p>
+
+<h5 id="recovering-the-curve-parameters">Recovering the curve parameters</h5>
+
+<p>Firstly, we need to recover the curve parameters of the codomain $E_{1}$ using the j-invariant and point $\phi_{Q}$. Recall the formula for the j-invariant:</p>
+
+\[\large j = 1728 \frac{4a^{3}}{4a^{3}+27b^{2}}\]
+
+<p>And the short Weierstrass equation for $\phi_{Q}$:</p>
+
+\[\large y_{Q}^{2} = x_{Q}^{3} + ax_{Q} + b\]
+
+<p>Since we have two equations with two unknowns $a$ and $b$, we can solve for the curve parameters. We begin by writing $b$ in terms of $a$ by rearranging the short Weierstrass equation:</p>
+
+\[\large b = y_Q^{2} - x_Q^{3} - ax_Q\]
+
+<p>We then rearrange the equation for the j-invariant, to move everything to one side:</p>
+
+\[\large 4a^{3}(j-1728)+27jb^{2}=0\]
+
+<p>By plugging in the expression for $b$, we create a cubic polynomial in $a$. We can test each root, and for each candidate $a$, check if the resulting curve has our desired order. In this case, there is only one root, so we use it directy:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">poly</span>  <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1728</span><span class="p">)</span><span class="o">*</span><span class="n">a</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">27</span><span class="o">*</span><span class="n">j</span><span class="o">*</span><span class="n">b</span><span class="o">^</span><span class="mi">2</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">poly</span><span class="p">.</span><span class="n">roots</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">E1</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+<span class="n">Q_</span> <span class="o">=</span> <span class="n">E1</span><span class="p">(</span><span class="n">Qx</span><span class="p">,</span> <span class="n">Qy</span><span class="p">)</span>
+<span class="k">assert</span> <span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="n">Q_</span><span class="p">).</span><span class="n">is_zero</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">((</span><span class="n">B</span><span class="o">//</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">Q_</span><span class="p">).</span><span class="n">is_zero</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h5 id="recovering-the-isogeny">Recovering the isogeny</h5>
+
+<p>With the codomain $E_{1}$ recovered, we can use it along with the image point $\phi(Q)$ to recover the isogeny $\phi$.</p>
+
+<p>We want $\phi$ so we can evaluate $\phi(P)$, because it will allow us to set up the discrete logarithm problem to recover $n$. $R$ is the kernel, so we  have $\phi(R) = O$. We observe the following:</p>
+
+\[\large
+\begin{align}
+\phi(R) &amp;= \phi(P + nQ) \\
+O &amp;= \phi(P) + n \cdot \phi(Q) \\
+-\phi(P) &amp;= n \cdot \phi(Q)
+\end{align}\]
+
+<p>We have found the co-domain $E_{1}$ of curve $E_{0}$. We can try to find the isogeny $\hat{\phi}: E_{1} \rightarrow E_{0}$, where we then find it’s dual in order to recover $\phi$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">phi_hat</span> <span class="o">=</span> <span class="n">E1</span><span class="p">.</span><span class="n">isogeny</span><span class="p">(</span><span class="n">phi_Q</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"factored"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>This only gives us an isogeny $\hat{\phi}: E_{1} \rightarrow E_{0}’$, where $E_{0}’$ is isomorphic to $E_{0}$ but not actually equal to $E_{0}$. We need the co-domain of $\hat{\phi}$ to be exactly $E_{0}$. We could find the unique isomorphism $\psi: E_{0}’ \rightarrow E_{0}$ and then use the composition $\psi \circ \hat{\phi} : E_{1} \rightarrow E_{0}$, however, SageMath lets us specify the desired codomain directly:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">phi_hat</span> <span class="o">=</span> <span class="n">E1</span><span class="p">.</span><span class="n">isogeny</span><span class="p">(</span><span class="n">phi_Q</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"factored"</span><span class="p">,</span> <span class="n">codomain</span><span class="o">=</span><span class="n">E0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Now that we have an isogeny whose co-domain is exactly $E_{0}$, we can take the dual in order to recover $\phi$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">phi</span> <span class="o">=</span> <span class="n">phi_hat</span><span class="p">.</span><span class="n">dual</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>From here, we calculate $\phi(P)$ and insert it in the discrete logarithm problem to solve for $n$. However, since we are only given $P.x$, we have to lift the x-coordinate on the curve $E_{0}$ and test both possible points.</p>
+
+<h5 id="decrypting-the-flag">Decrypting the flag</h5>
+
+<p>By solving the DLP for both $\phi(P)$ and $\phi(-P)$, the recovered value $n$ is the AES key which can be used to decrypt the ciphertext:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">phi</span><span class="p">(</span><span class="n">P</span><span class="p">),</span> <span class="n">phi_Q</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">'+'</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="n">B</span><span class="p">)</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">(),</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">iv</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">ct</span><span class="p">)),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>This gives us our flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NNS{bu1lD_CuRv3_r3c0v3r_1s0g3ny_d3cRyp7_fl4g}
+</code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">unpad</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="n">proof</span><span class="p">.</span><span class="nb">all</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">216</span>
+<span class="n">B</span> <span class="o">=</span> <span class="mi">3</span><span class="o">^</span><span class="mi">137</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">A</span><span class="o">*</span><span class="n">B</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">F</span><span class="p">.</span><span class="o">&lt;</span><span class="n">i</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="o">^</span><span class="mi">2</span><span class="p">,</span> <span class="n">modulus</span><span class="o">=</span><span class="n">x</span><span class="o">^</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">E0</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">Px</span> <span class="o">=</span> <span class="mi">7154845853584465773274560285556998041316880875933428625989508840930540660640386605518629576825395103283629863864475785639190189540</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">7055760255797631743070087750378584646385412285826739992132686291867615676943829419672853502757913189891063696683042430994015726061</span>
+<span class="n">j</span> <span class="o">=</span> <span class="mi">13897943968670627028821175800566083246788250194739801184755379106763256231540209142346577809447217378788456971272445373264849010133</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">23780011362891232032543058818843206569075289330860563525186623156946237644042578939371224060623299802446529270938546128646375815042</span>
+<span class="n">phi_Q</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1438336939527776473524156661440334137208701955112492905069323395488777827834790134059116893010523111877971455504309886416495150015</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3427726008556100688888416236611350024877356838402910936483689909032270130497153660883916133984220069248107328366037201206313414045</span><span class="p">,</span> <span class="mi">6796549415058176434426312807671630923318528924038107427972821512510845938594581102460415477288633003544443376494889850457469057366</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">22484510185502283667379549736147041418927205110085658279406360321295482559193327870894913536669477509036655550593482159665400332205</span><span class="p">)</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="mh">0xd1b026cb22769d8e3ee4a8bfcd16d6e4</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="mh">0xe6c19149e1e8f9b8f7b2cf16233d5b2f19c96b011521114d352d9d6925b4e444c1280eea906716fb3da1080d0194f8db</span>
+
+<span class="n">Qx</span><span class="p">,</span> <span class="n">Qy</span> <span class="o">=</span> <span class="n">phi_Q</span>
+<span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">a</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">Qy</span><span class="o">^</span><span class="mi">2</span> <span class="o">-</span> <span class="n">Qx</span><span class="o">^</span><span class="mi">3</span> <span class="o">-</span> <span class="n">a</span><span class="o">*</span><span class="n">Qx</span>
+<span class="n">poly</span>  <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1728</span><span class="p">)</span><span class="o">*</span><span class="n">a</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">27</span><span class="o">*</span><span class="n">j</span><span class="o">*</span><span class="n">b</span><span class="o">^</span><span class="mi">2</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">poly</span><span class="p">.</span><span class="n">roots</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">E1</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+<span class="n">Q_</span> <span class="o">=</span> <span class="n">E1</span><span class="p">(</span><span class="n">Qx</span><span class="p">,</span> <span class="n">Qy</span><span class="p">)</span>
+<span class="k">assert</span> <span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="n">Q_</span><span class="p">).</span><span class="n">is_zero</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">((</span><span class="n">B</span><span class="o">//</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">Q_</span><span class="p">).</span><span class="n">is_zero</span><span class="p">()</span>
+
+<span class="n">phi_Q</span> <span class="o">=</span> <span class="n">E1</span><span class="p">(</span><span class="n">phi_Q</span><span class="p">)</span>
+<span class="n">phi_Q</span><span class="p">.</span><span class="n">set_order</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="n">phi_hat</span> <span class="o">=</span> <span class="n">E1</span><span class="p">.</span><span class="n">isogeny</span><span class="p">(</span><span class="n">phi_Q</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s">"factored"</span><span class="p">,</span> <span class="n">codomain</span><span class="o">=</span><span class="n">E0</span><span class="p">)</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="n">phi_hat</span><span class="p">.</span><span class="n">dual</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">P</span> <span class="ow">in</span> <span class="n">E0</span><span class="p">.</span><span class="n">lift_x</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">phi</span><span class="p">(</span><span class="n">P</span><span class="p">),</span> <span class="n">phi_Q</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">'+'</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="n">B</span><span class="p">)</span>
+        <span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">).</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">(),</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">iv</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">ct</span><span class="p">)),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">continue</span>
+</code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

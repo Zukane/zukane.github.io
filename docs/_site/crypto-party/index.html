@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Crypto Party (NNS CTF 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Crypto Party (NNS CTF 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge overview" />
+<meta property="og:description" content="Challenge overview" />
+<link rel="canonical" href="https://zukane.github.io/crypto-party/" />
+<meta property="og:url" content="https://zukane.github.io/crypto-party/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-08-31T12:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Crypto Party (NNS CTF 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-08-31T12:00:00+02:00","datePublished":"2025-08-31T12:00:00+02:00","description":"Challenge overview","headline":"Crypto Party (NNS CTF 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"https://zukane.github.io/crypto-party/"},"url":"https://zukane.github.io/crypto-party/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Party (NNS CTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <meta name="google-site-verification" content="dyMwt_XPwaeGY1MubEtKTorF4C368AHqIwugUO8c6P8" />
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Crypto Party (NNS CTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/ecdsa/" class="tag">ECDSA</a>
+            
+            <a href="/tags/biased-nonces/" class="tag">Biased Nonces</a>
+            
+            <a href="/tags/hidden-number-problem/" class="tag">Hidden Number Problem</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given the source code of a signature service:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span>
+<span class="kn">from</span> <span class="nn">secrets</span> <span class="kn">import</span> <span class="n">randbits</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha384</span>
+<span class="kn">from</span> <span class="nn">ecdsa</span> <span class="kn">import</span> <span class="n">curves</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">secret_key</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">"FLAG"</span><span class="p">,</span> <span class="s">"NNS{fake_flag}"</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">MAX_INVITES</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="n">curve_obj</span> <span class="o">=</span> <span class="n">curves</span><span class="p">.</span><span class="n">NIST384p</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">curve_obj</span><span class="p">.</span><span class="n">generator</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">curve_obj</span><span class="p">.</span><span class="n">order</span>
+
+<span class="k">def</span> <span class="nf">invite</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">sha384</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">())</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">randbits</span><span class="p">(</span><span class="n">h</span><span class="p">.</span><span class="n">bit_length</span><span class="p">())</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">G</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">P</span><span class="p">.</span><span class="n">x</span><span class="p">()</span> <span class="o">%</span> <span class="n">n</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">secret_key</span><span class="p">))</span> <span class="o">%</span> <span class="n">n</span>
+    <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Wassup"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"The guest list is a bit crammed, but you can invite up to </span><span class="si">{</span><span class="n">MAX_INVITES</span><span class="si">}</span><span class="s"> friends."</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_INVITES</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">"Enter the name of your friend: "</span><span class="p">).</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">invite</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Alright, here is </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s">'s invite code:"</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Invitation code = </span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s">:</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">pass</span>
+</code></pre></div></div>
+
+<p>We can sign 15 messages of our choice.</p>
+
+<h5 id="cranking-up-the-bias">Cranking up the bias</h5>
+
+<p>The nonce $k$ is a random $N$-bit number where $N$ is the number of bits in the hash $h$. SHA384 is used to hash the messages $m$. Since the value is converted to a long, leading zero-bits are not preserved. This means we can find messages that hash to low-bit values, giving us biased nonces.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">h</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">sha384</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">())</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">randbits</span><span class="p">(</span><span class="n">h</span><span class="p">.</span><span class="n">bit_length</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>With 15 signatures and the P384 curve, the nonce requires $x$ biased bits for the hidden number problem to work:</p>
+
+\[\large \log_{2}(B) \leq \left[ \frac{\log_{2}(n)\cdot (m-1)}{m} - \frac{\log_{2}(m)}{2} \right]\]
+
+<p>where $B$ is the upper bound for the nonce $k$, $n$ is the order and $m$ is the number of signatures.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="mi">384</span> <span class="o">-</span> <span class="nb">float</span><span class="p">((</span><span class="n">log</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">MAX_INVITES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">MAX_INVITES</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">MAX_INVITES</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+<span class="mf">27.553445297804274</span>
+</code></pre></div></div>
+
+<p>So we need around 28 bits of leading zeroes for the hashes. Such a message can be brute-forced in Python, but is a lot faster in a lower-level language like C++ or Rust. In reality, I found that 26 bits of leading zeroes works most of the time. One such message is:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">m</span> <span class="o">=</span> <span class="s">"5831510802864336587"</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">h</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">sha384</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">())</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">h</span><span class="p">.</span><span class="n">bit_length</span><span class="p">()</span>
+<span class="mi">358</span>
+</code></pre></div></div>
+
+<p>The same message can be used across signatures, so finding $15$ such messages is not necessary.</p>
+
+<h5 id="recovering-the-private-key">Recovering the private key</h5>
+
+<p>With the message $m$, we can query the service for $15$ signatures:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">m_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">"5831510802864336587"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">15</span>
+<span class="n">h_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">r_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">s_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">"redacted.chall.nnsc.tf"</span><span class="p">,</span> <span class="mi">41337</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"friends.</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m_list</span><span class="p">:</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">()</span>
+    <span class="n">r</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">"="</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">)</span>
+    <span class="n">r_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">strip</span><span class="p">()))</span>
+    <span class="n">s_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">strip</span><span class="p">()))</span>
+    <span class="n">h_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">sha384</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()))</span>
+<span class="n">io</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>With $(r,s,h)$ its just standard a standard hidden number problem instance with zero-msb. I used the implementation from https://github.com/jvdsn/crypto-attacks/tree/master.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">TOTAL_BITS</span> <span class="o">=</span> <span class="mi">384</span>
+<span class="n">KNOWN_BITS</span> <span class="o">=</span> <span class="n">TOTAL_BITS</span> <span class="o">-</span> <span class="n">TARGET</span>
+<span class="n">MASK_TOP</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">KNOWN_BITS</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">TOTAL_BITS</span> <span class="o">-</span> <span class="n">KNOWN_BITS</span><span class="p">)</span> 
+<span class="n">KNOWN_VALUE</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># all top bits are 0
+</span>
+<span class="n">k_partial</span> <span class="o">=</span> <span class="p">[</span><span class="n">PartialInteger</span><span class="p">(</span><span class="n">KNOWN_VALUE</span><span class="p">,</span> <span class="n">MASK_TOP</span><span class="p">,</span> <span class="n">TOTAL_BITS</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r_list</span><span class="p">))]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">dsa_known_msb</span><span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">order</span><span class="p">(),</span> <span class="n">h_list</span><span class="p">,</span> <span class="n">r_list</span><span class="p">,</span> <span class="n">s_list</span><span class="p">,</span> <span class="n">k_partial</span><span class="p">))[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="c1"># b'NNS{cr4nk_up_th3_bi4s5_y0_354910379ead}'
+</span></code></pre></div></div>
+
+<h5 id="solve-script">Solve script</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha384</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span><span class="p">,</span> <span class="n">bytes_to_long</span>
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="n">process</span><span class="p">,</span> <span class="n">remote</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="mh">0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mh">0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffc</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mh">0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">E</span><span class="p">(</span><span class="mh">0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25dbf55296c3a545e3872760ab7</span><span class="p">,</span> <span class="mh">0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e819d7a431d7c90ea0e5f</span><span class="p">)</span>
+
+<span class="n">TARGET</span> <span class="o">=</span> <span class="mi">384</span> <span class="o">-</span> <span class="mi">26</span>
+<span class="n">MAX_SIGNS</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="c1"># Bruteforced message in c++, 26 leading 0s in sha384(m)
+</span><span class="n">m_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">"5831510802864336587"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">15</span>
+<span class="n">h_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">r_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">s_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">"redacted.chall.nnsc.tf"</span><span class="p">,</span> <span class="mi">41337</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"friends.</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m_list</span><span class="p">:</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">()</span>
+    <span class="n">r</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">"="</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">)</span>
+    <span class="n">r_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">strip</span><span class="p">()))</span>
+    <span class="n">s_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">strip</span><span class="p">()))</span>
+    <span class="n">h_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">sha384</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">encode</span><span class="p">()).</span><span class="n">digest</span><span class="p">()))</span>
+<span class="n">io</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">shortest_vectors</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">LLL</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">B</span><span class="p">.</span><span class="n">rows</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">.</span><span class="n">is_zero</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">row</span>
+
+<span class="k">class</span> <span class="nc">PartialInteger</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">bits</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">v</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">bit_length</span> <span class="o">=</span> <span class="n">bits</span>
+
+    <span class="k">def</span> <span class="nf">get_known_msb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">msb_val</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">msb_len</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">bit_length</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>       
+                <span class="n">msb_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">msb_val</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="bp">self</span><span class="p">.</span><span class="n">v</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">msb_len</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>                                
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">msb_val</span><span class="p">,</span> <span class="n">msb_len</span>
+
+    <span class="k">def</span> <span class="nf">get_unknown_lsb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lsb_len</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">bit_length</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>        
+                <span class="k">break</span>
+            <span class="n">lsb_len</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">lsb_len</span>
+
+    <span class="k">def</span> <span class="nf">sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parts</span><span class="p">):</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">lsb_len</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">get_unknown_lsb</span><span class="p">())</span>
+        <span class="n">mask_lsb</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">lsb_len</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>      
+        <span class="k">return</span> <span class="n">Integer</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">v</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">mask_lsb</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">low</span> <span class="o">&amp;</span> <span class="n">mask_lsb</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">bits</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">to_bits_le</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s">"&lt;PartialInteger </span><span class="si">{</span><span class="n">bits</span><span class="si">}</span><span class="s">&gt;"</span>
+
+    <span class="k">def</span> <span class="nf">to_bits_le</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nb">str</span><span class="p">((</span><span class="bp">self</span><span class="p">.</span><span class="n">v</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="p">.</span><span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">else</span> <span class="s">'?'</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">bit_length</span><span class="p">)</span>
+        <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span> <span class="n">n1</span> <span class="o">+</span> <span class="n">n2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n1</span> <span class="o">+</span> <span class="n">n2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n2</span><span class="p">):</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">n1</span> <span class="o">+</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+
+        <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">n1</span> <span class="o">+</span> <span class="n">n2</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">X</span> <span class="o">//</span> <span class="mi">2</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n2</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">n1</span> <span class="o">+</span> <span class="n">j</span><span class="p">,</span> <span class="n">n1</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span> <span class="o">/</span> <span class="n">QQ</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="n">B</span><span class="p">[</span><span class="n">n1</span> <span class="o">+</span> <span class="n">n2</span><span class="p">,</span> <span class="n">n1</span> <span class="o">+</span> <span class="n">n2</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span>
+
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">shortest_vectors</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">X</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n1</span><span class="p">)]</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">n1</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span> <span class="o">//</span> <span class="n">X</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n2</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">y</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ys</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="n">n1</span> <span class="o">+</span> <span class="n">n2</span><span class="p">]</span> <span class="o">==</span> <span class="n">X</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span>
+
+
+<span class="k">def</span> <span class="nf">dsa_known_msb</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">hi</span><span class="p">,</span> <span class="n">ri</span><span class="p">,</span> <span class="n">si</span><span class="p">,</span> <span class="n">ki</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="n">msb</span><span class="p">,</span> <span class="n">msb_bit_length</span> <span class="o">=</span> <span class="n">ki</span><span class="p">.</span><span class="n">get_known_msb</span><span class="p">()</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">ki</span><span class="p">.</span><span class="n">get_unknown_lsb</span><span class="p">()</span>
+        <span class="n">a</span><span class="p">.</span><span class="n">append</span><span class="p">([(</span><span class="nb">pow</span><span class="p">(</span><span class="n">si</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">ri</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">])</span>
+        <span class="n">b</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="nb">pow</span><span class="p">(</span><span class="n">si</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">hi</span> <span class="o">-</span> <span class="n">shift</span> <span class="o">*</span> <span class="n">msb</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k_</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">attack</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">ki</span><span class="p">.</span><span class="n">sub</span><span class="p">([</span><span class="n">ki_</span><span class="p">])</span> <span class="k">for</span> <span class="n">ki</span><span class="p">,</span> <span class="n">ki_</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k_</span><span class="p">)]</span>
+
+
+<span class="n">TOTAL_BITS</span> <span class="o">=</span> <span class="mi">384</span>
+<span class="n">KNOWN_BITS</span> <span class="o">=</span> <span class="n">TOTAL_BITS</span> <span class="o">-</span> <span class="n">TARGET</span>
+<span class="n">MASK_TOP</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">KNOWN_BITS</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">TOTAL_BITS</span> <span class="o">-</span> <span class="n">KNOWN_BITS</span><span class="p">)</span> 
+<span class="n">KNOWN_VALUE</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># all top bits are 0
+</span>
+<span class="n">k_partial</span> <span class="o">=</span> <span class="p">[</span><span class="n">PartialInteger</span><span class="p">(</span><span class="n">KNOWN_VALUE</span><span class="p">,</span> <span class="n">MASK_TOP</span><span class="p">,</span> <span class="n">TOTAL_BITS</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r_list</span><span class="p">))]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">dsa_known_msb</span><span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">order</span><span class="p">(),</span> <span class="n">h_list</span><span class="p">,</span> <span class="n">r_list</span><span class="p">,</span> <span class="n">s_list</span><span class="p">,</span> <span class="n">k_partial</span><span class="p">))[</span><span class="mi">0</span><span class="p">]))</span>
+</code></pre></div></div>
+
+<h5 id="cheese">Cheese</h5>
+
+<p>because of a skill issue on my part, i overlooked the possibility of just reconnecting to the instance to get as many signatures as you want. This means the message $m$ does not need to be bruteforced. This isn’t too big of a cheese though</p>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
