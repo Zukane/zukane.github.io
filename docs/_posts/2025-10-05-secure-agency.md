@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Secure Agency (WackAttack CTF 2025)"
-date: 2025-03-09 10:00:00 -0000
+date: 2025-10-05 10:00:00 -0000
 categories: writeups
 tags: [Elliptic Curve, PRNG, Hidden Number Problem]
 ---
