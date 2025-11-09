@@ -44,11 +44,11 @@ By picking choice 1 in the menu, we can encrypt a message of our choice:
 
 ```c
 if (menu_choice == 1) {
-	printf("Enter string to encrypt\n> ");
-	fgets(local_108,242,stdin);
-	RC4(key,local_108 + local_18,local_1f8,local_108 + local_18);
-	puts_hex(local_1f8);
-	resetKey();
+    printf("Enter string to encrypt\n> ");
+    fgets(local_108,242,stdin);
+    RC4(key,local_108 + local_18,local_1f8,local_108 + local_18);
+    puts_hex(local_1f8);
+    resetKey();
 }
 ```
 
@@ -129,6 +129,7 @@ print(f"canary = 0x{canary[::-1].hex()}")
 ```
 
 *Note, we do not need to leak the first canary byte, as it is always `\x00`*
+
 *Note 2, with 6000 samples, the correct byte is not always found due to statistics. Number of samples can be adjusted, but will take longer*
 
 ```
