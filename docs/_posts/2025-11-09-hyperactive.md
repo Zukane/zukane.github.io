@@ -62,7 +62,7 @@ sage: cyclotomic_polynomial(7)
 x^6 + x^5 + x^4 + x^3 + x^2 + x + 1
 ```
 
-So, $p = \Phi_{7}(a)$. The script then builds the hyperelliptic curve $H: y^{2} + y = \alpha x^{7}$ over $\mathbb{F}_{p}$, and its Jacobian $J(\mathbb{F}_{p})$. The flag is encoded in the x-coordinate of point $P \in H(\mathbb{F}_{p})$ , and the flag is encrypted by scaling the divisor-class $J(P)$ by $e=0x1337deadbeef1337$ in the Jacobian group. We are given the pair $(u,v)$ as the ciphertext.
+So, $p = \Phi_{7}(a)$. The script then builds the hyperelliptic curve $H: y^{2} + y = \alpha x^{7}$ over $\mathbb{F}^{}_{p}$, and its Jacobian $J(\mathbb{F}_{p})$. The flag is encoded in the x-coordinate of point $P \in H(\mathbb{F}_{p})$ , and the flag is encrypted by scaling the divisor-class $J(P)$ by $e=0x1337deadbeef1337$ in the Jacobian group. We are given the pair $(u,v)$ as the ciphertext.
 
 ##### Recovering the order of the Jacobian Group
 
