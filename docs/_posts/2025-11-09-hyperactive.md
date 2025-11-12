@@ -85,7 +85,7 @@ def galois_embedding(k, x):
     return K.hom([zeta^k])(x)
 ```
 
-Stickelberger’s theorem gives the prime-ideal factorization of the Jacobi sum $J(\chi^{a},\chi^{b}) \in \mathbb{Z}[\zeta_{7}]$ as:
+Stickelberger’s theorem gives the prime-ideal factorization of the Jacobi sum $J(\chi^{r},\chi^{s}) \in \mathbb{Z}[\zeta_{7}]$ as:
 
 $$
 \large J(\chi^{r},\chi^{s}) = \prod^{6}_{i=1}\sigma_{i}(\pi)^{e_{i}}, \quad e_{i} = \left\lfloor \frac{(r+s)i}{7} \right\rfloor - \left\lfloor \frac{ri}{7} \right\rfloor  - \left\lfloor \frac{si}{7} \right\rfloor 
