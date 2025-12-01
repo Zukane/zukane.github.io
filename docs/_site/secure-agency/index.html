@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Secure Agency (WackAttack CTF 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Secure Agency (WackAttack CTF 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge overview" />
+<meta property="og:description" content="Challenge overview" />
+<link rel="canonical" href="http://localhost:4000/secure-agency/" />
+<meta property="og:url" content="http://localhost:4000/secure-agency/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-10-05T12:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Secure Agency (WackAttack CTF 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-10-05T12:00:00+02:00","datePublished":"2025-10-05T12:00:00+02:00","description":"Challenge overview","headline":"Secure Agency (WackAttack CTF 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/secure-agency/"},"url":"http://localhost:4000/secure-agency/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Agency (WackAttack CTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <meta name="google-site-verification" content="dyMwt_XPwaeGY1MubEtKTorF4C368AHqIwugUO8c6P8" />
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Secure Agency (WackAttack CTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/elliptic-curve/" class="tag">Elliptic Curve</a>
+            
+            <a href="/tags/prng/" class="tag">PRNG</a>
+            
+            <a href="/tags/hidden-number-problem/" class="tag">Hidden Number Problem</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge we are given the following server source code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">fastecdsa.curve</span> <span class="kn">import</span> <span class="n">P256</span>
+<span class="kn">from</span> <span class="nn">secrets</span> <span class="kn">import</span> <span class="n">randbelow</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">bytes_to_long</span><span class="p">,</span> <span class="n">long_to_bytes</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">def</span> <span class="nf">segment</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">//</span> <span class="n">n</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">l</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">l</span><span class="p">)]</span>
+
+<span class="n">secret</span> <span class="o">=</span> <span class="n">randbelow</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">256</span><span class="p">)</span>
+<span class="n">hidden</span> <span class="o">=</span> <span class="n">randbelow</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">128</span><span class="p">)</span>
+<span class="n">FLAG</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"FLAG"</span><span class="p">,</span> <span class="s">"wack{demo_flag}"</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Randomizer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">randbelow</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">256</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">Q</span> <span class="o">=</span> <span class="n">P256</span><span class="p">.</span><span class="n">G</span> <span class="o">*</span> <span class="n">r</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">Q</span> <span class="o">*</span> <span class="n">secret</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">P</span> <span class="o">*</span> <span class="n">seed</span><span class="p">).</span><span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">_updatestate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">P</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">state</span><span class="p">).</span><span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">Q</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">state</span><span class="p">).</span><span class="n">x</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_updatestate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">get_public_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">Q</span>
+
+    <span class="k">def</span> <span class="nf">randombytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">n</span> <span class="o">//</span> <span class="mi">32</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">32</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="sa">b</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">random</span><span class="p">()).</span><span class="n">rjust</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">random</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="mi">8</span><span class="p">)).</span><span class="n">rjust</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+<span class="n">R</span> <span class="o">=</span> <span class="n">Randomizer</span><span class="p">(</span><span class="n">randbelow</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">256</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">get_flag</span><span class="p">():</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">R</span><span class="p">.</span><span class="n">randombytes</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_ECB</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">c</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="n">FLAG</span><span class="p">.</span><span class="n">encode</span><span class="p">(),</span> <span class="n">AES</span><span class="p">.</span><span class="n">block_size</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Welcome the agency secure flag server"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"What do you want to do. (1) Get info, (2) Get random, (3) get flag or (4) get public parameters"</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">match</span> <span class="n">i</span><span class="p">:</span>
+        <span class="n">case</span> <span class="s">"1"</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">randbelow</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">256</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">hidden</span> <span class="o">&lt;&lt;</span> <span class="mi">128</span><span class="p">)</span> <span class="o">|</span> <span class="n">randbelow</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">128</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">randbelow</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">256</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">P256</span><span class="p">.</span><span class="n">q</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">c</span><span class="o">*</span><span class="n">secret</span><span class="p">)</span> <span class="o">%</span> <span class="n">P256</span><span class="p">.</span><span class="n">q</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Here are some hints</span><span class="se">\n</span><span class="si">{</span><span class="n">a</span><span class="o">=</span><span class="si">}</span><span class="se">\n</span><span class="s">b=?</span><span class="se">\n</span><span class="si">{</span><span class="n">c</span><span class="o">=</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">d</span><span class="o">=</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">case</span> <span class="s">"2"</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Random value = </span><span class="si">{</span><span class="n">R</span><span class="p">.</span><span class="n">random</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">case</span> <span class="s">"3"</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Flag = </span><span class="si">{</span><span class="n">get_flag</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">case</span> <span class="s">"4"</span><span class="p">:</span>
+            <span class="n">P</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">get_public_parameters</span><span class="p">()</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"P = </span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="se">\n</span><span class="s">Q = </span><span class="si">{</span><span class="n">Q</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">case</span> <span class="n">_</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"Not a valid option"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>The script defines a custom PRNG <code class="language-plaintext highlighter-rouge">Randomizer</code> which evolves the state through scalar-multiplication on the P256 elliptic curve. The service presents a menu with different choices, allowing us to get hints about the secret values, call <code class="language-plaintext highlighter-rouge">R.random</code>, encrypt the flag, and get the public parameters $P$ and $Q$ where $Q$ is a random point on the curve and $P = secret \cdot Q$.</p>
+
+<p>The flag is encrypted with AES ECB with a 16-byte key generated from <code class="language-plaintext highlighter-rouge">Randomizer.randombytes()</code>. To decrypt the flag, we must learn the state of the PRNG.</p>
+
+<h5 id="recovering-the-secret">Recovering the secret</h5>
+
+<p>Menu option 1 <code class="language-plaintext highlighter-rouge">Get info</code> returns a set of integers $a,c,d$ where $a$ and $c$ are random 256-bit integers, and:</p>
+
+\[\large \begin{align}
+\nonumber b &amp;= (h \ll 128) + r \\
+\nonumber d &amp;\equiv b^{-1}(a+c\cdot s) \mod N
+\end{align}\]
+
+<p>Here, $s$ is the 256-bit fixed secret, $h$ is the fixed 128-bit hidden integer and $r$ is a random 128-bit value for each query. We can rearrange:</p>
+
+\[\large \begin{align}
+\nonumber a+c\cdot s &amp;\equiv d\cdot b \mod N\\
+\nonumber (a+c \cdot s)d^{-1} &amp;\equiv b \mod N
+\end{align}\]
+
+<p>By subtracting two instances from one-another, we eliminate the fixed unknown $h$ and are left with the small unknown $r_{i} - r_{1}$:</p>
+
+\[\large (a_{i}+c_{i} \cdot s)d_{i}^{-1} - (a_{0}+c_{0} \cdot s)d_{0}^{-1} \equiv r_{i} -r_{0} \mod N\]
+
+<p>We can expand the parenthesis $(a+c \cdot s)d^{-1}$ and define two variables, $t$ and $u$:</p>
+
+\[\large \begin{align}
+\nonumber t_{i} = c_{i}d_{i}^{-1} - c_{0}d_{0}^{-1}  \\
+\nonumber u_{i} = a_{i}d_{i}^{-1} - a_{0}d_{0}^{-1}
+\end{align}\]
+
+<p>We denote the small random unknown $r_{i}-r_{0}$ as $\beta_{i}$:</p>
+
+\[\large \begin{align}
+\nonumber t_{i} \cdot s-u_{i} \equiv r_{i}-r_{0} \mod N \\
+\nonumber \beta_{i} - t_{i} \cdot s + u_{i} \equiv 0 \mod N
+\end{align}\]
+
+<p>Which is a standard Hidden Number Problem instance with know $t,u$, unknown $s$ and unknown small $\beta$. This instance can be solved using LLL on the standard HNP lattice:</p>
+
+\[\large M = \begin{pmatrix}
+NI_{n} &amp; 0 &amp; 0 \\
+t &amp; B/N &amp; 0 \\
+u &amp; 0 &amp; B
+\end{pmatrix}\]
+
+<p>Which has a target vector $v = (\beta_{1},\dots,\beta_{m},s B/N,-B)$, thus recovering the secret $s$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">HNP</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">B</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">block_matrix</span><span class="p">([</span>
+        <span class="p">[</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="n">zero_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">2</span><span class="p">)],</span>
+        <span class="p">[</span><span class="n">matrix</span><span class="p">(</span><span class="n">t</span><span class="p">),</span>               <span class="n">matrix</span><span class="p">([</span><span class="n">B</span><span class="o">/</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">])],</span>
+        <span class="p">[</span><span class="n">matrix</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>               <span class="n">matrix</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span>   <span class="n">B</span><span class="p">])]</span>
+    <span class="p">])</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">M</span><span class="p">.</span><span class="n">LLL</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="n">B</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="o">/</span><span class="n">B</span> <span class="o">%</span> <span class="n">p</span>
+</code></pre></div></div>
+
+<h5 id="recovering-the-prng-state">Recovering the PRNG state</h5>
+
+<p>The PRNG does:</p>
+
+\[\large \begin{align}
+\nonumber R_{i} &amp;= (state_{i} \cdot Q).x  \\
+\nonumber state_{i+1} &amp;= (state_{i} \cdot P).x  \\
+\nonumber P &amp;= secret \cdot Q
+\end{align}\]
+
+<p>With the secret $s$ and a random value $R_{0}$ from menu option 2, we can lift $R_{1}$ on the curve to recover the point $state_{i} \cdot Q$.
+Since the next state is computed as $(state_{i} \cdot P).x$, we can substitute for $P$:</p>
+
+\[\large state_{i+1} = (state_{i} \cdot secret \cdot Q).x\]
+
+<p>So, by lifting $R_{0}$, we can compute the next state. This state can be used to directly infer the ECB encryption key, if <code class="language-plaintext highlighter-rouge">get flag</code> is the next menu option:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Ppub</span><span class="p">,</span> <span class="n">Qpub</span> <span class="o">=</span> <span class="n">get_PQ</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+<span class="n">R1</span> <span class="o">=</span> <span class="n">get_random</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+<span class="n">state0</span> <span class="o">=</span> <span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">lift_x</span><span class="p">(</span><span class="n">R1</span><span class="p">)</span> <span class="o">*</span> <span class="n">secret</span><span class="p">).</span><span class="n">x</span><span class="p">()</span>
+<span class="n">R2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Qpub</span> <span class="o">*</span> <span class="n">state0</span><span class="p">).</span><span class="n">x</span><span class="p">()</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">R2</span><span class="p">))[</span><span class="o">-</span><span class="mi">16</span><span class="p">:]</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="n">get_flag</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_ECB</span><span class="p">).</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>Which gets us our flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wack{N54_4pr0V3d}
+</code></pre></div></div>
+
+<h5 id="solvesage">Solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">unpad</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="c1"># P-256 params
+</span><span class="n">P</span> <span class="o">=</span> <span class="mh">0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF</span>
+<span class="n">A</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+<span class="n">B</span> <span class="o">=</span> <span class="mh">0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mh">0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="n">io</span><span class="p">):</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span> <span class="sa">b</span><span class="s">"1"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"hints</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">()</span> <span class="c1">#b?
+</span>    <span class="n">c</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span>
+
+<span class="k">def</span> <span class="nf">get_random</span><span class="p">(</span><span class="n">io</span><span class="p">):</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span> <span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Integer</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">15</span><span class="p">:])</span>
+
+<span class="k">def</span> <span class="nf">get_flag</span><span class="p">(</span><span class="n">io</span><span class="p">):</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span> <span class="sa">b</span><span class="s">"3"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">7</span><span class="p">:])</span>
+
+<span class="k">def</span> <span class="nf">get_PQ</span><span class="p">(</span><span class="n">io</span><span class="p">):</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"4"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"P = X: "</span><span class="p">)</span>
+    <span class="n">Px</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">Py</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"Q = X: "</span><span class="p">)</span>
+    <span class="n">Qx</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">Qy</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="n">E</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span><span class="n">Py</span><span class="p">),</span> <span class="n">E</span><span class="p">(</span><span class="n">Qx</span><span class="p">,</span><span class="n">Qy</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">HNP</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">B</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">block_matrix</span><span class="p">([</span>
+        <span class="p">[</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="n">zero_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">2</span><span class="p">)],</span>
+        <span class="p">[</span><span class="n">matrix</span><span class="p">(</span><span class="n">t</span><span class="p">),</span>               <span class="n">matrix</span><span class="p">([</span><span class="n">B</span><span class="o">/</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">])],</span>
+        <span class="p">[</span><span class="n">matrix</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>               <span class="n">matrix</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span>   <span class="n">B</span><span class="p">])]</span>
+    <span class="p">])</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">M</span><span class="p">.</span><span class="n">LLL</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="n">B</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="o">/</span><span class="n">B</span> <span class="o">%</span> <span class="n">p</span>
+
+<span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">"ctf.wackattack.eu"</span><span class="p">,</span> <span class="mi">8085</span><span class="p">)</span>
+
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_info</span><span class="p">(</span><span class="n">io</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)]</span>
+
+<span class="n">t_vec</span><span class="p">,</span> <span class="n">a_vec</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">):</span>
+    <span class="n">ai</span><span class="p">,</span> <span class="n">ci</span><span class="p">,</span> <span class="n">di</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">a0</span><span class="p">,</span> <span class="n">c0</span><span class="p">,</span> <span class="n">d0</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">inv_di</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">di</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">inv_d0</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">d0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">ci</span> <span class="o">*</span> <span class="n">inv_di</span> <span class="o">-</span> <span class="n">c0</span> <span class="o">*</span> <span class="n">inv_d0</span><span class="p">)</span> <span class="o">%</span> <span class="n">N</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">ai</span> <span class="o">*</span> <span class="n">inv_di</span> <span class="o">-</span> <span class="n">a0</span> <span class="o">*</span> <span class="n">inv_d0</span><span class="p">)</span> <span class="o">%</span> <span class="n">N</span>
+    <span class="n">t_vec</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">a_vec</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="n">B</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">128</span>
+<span class="n">secret</span> <span class="o">=</span> <span class="n">HNP</span><span class="p">(</span><span class="n">a_vec</span><span class="p">,</span> <span class="n">t_vec</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Recovered secret: </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">Ppub</span><span class="p">,</span> <span class="n">Qpub</span> <span class="o">=</span> <span class="n">get_PQ</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+<span class="n">R1</span> <span class="o">=</span> <span class="n">get_random</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+<span class="n">state0</span> <span class="o">=</span> <span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">lift_x</span><span class="p">(</span><span class="n">R1</span><span class="p">)</span> <span class="o">*</span> <span class="n">secret</span><span class="p">).</span><span class="n">x</span><span class="p">()</span>
+<span class="n">R2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Qpub</span> <span class="o">*</span> <span class="n">state0</span><span class="p">).</span><span class="n">x</span><span class="p">()</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">R2</span><span class="p">))[</span><span class="o">-</span><span class="mi">16</span><span class="p">:]</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="n">get_flag</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_ECB</span><span class="p">).</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

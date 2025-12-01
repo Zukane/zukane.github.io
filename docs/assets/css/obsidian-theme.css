@@ -1,67 +1,167 @@
-/* Obsidian-Inspired Dark Theme CSS with Minimal Mistakes-Inspired Layout */
+/* =========================================================
+   Zukane-Inspired Jekyll Theme
+   - Colors: Zukane palette
+   - Headers: Dark Moss red + streak (except main home title)
+   - Code: Halcyon-style typography + borders
+   - Improved header font rendering/antialiasing
+   ========================================================= */
 
-/* Base custom properties */
-:root {
-  --default-font: "Segoe UI", "Arial", "Tahoma", "Helvetica", sans-serif;
-}
+/* ---------- Zukane Variables (Dark Theme) ---------- */
 
-/* Dark theme variables */
-.theme-dark {
-  --background-primary: #161b22;
-  --background-primary-alt: #13161b;
-  --background-secondary: #11161d;
-  --background-secondary-alt: #0d1117;
-  --background-accent: #000;
-  --panel-border-color: #18191e;
-  
-  --text-accent: hsl(152, 39%, 51%);
-  --text-normal: #dedede;
-  --text-muted: #bbb;
-  --text-title-h5: #ff5757;  /* All headers will use this color */
-  
-  --interactive-accent: #4c78cc;
-  --interactive-accent-hover: #5082df;
-  
-  --font-monospace: "Consolas", "Fira Code", "Source Code Pro", "Droid Sans Mono", "Monoid", "Arial", sans-serif;
-  --line-height-headers: 1.2;
-  --file-line-width: 1000px;
-}
-
-/* Global Styles */
+:root .theme-dark,
 body.theme-dark {
-  background-color: var(--background-primary);
+  --color-base-00: #0b0e14;
+  --color-base-10: #1c2028;
+  --color-base-20: #2d323c;
+  --color-base-25: #363b46;
+  --color-base-30: #3f4450;
+  --color-base-35: #474d5a;
+  --color-base-40: #505664;
+  --color-base-50: #626879;
+  --color-base-60: #737a8d;
+  --color-base-70: #848ca1;
+  --color-base-100: #b9c3de;
+
+  --color-code-border: var(--color-base-10);
+  --stroke-code-border: 2px;
+
+  --text-on-accent: black;
+  --background-modifier-form-field: var(--background-primary-alt);
+
+  /* Custom header/navbar color variable */
+  --navbar-background: var(--background-secondary); /* Change this to your desired color */
+}
+
+/* Light theme variables (kept from Zukane snippet for completeness) */
+.theme-light {
+  --color-base-00: #b9c3de;
+  --color-base-05: #b0b9d3;
+  --color-base-10: #a7b0c9;
+  --color-base-20: #969eb5;
+  --color-base-25: #8d95ab;
+  --color-base-30: #848ca1;
+  --color-base-35: #7c8397;
+  --color-base-40: #737a8d;
+  --color-base-50: #626879;
+  --color-base-60: #505664;
+  --color-base-70: #3f4450;
+  --color-base-100: #0b0e14;
+  --accent-l: 60%;
+
+  --color-yellow-rgb: 190, 146, 0;
+  --color-yellow: rgb(var(--color-yellow-rgb));
+  --navbar-background: #dde2ef; /* Light theme navbar color */
+}
+
+/* High contrast & fusion overrides from Zukane (kept as-is) */
+:root:root body.high-contrast-text {
+  --color-base-100: rgb(var(--mono-rgb-100));
+}
+
+:root body.fusion-black {
+  --accent-s: 60%;
+  --accent-l: 60%;
+  --color-base-00: rgb(var(--mono-rgb-0));
+}
+
+:root:root body {
+  --interactive-normal: var(--background-primary);
+}
+
+/* ---------- Dark Theme Specific Overrides ---------- */
+
+body.theme-dark {
+  /* Backgrounds derived from Zukane palette */
+  --background-primary: var(--color-base-00);
+  --background-primary-alt: var(--background-primary);
+  --background-secondary: var(--background-primary);
+  --background-secondary-alt: var(--color-base-10);
+  --background-modifier-active-hover: var(--background-primary);
+
+  --titlebar-background: var(--background-primary);
+  --titlebar-background-focused: var(--background-primary);
+
+  --divider-color: var(--color-base-25);
+  --tab-divider-color: var(--background-primary);
+
+  --icon-color: var(--text-faint);
+
+  /* Text colors */
+  --text-normal: #b9c3de;
+  --text-muted: #848ca1;
+
+  /* Accent colors derived from Zukane palette */
+  --text-accent: var(--color-base-60);
+  --interactive-accent: var(--color-base-50);
+  --interactive-accent-hover: var(--color-base-60);
+  --text-selection: rgba(98, 104, 121, 0.35); /* based on --color-base-50 */
+
+  --accent-h: 228;
+  --hr-color: var(--text-accent);
+
+  /* Header Color Variable (Dark Moss Red) */
+  --header-red: #ff5757;
+
+  /* Codeblock Variables */
+  --code-font-weight: 600;
+  --code-font-size: 1.08em;      /* slightly bigger code-block font */
+  --custom-code-bg: #09070c;
+
+  /* Layout width */
+  --file-line-width: 900px !important;
+  --line-width: 900px !important;
+}
+
+/* =========================================================
+   Base Layout and Typography
+   ========================================================= */
+
+body.theme-dark {
+  background-color: var(--custom-code-bg);
   color: var(--text-normal);
-  font-family: var(--default-font);
+  font-family: "Segoe UI", "Arial", "Tahoma", "Helvetica", sans-serif;
   margin: 0;
   padding: 0;
   line-height: 1.6;
 }
 
-/* Force all headers (h1-h6 and post title) to use the desired header color */
-body.theme-dark h1,
-body.theme-dark h2,
-body.theme-dark h3,
-body.theme-dark h4,
-body.theme-dark h5,
-body.theme-dark h6,
-.post-title {
-  color: var(--text-title-h5) !important;
+/* --- HEADER FONT SMOOTHING & ANTI-ALIASING IMPROVEMENTS --- */
+h1, h2, h3, h4, h5, h6, .post-title, .site-title {
+  font-family: "Segoe UI", "Arial", "Tahoma", "Helvetica Neue", Helvetica, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-/* Container (inspired by Minimal Mistakes) */
+@supports (font-variation-settings: normal) {
+  h1, h2, h3, h4, h5, h6, .post-title, .site-title {
+    font-family: "Segoe UI Variable", "Segoe UI", "Arial", "Tahoma", "Helvetica Neue", Helvetica, Verdana, sans-serif;
+  }
+}
+
+/* Main content container (no gradient, but with border + shadow) */
 .container {
   max-width: var(--file-line-width);
-  margin: 3rem auto; /* Generous vertical margin */
-  padding: 2rem;     /* Generous inner padding */
+  margin: 3rem auto;
+  padding: 2.25rem 2.5rem;
   background-color: var(--background-secondary);
-  border-radius: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--divider-color);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
 }
 
-.container, .post-content, body.theme-dark p, body.theme-dark a { 
+/* Ensure all text/links wrap nicely */
+.container,
+.post-content,
+body.theme-dark p,
+body.theme-dark a {
   overflow-wrap: anywhere;
-  word-wrap: break-word; 
-  word-break: break-word;}
-  
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
 /* Typography */
 h1 { font-size: 2.5rem; margin-bottom: 1rem; }
 h2 { font-size: 2rem; margin-bottom: 0.75rem; }
@@ -69,122 +169,258 @@ h3 { font-size: 1.75rem; margin-bottom: 0.75rem; }
 h4 { font-size: 1.5rem; margin-bottom: 0.5rem; }
 h5 { font-size: 1.25rem; margin-bottom: 0.5rem; }
 h6 { font-size: 1rem; margin-bottom: 0.5rem; }
-p { margin-bottom: 1rem; }
+p  { margin-bottom: 1rem; }
 
-/* Links */
+body.theme-dark hr {
+  border: 0;
+  border-bottom: 1px solid var(--divider-color);
+  margin: 2rem 0;
+}
+
+/* =========================================================
+   Headers – Dark Moss Red + Zukane streak underline
+   ========================================================= */
+
+/* All headers + post title use header red */
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4,
+body.theme-dark h5,
+body.theme-dark h6,
+.post-title {
+  color: var(--header-red) !important;
+  position: relative;
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.4rem;
+  line-height: 1.2;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Gradient streak for all headers and post title except .site-title */
+
+body.theme-dark h2::after,
+body.theme-dark h3::after,
+body.theme-dark h4::after,
+body.theme-dark h5::after,
+body.theme-dark h6::after,
+.post-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  border-bottom: 1px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(to right, var(--header-red), transparent);
+}
+
+body.theme-dark h1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  border-bottom: 1px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(to right, transparent, var(--header-red), transparent);
+}
+
+/* Remove GRADIENT for the main home page header only and use a solid underline instead */
+.site-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  border-bottom: 1px solid var(--header-red) !important;
+  border-image: none !important;
+  border-image-source: none !important;
+  border-image-slice: none !important;
+  background: none !important;
+}
+
+/* Slightly tighter spacing for smaller headings */
+body.theme-dark h5,
+body.theme-dark h6 {
+  margin-bottom: 1rem;
+}
+
+/* =========================================================
+   Links
+   ========================================================= */
+
 body.theme-dark a {
   color: var(--interactive-accent);
   text-decoration: none;
+  text-underline-offset: 0.2em;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
 }
+
 body.theme-dark a:hover {
+  color: var(--interactive-accent-hover);
   text-decoration: underline;
 }
 
-/* Code Blocks & Syntax Highlighting (Rouge-inspired) */
-.highlight, pre {
-  background-color: var(--background-secondary-alt);
-  padding: 1rem;
+/* Post title links in lists */
+.post-item {
+  margin-bottom: 2rem;
+}
+
+.post-list a.post-link,
+.post-item a.post-link {
+  font-size: 1.5rem !important;
+  color: var(--header-red) !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.post-list a.post-link:hover,
+.post-item a.post-link:hover {
+  text-decoration: underline;
+  color: #ff7979 !important; /* brighter version of header red */
+}
+
+/* =========================================================
+   Code Blocks & Syntax Highlighting
+   (Halcyon-style typography + Zukane borders)
+   ========================================================= */
+
+/* Jekyll / Rouge code blocks – single clean border */
+body.theme-dark .highlight {
+  background-color: var(--custom-code-bg);
+  padding: 0.5rem 0.75rem;
   overflow-x: auto;
-  border-radius: 4px;
-  font-family: var(--font-monospace);
-  margin: 1rem 0;
-}
-
-/* Basic syntax coloring */
-.highlight .k  { color: #f92672; }   /* Keywords */
-.highlight .o  { color: #66d9ef; }   /* Operators */
-.highlight .c  { color: #75715e; }   /* Comments */
-.highlight .s  { color: #e6db74; }   /* Strings */
-.highlight .n  { color: #a6e22e; }   /* Names, numbers */
-.highlight .nf { color: #a6e22e; }   /* Function names */
-
-/* Inline code */
-body.theme-dark code {
-  background-color: var(--background-secondary-alt);
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-family: var(--font-monospace);
-}
-
-/* Blockquotes */
-body.theme-dark blockquote {
-  border-left: 4px solid var(--interactive-accent);
-  padding-left: 1rem;
-  color: var(--text-muted);
-  font-style: italic;
-  margin: 1rem 0;
-}
-
-/* Header and Footer */
-header, footer {
-  background-color: var(--background-secondary);
-  padding: 1rem;
-  text-align: center;
-  border-bottom: 1px solid var(--panel-border-color);
-}
-footer {
-  border-top: 1px solid var(--panel-border-color);
-  border-bottom: none;
-}
-
-/* MathJax adjustments */
-.MathJax_Display, .MathJax {
-  margin: 1rem 0;
-  text-align: center;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .container {
-    max-width: 100%;
-    margin: 1rem;
-    padding: 1rem;
-  }
-  mjx-container[display="true"] {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-    box-sizing: border-box;
-    -webkit-overflow-scrolling: touch;
-  }
-  html { font-size: 87.5%; }
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.6rem; }
-  h3 { font-size: 1.4rem; }
-  .featured-heading {
-    font-size: 1.6rem !important;   /* was 2rem */
-  }
-  .featured-item .post-link {
-    font-size: 1.5rem !important;   /* was 1.75rem */
-  }
-}
-
-/* Code Blocks & Syntax Highlighting (Rouge-inspired) */
-.highlight, pre {
-  background-color: var(--background-secondary-alt);
-  /* Reduced padding: 0.5rem top and bottom, 1rem left and right */
-  padding: 0.25rem 0.5rem;
-  overflow-x: auto;
-  border-radius: 4px;
-  font-family: var(--font-monospace);
-  margin: 1rem 0;
-  /* Remove any extra indentation at the beginning */
+  border-radius: 6px;
+  font-family: "Consolas", "Fira Code", "Source Code Pro", "Droid Sans Mono", "Monoid", "Arial", sans-serif;
+  font-weight: var(--code-font-weight);
+  font-size: var(--code-font-size);  /* bigger block font */
+  margin: 1rem 0 1.4rem;
+  border: var(--stroke-code-border) solid var(--color-code-border);
   text-indent: 0;
+  scrollbar-width: thin;
 }
 
-/* Ensure code inside pre has no extra margin */
-pre code {
+/* Fix codeblock scrollbar size for webkit and hover state */
+body.theme-dark .highlight::-webkit-scrollbar {
+  height: 8px;
+  background: transparent;
+}
+body.theme-dark .highlight::-webkit-scrollbar-thumb {
+  background: #232837;
+  border-radius: 8px;
+}
+body.theme-dark .highlight:hover::-webkit-scrollbar {
+  height: 8px;
+}
+
+/* Remove inner border so there’s no “double frame” */
+body.theme-dark .highlight pre {
+  background: transparent;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Standalone <pre> (if any) still look like code panels */
+body.theme-dark pre {
+  background-color: var(--custom-code-bg);
+  padding: 0.5rem 0.75rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  font-family: "Consolas", "Fira Code", "Source Code Pro", "Droid Sans Mono", "Monoid", "Arial", sans-serif;
+  font-weight: var(--code-font-weight);
+  font-size: var(--code-font-size);  /* keep consistent with highlight */
+  margin: 1rem 0 1.4rem;
+  border: var(--stroke-code-border) solid var(--color-code-border);
+  text-indent: 0;
+  scrollbar-width: thin;
+}
+body.theme-dark pre::-webkit-scrollbar {
+  height: 8px;
+  background: transparent;
+}
+body.theme-dark pre::-webkit-scrollbar-thumb {
+  background: #232837;
+  border-radius: 8px;
+}
+body.theme-dark pre:hover::-webkit-scrollbar {
+  height: 8px;
+}
+
+
+/* Make sure inner code doesn't add spacing or background */
+body.theme-dark pre code {
   margin: 0;
   display: block;
+  background: transparent;
 }
 
-/* Inline code styling remains unchanged */
-body.theme-dark code {
-  background-color: var(--background-secondary-alt);
-  padding: 0.2rem 0.4rem;
+/* Halcyon-like syntax colors */
+.highlight .k  { color: #ff7ab2; }  /* Keywords */
+.highlight .o  { color: #82aaff; }  /* Operators */
+.highlight .c  { color: #5c6773; }  /* Comments */
+.highlight .s  { color: #ecc48d; }  /* Strings */
+.highlight .n  { color: #c3e88d; }  /* Names/numbers */
+.highlight .nf { color: #c3e88d; }  /* Function names */
+
+/* Inline code (backticks) – subtle size, softer weight, match regular text */
+body.theme-dark :not(pre) > code {
+  background-color: var(--color-base-10);
+  color: var(--color-base-70);
+  padding: 0.15em 0.35em;
   border-radius: 4px;
-  font-family: var(--font-monospace);
+  font-family: "Consolas", "Fira Code", "Source Code Pro", "Droid Sans Mono", "Monoid", "Arial", sans-serif;
+  font-weight: 400;    /* lighter than before */
+  font-size: 0.85em;      /* matches normal text size */
+  vertical-align: baseline;
 }
+
+/* =========================================================
+   Blockquotes
+   ========================================================= */
+
+body.theme-dark blockquote {
+  border-left: 3px solid var(--interactive-accent);
+  padding: 0.75rem 1.25rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 1.25rem 0;
+  background-color: rgba(11, 14, 20, 0.85); /* based on --color-base-00 */
+  border-radius: 0 8px 8px 0;
+}
+
+/* =========================================================
+   Header & Footer
+   ========================================================= */
+
+header {
+  background-color: var(--navbar-background) !important; /* Changed background color for header/navbar */
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--divider-color);
+}
+
+footer {
+  background-color: var(--background-secondary);
+  border-top: 1px solid var(--divider-color);
+  border-bottom: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+/* =========================================================
+   Tags
+   ========================================================= */
 
 .post-tags {
   margin-top: 1rem;
@@ -198,29 +434,55 @@ body.theme-dark code {
   text-decoration: none;
   padding: 0.25rem 0.5rem;
   margin-right: 0.5rem;
-  border-radius: 3px;
-  border: 1px solid var(--panel-border-color);
-  transition: background-color 0.3s, color 0.3s;
+  border-radius: 4px;
+  border: 1px solid var(--divider-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .post-tags a.tag:hover {
-  color: var(--text-title-h5);
+  color: var(--header-red);
 }
 
-.post-item{
-  margin-bottom: 2rem;
+/* =========================================================
+   MathJax
+   ========================================================= */
+
+.MathJax_Display,
+.MathJax {
+  margin: 1rem 0;
+  text-align: center;
 }
 
-.post-list a.post-link,
-.post-item a.post-link {
-  font-size: 1.5rem !important;
-  color: #ff5757 !important;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
+/* =========================================================
+   Responsive Adjustments
+   ========================================================= */
 
-.post-list a.post-link:hover,
-.post-item a.post-link:hover {
-  text-decoration: underline;
-  color: #ff7979 !important;
+@media (max-width: 768px) {
+  .container {
+    max-width: 100%;
+    margin: 1rem;
+    padding: 1.25rem 1.25rem;
+    border-radius: 12px;
+  }
+
+  html { font-size: 87.5%; }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.6rem; }
+  h3 { font-size: 1.4rem; }
+
+  .featured-heading {
+    font-size: 1.6rem !important;
+  }
+
+  .featured-item .post-link {
+    font-size: 1.5rem !important;
+  }
+
+  mjx-container[display="true"] {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+  }
 }

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Hyperactive (EPT 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Hyperactive (EPT 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge overview" />
+<meta property="og:description" content="Challenge overview" />
+<link rel="canonical" href="http://localhost:4000/hyperactive/" />
+<meta property="og:url" content="http://localhost:4000/hyperactive/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-11-09T11:00:00+01:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Hyperactive (EPT 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-11-09T11:00:00+01:00","datePublished":"2025-11-09T11:00:00+01:00","description":"Challenge overview","headline":"Hyperactive (EPT 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/hyperactive/"},"url":"http://localhost:4000/hyperactive/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperactive (EPT 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <meta name="google-site-verification" content="dyMwt_XPwaeGY1MubEtKTorF4C368AHqIwugUO8c6P8" />
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Hyperactive (EPT 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/hyperellipic-curve/" class="tag">Hyperellipic Curve</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Now that you're an expert in elliptic curves, meet their hyperactive cousin!
+</code></pre></div></div>
+
+<p>In this CTF challenge, we are given the following encryption script</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="mi">18446744073709551862</span>
+<span class="n">α</span> <span class="o">=</span> <span class="mi">115792089237316201600239092629181903022853076627057745643635536179347243697936</span>
+<span class="n">g</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="o">**</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mh">0x1337deadbeef1337</span>
+
+<span class="k">assert</span> <span class="n">is_prime</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">pow</span><span class="p">(</span><span class="n">α</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="n">a</span>
+<span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">FiniteField</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">HyperellipticCurve</span><span class="p">(</span><span class="n">α</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">'u,v'</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">H</span><span class="p">.</span><span class="n">genus</span><span class="p">()</span> <span class="o">==</span> <span class="n">g</span>
+<span class="n">J</span> <span class="o">=</span> <span class="n">H</span><span class="p">.</span><span class="n">jacobian</span><span class="p">()</span>
+<span class="n">J</span> <span class="o">=</span> <span class="n">J</span><span class="p">(</span><span class="n">J</span><span class="p">.</span><span class="n">base_ring</span><span class="p">())</span>
+
+<span class="c1"># The flag has to be a valid point on the curve
+</span><span class="n">P</span> <span class="o">=</span> <span class="n">H</span><span class="p">.</span><span class="n">lift_x</span><span class="p">(</span><span class="n">Integer</span><span class="p">(</span><span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="sa">b</span><span class="s">"EPT{flag_for_testing}"</span><span class="p">,</span> <span class="s">'big'</span><span class="p">)))</span>
+<span class="n">encrypted</span> <span class="o">=</span> <span class="n">e</span> <span class="o">*</span> <span class="n">J</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">encrypted</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nb">list</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">encrypted</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nb">list</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>as well as the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[37591645601766195349914241190244587541126648045894370496224605285205051789795607044058331351759777461098164398507872, 31825584496706095821807938099201614630698246114642375148953595216939791581619471005478949323508227490535910661480600, 38070154357732543786398829210104835275871944922030673096683631338658551155399049387419283060209447466278551582717763, 1]
+[21531145860198597476878989237755710606843064008828229889869373339271596611957323351613721272489730980549489312170394, 8261157019291686096998910330610725289103621846918848921362473394138486389948240100075107913867104846969233604431830, 12307880594487906245908563779709403748007966885981814022547160387211433226745858660170917861206356995209959276604903]
+</code></pre></div></div>
+
+<h5 id="source-code-analysis">Source code analysis</h5>
+
+<p>The encryption script works on the Jacobian of a genus-3 hyperelliptic curve. It begins by defining some constants, and calculates prime $p$:</p>
+
+\[\large p = \frac{a^{n}-1}{a-1}\]
+
+<p>This is the same as the 7-th cyclotomic polynomial of $a$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">^</span><span class="mi">7</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">x</span><span class="o">^</span><span class="mi">6</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">5</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">4</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">cyclotomic_polynomial</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">x</span><span class="o">^</span><span class="mi">6</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">5</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">4</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">3</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+</code></pre></div></div>
+
+<p>So, $p = \Phi_{7}(a)$. The script then builds the hyperelliptic curve $H: y^{2} + y = \alpha x^{7}$ over $\mathbb{F_p}$, and its Jacobian $J(\mathbb{F_p})$. The flag is encoded in the x-coordinate of point $P \in H(\mathbb{F_p})$ , and the flag is encrypted by scaling the divisor-class $J(P)$ by $e=0x1337deadbeef1337$ in the Jacobian group. We are given the pair $(u,v)$ as the ciphertext.</p>
+
+<h5 id="recovering-the-order-of-the-jacobian-group">Recovering the order of the Jacobian Group</h5>
+
+<p>Since the ciphertext is generated as $e \cdot J(P)$, we could recover $J(P)$ if we knew the order of the Jacobian group $\text{#}J(\mathbb{F}_{p})$ by calculating the modular inverse of $e$. Then, we would take one root of the decrypted $u(x)$ to get the original $x$. However, we do not know the order of the Jacobian group, and it is unfortunately not as simple as calling <code class="language-plaintext highlighter-rouge">.order()</code> in SageMath.</p>
+
+<p>We have $p = \Phi_{7}(a)$, which splits in the cyclotomic field $K$:</p>
+
+\[\large p = \prod^{6}_{k=1}(a-\zeta^{k})\]
+
+<p>We pick a generator $\pi$, for example $a - \zeta$. The others are generated by the Galois automorphism $\sigma_{k} : \zeta \mapsto \zeta^{k}$. So $\sigma_{k}(\pi) = a-\zeta^{k}$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">K</span><span class="p">.</span><span class="o">&lt;</span><span class="n">zeta</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">CyclotomicField</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">pi</span> <span class="o">=</span> <span class="n">K</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="n">zeta</span>
+<span class="k">assert</span> <span class="n">norm</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="o">==</span> <span class="n">p</span>
+
+<span class="k">def</span> <span class="nf">galois_embedding</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">K</span><span class="p">.</span><span class="n">hom</span><span class="p">([</span><span class="n">zeta</span><span class="o">^</span><span class="n">k</span><span class="p">])(</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Stickelberger’s theorem gives the prime-ideal factorization of the Jacobi sum $J(\chi^{r},\chi^{s}) \in \mathbb{Z}[\zeta_{7}]$ as:</p>
+
+\[\large J(\chi^{r},\chi^{s}) = \prod^{6}_{i=1}\sigma_{i}(\pi)^{e_{i}}, \quad e_{i} = \left\lfloor \frac{(r+s)i}{7} \right\rfloor - \left\lfloor \frac{ri}{7} \right\rfloor  - \left\lfloor \frac{si}{7} \right\rfloor\]
+
+<p>We use  $J(\chi,\chi)$, which gives :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">):</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">floor</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="mi">7</span><span class="p">)</span> <span class="o">-</span> <span class="n">floor</span><span class="p">((</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="mi">7</span><span class="p">)</span> <span class="o">-</span> <span class="n">floor</span><span class="p">((</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="mi">7</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"e</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s"> = </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    
+<span class="c1">#e1 = 0
+#e2 = 0
+#e3 = 0
+#e4 = 1
+#e5 = 1
+#e6 = 1
+</span></code></pre></div></div>
+
+<p>Hence, $J(\chi,\chi)$ is equal to $J_{1} = \sigma_{4}(\pi) \times \sigma_{5}(\pi) \times \sigma_{6}(\pi)$ up to a unit of $K$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">J1</span> <span class="o">=</span> <span class="n">prod</span><span class="p">([</span><span class="n">galois_embedding</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">pi</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+</code></pre></div></div>
+
+<p>Following this paper by Koblitz: https://www.cambridge.org/core/services/aop-cambridge-core/content/view/800A4343A2955C7D446B69063EB07BFC/S0008439500005786a.pdf, the order can be calculated as:</p>
+
+\[\large \text{#}J(\mathbb{F}_{p}) = \prod^{2g}_{i=1}(1 - \alpha_{i}) = \lvert Norm_{K/\mathbb{Q}} (1 + J(\chi,\chi)) \rvert\]
+
+<p>Since we only have $J(\chi,\chi)$ determined up to a 7th root of unity and sign, we can sweep the 14 candidates for the correct $\text{#}J(\mathbb{F}_{p})$</p>
+
+\[\large \text{#}J(\mathbb{F}_{p}) = \lvert Norm_{K/\mathbb{Q}} (1 \pm \zeta^{k} \cdot J_{1})\rvert\]
+
+<p>If the order is co-prime with $e$, we can invert the scalar and compute $C \cdot e^{-1} = J(P)$, then take the roots as mentioned before and get the original $x$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">sgn</span> <span class="ow">in</span> <span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">sgn</span><span class="o">*</span><span class="p">(</span><span class="n">zeta</span><span class="o">^</span><span class="n">k</span><span class="p">)</span><span class="o">*</span><span class="n">J1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">N</span><span class="o">*</span><span class="n">C</span> <span class="o">!=</span> <span class="n">J</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span> 
+            <span class="k">continue</span>
+        <span class="n">JP</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">C</span>
+        <span class="k">for</span> <span class="n">a_root</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">JP</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">roots</span><span class="p">():</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="n">a_root</span><span class="p">)).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>This finally gives us the flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>EPT{Now_you_can_count_cyclotomically_f045e0f0cd}
+</code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="mi">18446744073709551862</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mi">115792089237316201600239092629181903022853076627057745643635536179347243697936</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mh">0x1337deadbeef1337</span>
+<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="o">^</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">F</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">);</span> 
+<span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">F</span><span class="p">[]</span>
+<span class="n">H</span> <span class="o">=</span> <span class="n">HyperellipticCurve</span><span class="p">(</span><span class="n">alpha</span><span class="o">*</span><span class="n">x</span><span class="o">^</span><span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">J</span> <span class="o">=</span> <span class="n">H</span><span class="p">.</span><span class="n">jacobian</span><span class="p">()(</span><span class="n">F</span><span class="p">)</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">R</span><span class="p">([</span><span class="mi">21531145860198597476878989237755710606843064008828229889869373339271596611957323351613721272489730980549489312170394</span><span class="p">,</span> <span class="mi">8261157019291686096998910330610725289103621846918848921362473394138486389948240100075107913867104846969233604431830</span><span class="p">,</span> <span class="mi">12307880594487906245908563779709403748007966885981814022547160387211433226745858660170917861206356995209959276604903</span><span class="p">])</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">R</span><span class="p">([</span><span class="mi">37591645601766195349914241190244587541126648045894370496224605285205051789795607044058331351759777461098164398507872</span><span class="p">,</span> <span class="mi">31825584496706095821807938099201614630698246114642375148953595216939791581619471005478949323508227490535910661480600</span><span class="p">,</span> <span class="mi">38070154357732543786398829210104835275871944922030673096683631338658551155399049387419283060209447466278551582717763</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">J</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">])</span>
+
+<span class="n">K</span><span class="p">.</span><span class="o">&lt;</span><span class="n">zeta</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">CyclotomicField</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">pi</span> <span class="o">=</span> <span class="n">K</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="n">zeta</span>
+<span class="k">assert</span> <span class="n">norm</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="o">==</span> <span class="n">p</span>
+
+<span class="k">def</span> <span class="nf">galois_embedding</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">K</span><span class="p">.</span><span class="n">hom</span><span class="p">([</span><span class="n">zeta</span><span class="o">^</span><span class="n">k</span><span class="p">])(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">J1</span> <span class="o">=</span> <span class="n">prod</span><span class="p">([</span><span class="n">galois_embedding</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">pi</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+
+<span class="k">for</span> <span class="n">sgn</span> <span class="ow">in</span> <span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">sgn</span><span class="o">*</span><span class="p">(</span><span class="n">zeta</span><span class="o">^</span><span class="n">k</span><span class="p">)</span><span class="o">*</span><span class="n">J1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">N</span><span class="o">*</span><span class="n">C</span> <span class="o">!=</span> <span class="n">J</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span> 
+            <span class="k">continue</span>
+        <span class="n">JP</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">C</span>
+        <span class="k">for</span> <span class="n">a_root</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">JP</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">roots</span><span class="p">():</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="n">a_root</span><span class="p">)).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>

