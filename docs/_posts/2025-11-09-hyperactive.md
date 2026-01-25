@@ -4,6 +4,7 @@ title: "Hyperactive (EPT 2025)"
 date: 2025-11-09 10:00:00 -0000
 categories: writeups
 tags: [Hyperellipic Curve]
+featured: true
 ---
 
 ##### Challenge overview
