@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>\mathbb{C}SIDH (ECSC 2026) | Zukane CTF</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="\mathbb{C}SIDH (ECSC 2026)" />
+<meta name="author" content="Zukane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="challenge overview" />
+<meta property="og:description" content="challenge overview" />
+<link rel="canonical" href="http://localhost:4000/ccsidh/" />
+<meta property="og:url" content="http://localhost:4000/ccsidh/" />
+<meta property="og:site_name" content="Zukane CTF" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-10-21T12:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="\mathbb{C}SIDH (ECSC 2026)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Zukane"},"dateModified":"2026-10-21T12:00:00+02:00","datePublished":"2026-10-21T12:00:00+02:00","description":"challenge overview","headline":"\\mathbb{C}SIDH (ECSC 2026)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/ccsidh/"},"url":"http://localhost:4000/ccsidh/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>\mathbb{C}SIDH (ECSC 2026)</title>
+    <link rel="stylesheet" href="/assets/css/obsidian-theme.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <meta name="google-site-verification" content="dyMwt_XPwaeGY1MubEtKTorF4C368AHqIwugUO8c6P8" />
+    <!-- MathJax configuration -->
+    <script>
+        window.MathJax = {
+          tex: {
+            packages: {'[+]': ['ams']},
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            // Optional: Enable automatic equation numbering (if desired)
+            // equationNumbers: { autoNumber: "AMS" }
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+        };
+      </script>
+      <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+      </script>
+      
+  </head>
+  <body class="theme-dark">
+    <header>
+      <!-- Optionally, show a site title -->
+      <h1><a href="/", style="color: #ff5757;">Zukane CTF</a></h1>
+    </header>
+    <div class="container">
+      <!-- Display post title from front matter -->
+      
+        <h2 class="post-title">\mathbb{C}SIDH (ECSC 2026)</h2>
+      
+      
+        <div class="post-tags">
+            
+            <a href="/tags/elliptic-curve/" class="tag">Elliptic Curve</a>
+            
+            <a href="/tags/complex-multiplication/" class="tag">Complex Multiplication</a>
+            
+            <a href="/tags/csidh/" class="tag">CSIDH</a>
+            
+            <a href="/tags/ideal/" class="tag">Ideal</a>
+            
+        </div>
+      
+
+      <!-- Main content -->
+      <h5 id="challenge-overview">challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ComplexField</span><span class="p">,</span>
+    <span class="n">QQ</span><span class="p">,</span>
+    <span class="n">ZZ</span><span class="p">,</span>
+    <span class="n">QuadraticField</span><span class="p">,</span>
+    <span class="n">algdep</span><span class="p">,</span>
+    <span class="n">choice</span><span class="p">,</span>
+    <span class="n">elliptic_j</span><span class="p">,</span>
+    <span class="n">hilbert_class_polynomial</span><span class="p">,</span>
+    <span class="n">kronecker</span><span class="p">,</span>
+    <span class="n">next_prime</span><span class="p">,</span>
+    <span class="n">randint</span><span class="p">,</span>
+    <span class="n">random_prime</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">prec</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">CC</span> <span class="o">=</span> <span class="n">ComplexField</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ideal_to_j</span><span class="p">(</span><span class="n">I</span><span class="p">):</span>
+    <span class="s">"Associate a j-invariant to each ideal class"</span>
+
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">reduce_equiv</span><span class="p">()</span>
+    <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">basis</span><span class="p">())</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">alpha</span><span class="p">.</span><span class="n">parent</span><span class="p">()</span>
+
+    <span class="n">NI</span> <span class="o">=</span> <span class="n">QQ</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">norm</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">NI</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The ideal must be nonzero"</span><span class="p">)</span>
+
+    <span class="n">alpha_bar</span> <span class="o">=</span> <span class="n">alpha</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()</span>
+    <span class="n">beta_bar</span> <span class="o">=</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()</span>
+
+    <span class="c1"># For Im(beta/alpha) &gt; 0, we have
+</span>    <span class="c1">#
+</span>    <span class="c1"># alpha*beta_bar - alpha_bar*beta = -Norm(I)*sqrt(D).
+</span>    <span class="n">delta</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">*</span><span class="n">beta_bar</span> <span class="o">-</span> <span class="n">alpha_bar</span><span class="o">*</span><span class="n">beta</span>
+
+    <span class="k">if</span> <span class="n">delta</span> <span class="o">==</span> <span class="n">NI</span><span class="o">*</span><span class="n">sqrtD</span><span class="p">:</span>
+        <span class="c1"># The basis has the opposite orientation.
+</span>        <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span>
+        <span class="n">alpha_bar</span><span class="p">,</span> <span class="n">beta_bar</span> <span class="o">=</span> <span class="n">beta_bar</span><span class="p">,</span> <span class="n">alpha_bar</span>
+    <span class="k">elif</span> <span class="n">delta</span> <span class="o">!=</span> <span class="o">-</span><span class="n">NI</span><span class="o">*</span><span class="n">sqrtD</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ArithmeticError</span><span class="p">(</span>
+            <span class="s">"The ideal basis has the wrong discriminant scaling:</span><span class="se">\n</span><span class="s">"</span>
+            <span class="sa">f</span><span class="s">"delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">}</span><span class="se">\n</span><span class="s">"</span>
+            <span class="sa">f</span><span class="s">"expected ±</span><span class="si">{</span><span class="n">NI</span><span class="o">*</span><span class="n">sqrtD</span><span class="si">}</span><span class="s">"</span>
+        <span class="p">)</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">alpha</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">beta</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+    
+    <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="o">-</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">tau</span><span class="p">.</span><span class="n">imag</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ArithmeticError</span><span class="p">(</span><span class="s">"Recovered point is not in the upper half-plane"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">key_gen</span><span class="p">(</span><span class="n">D</span><span class="p">):</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="n">D</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">bound</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The discriminant is too small to sample a split prime"</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">ell</span> <span class="o">=</span> <span class="n">random_prime</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="n">lbound</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kronecker</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">ell</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ideal</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">K</span><span class="p">.</span><span class="n">primes_above</span><span class="p">(</span><span class="n">ell</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">ideal</span><span class="p">,</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">ideal</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">group_action</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">GA_data</span><span class="p">):</span>
+    <span class="s">"""I'm just gonna cheat, its YOUR job to solve the challenge after all..."""</span>
+    <span class="k">for</span> <span class="n">ideal</span><span class="p">,</span> <span class="n">j_invariant</span> <span class="ow">in</span> <span class="n">GA_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">j_invariant</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ideal</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The j-invariant is not present in GA_data"</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">next_prime</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">100</span><span class="p">))</span>
+    <span class="k">while</span> <span class="n">p</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">next_prime</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="n">D</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">QuadraticField</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">gens</span><span class="p">()</span>
+    <span class="n">sqrtD</span> <span class="o">=</span> <span class="n">K</span><span class="p">(</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">()</span>
+
+    <span class="n">ClK</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">maximal_order</span><span class="p">()</span>
+
+    <span class="n">GA_cache</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">trivial_class</span> <span class="o">=</span> <span class="n">ClK</span><span class="p">.</span><span class="n">fractional_ideal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">trivial_class</span><span class="p">,</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">trivial_class</span><span class="p">)])</span>
+
+    <span class="n">public_j</span> <span class="o">=</span> <span class="n">GA_cache</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"public j_invariant: </span><span class="si">{</span><span class="n">public_j</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">sk_A</span><span class="p">,</span> <span class="n">pk_A</span> <span class="o">=</span> <span class="n">key_gen</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">sk_A</span><span class="p">,</span> <span class="n">pk_A</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Alice sends bob... </span><span class="si">{</span><span class="n">pk_A</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">sk_B</span><span class="p">,</span> <span class="n">pk_B</span> <span class="o">=</span> <span class="n">key_gen</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">sk_B</span><span class="p">,</span> <span class="n">pk_B</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Bob sends Alice... </span><span class="si">{</span><span class="n">pk_B</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">group_action</span><span class="p">(</span><span class="n">sk_A</span><span class="p">,</span> <span class="n">pk_B</span><span class="p">,</span> <span class="n">GA_cache</span><span class="p">)</span>
+    <span class="n">ss_B</span> <span class="o">=</span> <span class="n">group_action</span><span class="p">(</span><span class="n">sk_B</span><span class="p">,</span> <span class="n">pk_A</span><span class="p">,</span> <span class="n">GA_cache</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ss_B</span> <span class="o">==</span> <span class="n">ss</span>
+
+    <span class="n">FLAG</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"ECSC{???}"</span>
+
+    <span class="kn">import</span> <span class="nn">hashlib</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+    <span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span><span class="p">,</span> <span class="n">unpad</span>
+
+    <span class="k">def</span> <span class="nf">encrypt_flag</span><span class="p">(</span><span class="n">shared_secret</span><span class="p">):</span>
+        <span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha1</span><span class="p">()</span>
+        <span class="n">sha1</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">shared_secret</span><span class="p">.</span><span class="nb">str</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">))</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">.</span><span class="n">digest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+        <span class="n">iv</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+        <span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+        <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="n">FLAG</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">iv</span><span class="p">.</span><span class="nb">hex</span><span class="p">(),</span> <span class="n">ciphertext</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span>
+    
+    <span class="k">print</span><span class="p">(</span><span class="n">encrypt_flag</span><span class="p">(</span><span class="n">ss</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>The script implements CSIDH over $\large \mathbb{C}$ with a special group action:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">group_action</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">GA_data</span><span class="p">):</span>
+    <span class="s">"""I'm just gonna cheat, its YOUR job to solve the challenge after all..."""</span>
+    <span class="k">for</span> <span class="n">ideal</span><span class="p">,</span> <span class="n">j_invariant</span> <span class="ow">in</span> <span class="n">GA_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">j_invariant</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ideal</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The j-invariant is not present in GA_data"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The public keys are j-invariants of ideal classes, while the ideals themselves are private keys. The group action is the multiplication of ideals, and the shared secret is the ideal</p>
+
+\[\large I_{s} = I_{A} \cdot I_{B}\]
+
+<p>We are given the j-invariant of the “public” ideal, Alice’s ideal, and Bob’s ideal. The goal is to reconstruct the ideals from the j-invariants to recover the shared secret and decrypt the flag</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pub_j</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.1197712970813935333025815233059028917528692370565878739706431207392400943025903079398286486e1100479732681975</span>
+<span class="n">alice_j</span> <span class="o">=</span> <span class="mf">1.1597266251125603933910992653441043163982816618818648459187602810288105825373314821350084443e9</span> <span class="o">-</span> <span class="mf">3.0150568297720854611814920360902760793623646151272310123283454986895478282103754038712873498e8</span><span class="o">*</span><span class="n">I</span>
+<span class="n">bob_j</span> <span class="o">=</span> <span class="mf">398.15980631356365538459960145848563801415044610365697473965739454574633609964901087991590433</span> <span class="o">-</span> <span class="mf">1355.5841259907285571993485598298233938426577514586420332333072677999276513493390612781725856</span><span class="o">*</span><span class="n">I</span>
+<span class="n">iv</span><span class="p">,</span> <span class="n">ct</span> <span class="o">=</span> <span class="p">(</span><span class="s">'b18b71a1768e5a3622e525b805611b72'</span><span class="p">,</span> <span class="s">'60ea6a1a4dbafbc708c65819c7bd1f8304980000700bd018bf385d48fc96937c5b3c0f1076ef0814b227391709f65d6fad071f5ca5d6e22333c1109358a599e4a4288c8be98ecbccae9ed5e21116ab5b'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h5 id="recovering-tau">recovering tau</h5>
+
+<p>The <code class="language-plaintext highlighter-rouge">ideal_to_j</code> function converts the fractional ideal $I = \large \langle\alpha,\beta\rangle$ into its corresponding binary quadratic form. It uses the coefficients $\large A,B,C$ of the binary quadratic form to find the principal root $\large \tau$ in the upper half-plane:</p>
+
+\[\large \tau = \frac{-B + \sqrt{ p } I}{2A}\]
+
+<p>This $\large \tau$ defines the period lattice of the ideal, and the script computes it’s j-invariant $\large j(\tau)$ via <code class="language-plaintext highlighter-rouge">elliptic_j(tau, prec=prec)</code>.</p>
+
+<p>By adding some debug prints to the function, we can tell that recoveirng $\large A$ and $\large B$ lets us recover the ideal basis:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>I = Fractional ideal (331634390804810, 1/2*a + 615471438211751/2)
+A,B = (331634390804810, -615471438211751)
+</code></pre></div></div>
+
+<p>The j-invariant is computed as:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">A</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">alpha</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">beta</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+
+<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="o">-</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+
+<span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Using the j-invariant, we can recover $\large \tau$ using the following function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">j_to_tau</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="n">j</span><span class="p">).</span><span class="n">period_lattice</span><span class="p">().</span><span class="n">tau</span><span class="p">()</span>
+	<span class="k">return</span> <span class="n">tau</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>We recover $\large \tau$ up to a period ($\large j(\tau) = j(\tau+1)$), but can recover the “canonical” value by subtracting $\large 1$ if $\large \mathrm{Re}(\tau) &gt;1$. However, with just $\large \tau$, we cannot recover $\large A,B$ since $\large p$ is also unknown.</p>
+
+<h5 id="recovering-p">recovering p</h5>
+
+<p>We are also given the public j-invariant:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">trivial_class</span> <span class="o">=</span> <span class="n">ClK</span><span class="p">.</span><span class="n">fractional_ideal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">trivial_class</span><span class="p">,</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">trivial_class</span><span class="p">)])</span>
+
+<span class="n">public_j</span> <span class="o">=</span> <span class="n">GA_cache</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"public j_invariant: </span><span class="si">{</span><span class="n">public_j</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>For the trivial ideal, $\large A,B$ are both 1:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#I = Fractional ideal (1)
+A,B = (1, 1)
+#real tau is -0.500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 + 413725151243647.181888936183550186978828354095816570223784043078257876251965006889540499239*I
+</code></pre></div></div>
+
+<p>With $\large \tau$, we could easily recover $\large p$</p>
+
+\[\large  \tau = \frac{-B + \sqrt{ p } I}{2A} = \frac{-1 + \sqrt{ p } I}{2}\]
+
+<p>However, the given j-invariant is huge:</p>
+
+\[\large pub_j = -3.1197712970\dots \times 10^{1100479732681975}\]
+
+<p>Recovering $\large \tau$ via <code class="language-plaintext highlighter-rouge">EllipticCurve(j=j).period_lattice().tau()</code> is not feasible due to the size of $\large pub_{j}$, as pari will crash. Instead, we can observe that $\large pub_{j}$ increases with $\large p$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">check_j</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="c1">#sage: check_j(1,1,100)
+#-4.40315058598e13
+</span>
+<span class="c1">#sage: check_j(1,1,100000)
+#-2.84240776957e431
+</span>
+<span class="c1">#sage: check_j(1,1,1000000000000)
+#-2.25861309281e1364376
+</span>
+<span class="c1">#sage: check_j(1,1,1000000000000000000000000)
+#-6.93980848830e1364376353841
+</span>
+<span class="c1">#sage: check_j(1,1,10000000000000000000000000000000000)
+#-5.60503543495e136437635384184134
+</span></code></pre></div></div>
+
+<p>We can use a binary-search algorithm to determine what input $\large p$ gives $\large pub_{j}$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ub</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">100</span>
+<span class="n">lb</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">lb</span> <span class="o">&lt;</span> <span class="n">ub</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+	<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">ub</span><span class="o">+</span><span class="n">lb</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+	<span class="n">x</span> <span class="o">=</span> <span class="n">check_j</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">pub_j</span><span class="p">:</span>
+		<span class="n">ub</span> <span class="o">=</span> <span class="n">p</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">lb</span> <span class="o">=</span> <span class="n">p</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"recovered p = </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="c1"># recovered p = 650572541643865526363370192007
+</span></code></pre></div></div>
+
+<h5 id="recovering-the-ideals">Recovering the Ideals</h5>
+
+<p>With $\large p$ recovered, and the ability to recover $\large \tau$ for alice and bob, we can now recover $\large A,B$ to reconstruct each ideal:</p>
+
+\[\large \tau = \frac{-B}{2A} + \frac{\sqrt{ p } I}{2A}\]
+
+<p>We can take imaginary part of $\large \tau$ and solve:</p>
+
+\[\large A = \frac{\sqrt{ p }}{2\mathrm{Im}(\tau)}\]
+
+<p>And then:</p>
+
+\[\large B = -2\cdot A\cdot\mathrm{Re}(\tau)\]
+
+<p>with $\large A,B$, we simply reconstruct $\large \alpha,\beta$ to create the ideal:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
+	<span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">imag</span><span class="p">())).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">()).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">K</span> <span class="o">=</span> <span class="n">QuadraticField</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">)</span>
+	<span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">B</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span>
+	<span class="k">return</span> <span class="n">K</span><span class="p">.</span><span class="n">ideal</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We perform the group action to get the shared secret, before decrypting the flag:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">alice_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">alice_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">alice_I</span><span class="p">)</span>
+
+<span class="n">bob_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">bob_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ideal_to_j</span><span class="p">(</span><span class="n">I</span><span class="p">):</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">reduce_equiv</span><span class="p">()</span>
+    <span class="n">A</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">basis</span><span class="p">())</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">A</span><span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="n">secret_I</span> <span class="o">=</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">alice_I</span><span class="o">*</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha1</span><span class="p">()</span>
+<span class="n">sha1</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">secret_I</span><span class="p">.</span><span class="nb">str</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">))</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">.</span><span class="n">digest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1"># ECSC{Yarr...y0u'd_th1nk_it_b3_RR_but_'tis_th3_CC_h3_truly_l1k3s}
+</span></code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span><span class="p">,</span> <span class="n">unpad</span>
+
+<span class="n">pub_j</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.1197712970813935333025815233059028917528692370565878739706431207392400943025903079398286486e1100479732681975</span>
+<span class="n">alice_j</span> <span class="o">=</span> <span class="mf">1.1597266251125603933910992653441043163982816618818648459187602810288105825373314821350084443e9</span> <span class="o">-</span> <span class="mf">3.0150568297720854611814920360902760793623646151272310123283454986895478282103754038712873498e8</span><span class="o">*</span><span class="n">I</span>
+<span class="n">bob_j</span> <span class="o">=</span> <span class="mf">398.15980631356365538459960145848563801415044610365697473965739454574633609964901087991590433</span> <span class="o">-</span> <span class="mf">1355.5841259907285571993485598298233938426577514586420332333072677999276513493390612781725856</span><span class="o">*</span><span class="n">I</span>
+<span class="n">iv</span><span class="p">,</span> <span class="n">ct</span> <span class="o">=</span> <span class="p">(</span><span class="s">'b18b71a1768e5a3622e525b805611b72'</span><span class="p">,</span> <span class="s">'60ea6a1a4dbafbc708c65819c7bd1f8304980000700bd018bf385d48fc96937c5b3c0f1076ef0814b227391709f65d6fad071f5ca5d6e22333c1109358a599e4a4288c8be98ecbccae9ed5e21116ab5b'</span><span class="p">)</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">iv</span><span class="p">)</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+
+<span class="c1">##################### RECOVER P #####################
+</span><span class="n">prec</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">CC</span> <span class="o">=</span> <span class="n">ComplexField</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">check_j</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+	<span class="n">D</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="o">-</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ub</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">100</span>
+<span class="n">lb</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">lb</span> <span class="o">&lt;</span> <span class="n">ub</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+	<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">ub</span><span class="o">+</span><span class="n">lb</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+	<span class="c1">#print(p)
+</span>	<span class="n">x</span> <span class="o">=</span> <span class="n">check_j</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">pub_j</span><span class="p">:</span>
+		<span class="n">ub</span> <span class="o">=</span> <span class="n">p</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">lb</span> <span class="o">=</span> <span class="n">p</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"recovered p = </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="c1">#####################################################
+</span>
+<span class="k">def</span> <span class="nf">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
+	<span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">imag</span><span class="p">())).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">()).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">K</span> <span class="o">=</span> <span class="n">QuadraticField</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">)</span>
+	<span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">B</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span>
+	<span class="k">return</span> <span class="n">K</span><span class="p">.</span><span class="n">ideal</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">j_to_tau</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="n">j</span><span class="p">).</span><span class="n">period_lattice</span><span class="p">().</span><span class="n">tau</span><span class="p">()</span>
+	<span class="k">return</span> <span class="n">tau</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">())</span>
+
+<span class="n">alice_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">alice_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">alice_I</span><span class="p">)</span>
+
+<span class="n">bob_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">bob_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ideal_to_j</span><span class="p">(</span><span class="n">I</span><span class="p">):</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">reduce_equiv</span><span class="p">()</span>
+    <span class="n">A</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">basis</span><span class="p">())</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">A</span><span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="n">secret_I</span> <span class="o">=</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">alice_I</span><span class="o">*</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha1</span><span class="p">()</span>
+<span class="n">sha1</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">secret_I</span><span class="p">.</span><span class="nb">str</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">))</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">.</span><span class="n">digest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>
+
+    </div>
+    <footer>
+      <p>&copy; 2026 Zukane</p>
+    </footer>
+  </body>
+</html>

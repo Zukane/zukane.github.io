@@ -1,4 +1,388 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="https://zukane.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zukane.github.io/" rel="alternate" type="text/html" /><updated>2025-12-01T23:06:52+01:00</updated><id>https://zukane.github.io/feed.xml</id><title type="html">Zukane CTF</title><subtitle>Cryptography CTF Writeups</subtitle><author><name>Zukane</name></author><entry><title type="html">Hyperactive (EPT 2025)</title><link href="https://zukane.github.io/hyperactive/" rel="alternate" type="text/html" title="Hyperactive (EPT 2025)" /><published>2025-11-09T11:00:00+01:00</published><updated>2025-11-09T11:00:00+01:00</updated><id>https://zukane.github.io/hyperactive</id><content type="html" xml:base="https://zukane.github.io/hyperactive/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-10-21T00:10:42+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Zukane CTF</title><subtitle>Cryptography CTF Writeups</subtitle><author><name>Zukane</name></author><entry><title type="html">\mathbb{C}SIDH (ECSC 2026)</title><link href="http://localhost:4000/ccsidh/" rel="alternate" type="text/html" title="\mathbb{C}SIDH (ECSC 2026)" /><published>2026-10-21T12:00:00+02:00</published><updated>2026-10-21T12:00:00+02:00</updated><id>http://localhost:4000/ccsidh</id><content type="html" xml:base="http://localhost:4000/ccsidh/"><![CDATA[<h5 id="challenge-overview">challenge overview</h5>
+
+<p>In this CTF challenge, we are given the following encryption script:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sage.all</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ComplexField</span><span class="p">,</span>
+    <span class="n">QQ</span><span class="p">,</span>
+    <span class="n">ZZ</span><span class="p">,</span>
+    <span class="n">QuadraticField</span><span class="p">,</span>
+    <span class="n">algdep</span><span class="p">,</span>
+    <span class="n">choice</span><span class="p">,</span>
+    <span class="n">elliptic_j</span><span class="p">,</span>
+    <span class="n">hilbert_class_polynomial</span><span class="p">,</span>
+    <span class="n">kronecker</span><span class="p">,</span>
+    <span class="n">next_prime</span><span class="p">,</span>
+    <span class="n">randint</span><span class="p">,</span>
+    <span class="n">random_prime</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">prec</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">CC</span> <span class="o">=</span> <span class="n">ComplexField</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ideal_to_j</span><span class="p">(</span><span class="n">I</span><span class="p">):</span>
+    <span class="s">"Associate a j-invariant to each ideal class"</span>
+
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">reduce_equiv</span><span class="p">()</span>
+    <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">basis</span><span class="p">())</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">alpha</span><span class="p">.</span><span class="n">parent</span><span class="p">()</span>
+
+    <span class="n">NI</span> <span class="o">=</span> <span class="n">QQ</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">norm</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">NI</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The ideal must be nonzero"</span><span class="p">)</span>
+
+    <span class="n">alpha_bar</span> <span class="o">=</span> <span class="n">alpha</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()</span>
+    <span class="n">beta_bar</span> <span class="o">=</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()</span>
+
+    <span class="c1"># For Im(beta/alpha) &gt; 0, we have
+</span>    <span class="c1">#
+</span>    <span class="c1"># alpha*beta_bar - alpha_bar*beta = -Norm(I)*sqrt(D).
+</span>    <span class="n">delta</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">*</span><span class="n">beta_bar</span> <span class="o">-</span> <span class="n">alpha_bar</span><span class="o">*</span><span class="n">beta</span>
+
+    <span class="k">if</span> <span class="n">delta</span> <span class="o">==</span> <span class="n">NI</span><span class="o">*</span><span class="n">sqrtD</span><span class="p">:</span>
+        <span class="c1"># The basis has the opposite orientation.
+</span>        <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span>
+        <span class="n">alpha_bar</span><span class="p">,</span> <span class="n">beta_bar</span> <span class="o">=</span> <span class="n">beta_bar</span><span class="p">,</span> <span class="n">alpha_bar</span>
+    <span class="k">elif</span> <span class="n">delta</span> <span class="o">!=</span> <span class="o">-</span><span class="n">NI</span><span class="o">*</span><span class="n">sqrtD</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ArithmeticError</span><span class="p">(</span>
+            <span class="s">"The ideal basis has the wrong discriminant scaling:</span><span class="se">\n</span><span class="s">"</span>
+            <span class="sa">f</span><span class="s">"delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">}</span><span class="se">\n</span><span class="s">"</span>
+            <span class="sa">f</span><span class="s">"expected ±</span><span class="si">{</span><span class="n">NI</span><span class="o">*</span><span class="n">sqrtD</span><span class="si">}</span><span class="s">"</span>
+        <span class="p">)</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">alpha</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">beta</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+    
+    <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="o">-</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">tau</span><span class="p">.</span><span class="n">imag</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ArithmeticError</span><span class="p">(</span><span class="s">"Recovered point is not in the upper half-plane"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">key_gen</span><span class="p">(</span><span class="n">D</span><span class="p">):</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="n">D</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">bound</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The discriminant is too small to sample a split prime"</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">ell</span> <span class="o">=</span> <span class="n">random_prime</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="n">lbound</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kronecker</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">ell</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ideal</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">K</span><span class="p">.</span><span class="n">primes_above</span><span class="p">(</span><span class="n">ell</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">ideal</span><span class="p">,</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">ideal</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">group_action</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">GA_data</span><span class="p">):</span>
+    <span class="s">"""I'm just gonna cheat, its YOUR job to solve the challenge after all..."""</span>
+    <span class="k">for</span> <span class="n">ideal</span><span class="p">,</span> <span class="n">j_invariant</span> <span class="ow">in</span> <span class="n">GA_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">j_invariant</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ideal</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The j-invariant is not present in GA_data"</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">next_prime</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">100</span><span class="p">))</span>
+    <span class="k">while</span> <span class="n">p</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">next_prime</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="n">D</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">QuadraticField</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">gens</span><span class="p">()</span>
+    <span class="n">sqrtD</span> <span class="o">=</span> <span class="n">K</span><span class="p">(</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">()</span>
+
+    <span class="n">ClK</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">maximal_order</span><span class="p">()</span>
+
+    <span class="n">GA_cache</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">trivial_class</span> <span class="o">=</span> <span class="n">ClK</span><span class="p">.</span><span class="n">fractional_ideal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">trivial_class</span><span class="p">,</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">trivial_class</span><span class="p">)])</span>
+
+    <span class="n">public_j</span> <span class="o">=</span> <span class="n">GA_cache</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"public j_invariant: </span><span class="si">{</span><span class="n">public_j</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">sk_A</span><span class="p">,</span> <span class="n">pk_A</span> <span class="o">=</span> <span class="n">key_gen</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">sk_A</span><span class="p">,</span> <span class="n">pk_A</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Alice sends bob... </span><span class="si">{</span><span class="n">pk_A</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">sk_B</span><span class="p">,</span> <span class="n">pk_B</span> <span class="o">=</span> <span class="n">key_gen</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">sk_B</span><span class="p">,</span> <span class="n">pk_B</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Bob sends Alice... </span><span class="si">{</span><span class="n">pk_B</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">group_action</span><span class="p">(</span><span class="n">sk_A</span><span class="p">,</span> <span class="n">pk_B</span><span class="p">,</span> <span class="n">GA_cache</span><span class="p">)</span>
+    <span class="n">ss_B</span> <span class="o">=</span> <span class="n">group_action</span><span class="p">(</span><span class="n">sk_B</span><span class="p">,</span> <span class="n">pk_A</span><span class="p">,</span> <span class="n">GA_cache</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ss_B</span> <span class="o">==</span> <span class="n">ss</span>
+
+    <span class="n">FLAG</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"ECSC{???}"</span>
+
+    <span class="kn">import</span> <span class="nn">hashlib</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+    <span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span><span class="p">,</span> <span class="n">unpad</span>
+
+    <span class="k">def</span> <span class="nf">encrypt_flag</span><span class="p">(</span><span class="n">shared_secret</span><span class="p">):</span>
+        <span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha1</span><span class="p">()</span>
+        <span class="n">sha1</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">shared_secret</span><span class="p">.</span><span class="nb">str</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">))</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">.</span><span class="n">digest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+        <span class="n">iv</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+        <span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+        <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="n">FLAG</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">iv</span><span class="p">.</span><span class="nb">hex</span><span class="p">(),</span> <span class="n">ciphertext</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span>
+    
+    <span class="k">print</span><span class="p">(</span><span class="n">encrypt_flag</span><span class="p">(</span><span class="n">ss</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>The script implements CSIDH over $\large \mathbb{C}$ with a special group action:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">group_action</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">GA_data</span><span class="p">):</span>
+    <span class="s">"""I'm just gonna cheat, its YOUR job to solve the challenge after all..."""</span>
+    <span class="k">for</span> <span class="n">ideal</span><span class="p">,</span> <span class="n">j_invariant</span> <span class="ow">in</span> <span class="n">GA_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">j_invariant</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ideal</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"The j-invariant is not present in GA_data"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The public keys are j-invariants of ideal classes, while the ideals themselves are private keys. The group action is the multiplication of ideals, and the shared secret is the ideal</p>
+
+\[\large I_{s} = I_{A} \cdot I_{B}\]
+
+<p>We are given the j-invariant of the “public” ideal, Alice’s ideal, and Bob’s ideal. The goal is to reconstruct the ideals from the j-invariants to recover the shared secret and decrypt the flag</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pub_j</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.1197712970813935333025815233059028917528692370565878739706431207392400943025903079398286486e1100479732681975</span>
+<span class="n">alice_j</span> <span class="o">=</span> <span class="mf">1.1597266251125603933910992653441043163982816618818648459187602810288105825373314821350084443e9</span> <span class="o">-</span> <span class="mf">3.0150568297720854611814920360902760793623646151272310123283454986895478282103754038712873498e8</span><span class="o">*</span><span class="n">I</span>
+<span class="n">bob_j</span> <span class="o">=</span> <span class="mf">398.15980631356365538459960145848563801415044610365697473965739454574633609964901087991590433</span> <span class="o">-</span> <span class="mf">1355.5841259907285571993485598298233938426577514586420332333072677999276513493390612781725856</span><span class="o">*</span><span class="n">I</span>
+<span class="n">iv</span><span class="p">,</span> <span class="n">ct</span> <span class="o">=</span> <span class="p">(</span><span class="s">'b18b71a1768e5a3622e525b805611b72'</span><span class="p">,</span> <span class="s">'60ea6a1a4dbafbc708c65819c7bd1f8304980000700bd018bf385d48fc96937c5b3c0f1076ef0814b227391709f65d6fad071f5ca5d6e22333c1109358a599e4a4288c8be98ecbccae9ed5e21116ab5b'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h5 id="recovering-tau">recovering tau</h5>
+
+<p>The <code class="language-plaintext highlighter-rouge">ideal_to_j</code> function converts the fractional ideal $I = \large \langle\alpha,\beta\rangle$ into its corresponding binary quadratic form. It uses the coefficients $\large A,B,C$ of the binary quadratic form to find the principal root $\large \tau$ in the upper half-plane:</p>
+
+\[\large \tau = \frac{-B + \sqrt{ p } I}{2A}\]
+
+<p>This $\large \tau$ defines the period lattice of the ideal, and the script computes it’s j-invariant $\large j(\tau)$ via <code class="language-plaintext highlighter-rouge">elliptic_j(tau, prec=prec)</code>.</p>
+
+<p>By adding some debug prints to the function, we can tell that recoveirng $\large A$ and $\large B$ lets us recover the ideal basis:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>I = Fractional ideal (331634390804810, 1/2*a + 615471438211751/2)
+A,B = (331634390804810, -615471438211751)
+</code></pre></div></div>
+
+<p>The j-invariant is computed as:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">A</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">alpha</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="n">beta</span><span class="p">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">/</span> <span class="n">NI</span><span class="p">)</span>
+
+<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="o">-</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+
+<span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Using the j-invariant, we can recover $\large \tau$ using the following function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">j_to_tau</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="n">j</span><span class="p">).</span><span class="n">period_lattice</span><span class="p">().</span><span class="n">tau</span><span class="p">()</span>
+	<span class="k">return</span> <span class="n">tau</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>We recover $\large \tau$ up to a period ($\large j(\tau) = j(\tau+1)$), but can recover the “canonical” value by subtracting $\large 1$ if $\large \mathrm{Re}(\tau) &gt;1$. However, with just $\large \tau$, we cannot recover $\large A,B$ since $\large p$ is also unknown.</p>
+
+<h5 id="recovering-p">recovering p</h5>
+
+<p>We are also given the public j-invariant:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">trivial_class</span> <span class="o">=</span> <span class="n">ClK</span><span class="p">.</span><span class="n">fractional_ideal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">GA_cache</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">trivial_class</span><span class="p">,</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">trivial_class</span><span class="p">)])</span>
+
+<span class="n">public_j</span> <span class="o">=</span> <span class="n">GA_cache</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"public j_invariant: </span><span class="si">{</span><span class="n">public_j</span><span class="p">.</span><span class="nb">str</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>For the trivial ideal, $\large A,B$ are both 1:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#I = Fractional ideal (1)
+A,B = (1, 1)
+#real tau is -0.500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 + 413725151243647.181888936183550186978828354095816570223784043078257876251965006889540499239*I
+</code></pre></div></div>
+
+<p>With $\large \tau$, we could easily recover $\large p$</p>
+
+\[\large  \tau = \frac{-B + \sqrt{ p } I}{2A} = \frac{-1 + \sqrt{ p } I}{2}\]
+
+<p>However, the given j-invariant is huge:</p>
+
+\[\large pub_j = -3.1197712970\dots \times 10^{1100479732681975}\]
+
+<p>Recovering $\large \tau$ via <code class="language-plaintext highlighter-rouge">EllipticCurve(j=j).period_lattice().tau()</code> is not feasible due to the size of $\large pub_{j}$, as pari will crash. Instead, we can observe that $\large pub_{j}$ increases with $\large p$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">check_j</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="c1">#sage: check_j(1,1,100)
+#-4.40315058598e13
+</span>
+<span class="c1">#sage: check_j(1,1,100000)
+#-2.84240776957e431
+</span>
+<span class="c1">#sage: check_j(1,1,1000000000000)
+#-2.25861309281e1364376
+</span>
+<span class="c1">#sage: check_j(1,1,1000000000000000000000000)
+#-6.93980848830e1364376353841
+</span>
+<span class="c1">#sage: check_j(1,1,10000000000000000000000000000000000)
+#-5.60503543495e136437635384184134
+</span></code></pre></div></div>
+
+<p>We can use a binary-search algorithm to determine what input $\large p$ gives $\large pub_{j}$:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ub</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">100</span>
+<span class="n">lb</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">lb</span> <span class="o">&lt;</span> <span class="n">ub</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+	<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">ub</span><span class="o">+</span><span class="n">lb</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+	<span class="n">x</span> <span class="o">=</span> <span class="n">check_j</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">pub_j</span><span class="p">:</span>
+		<span class="n">ub</span> <span class="o">=</span> <span class="n">p</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">lb</span> <span class="o">=</span> <span class="n">p</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"recovered p = </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="c1"># recovered p = 650572541643865526363370192007
+</span></code></pre></div></div>
+
+<h5 id="recovering-the-ideals">Recovering the Ideals</h5>
+
+<p>With $\large p$ recovered, and the ability to recover $\large \tau$ for alice and bob, we can now recover $\large A,B$ to reconstruct each ideal:</p>
+
+\[\large \tau = \frac{-B}{2A} + \frac{\sqrt{ p } I}{2A}\]
+
+<p>We can take imaginary part of $\large \tau$ and solve:</p>
+
+\[\large A = \frac{\sqrt{ p }}{2\mathrm{Im}(\tau)}\]
+
+<p>And then:</p>
+
+\[\large B = -2\cdot A\cdot\mathrm{Re}(\tau)\]
+
+<p>with $\large A,B$, we simply reconstruct $\large \alpha,\beta$ to create the ideal:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
+	<span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">imag</span><span class="p">())).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">()).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">K</span> <span class="o">=</span> <span class="n">QuadraticField</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">)</span>
+	<span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">B</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span>
+	<span class="k">return</span> <span class="n">K</span><span class="p">.</span><span class="n">ideal</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We perform the group action to get the shared secret, before decrypting the flag:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">alice_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">alice_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">alice_I</span><span class="p">)</span>
+
+<span class="n">bob_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">bob_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ideal_to_j</span><span class="p">(</span><span class="n">I</span><span class="p">):</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">reduce_equiv</span><span class="p">()</span>
+    <span class="n">A</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">basis</span><span class="p">())</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">A</span><span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="n">secret_I</span> <span class="o">=</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">alice_I</span><span class="o">*</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha1</span><span class="p">()</span>
+<span class="n">sha1</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">secret_I</span><span class="p">.</span><span class="nb">str</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">))</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">.</span><span class="n">digest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+<span class="c1"># ECSC{Yarr...y0u'd_th1nk_it_b3_RR_but_'tis_th3_CC_h3_truly_l1k3s}
+</span></code></pre></div></div>
+
+<h5 id="solvesage">solve.sage</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Util.Padding</span> <span class="kn">import</span> <span class="n">pad</span><span class="p">,</span> <span class="n">unpad</span>
+
+<span class="n">pub_j</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.1197712970813935333025815233059028917528692370565878739706431207392400943025903079398286486e1100479732681975</span>
+<span class="n">alice_j</span> <span class="o">=</span> <span class="mf">1.1597266251125603933910992653441043163982816618818648459187602810288105825373314821350084443e9</span> <span class="o">-</span> <span class="mf">3.0150568297720854611814920360902760793623646151272310123283454986895478282103754038712873498e8</span><span class="o">*</span><span class="n">I</span>
+<span class="n">bob_j</span> <span class="o">=</span> <span class="mf">398.15980631356365538459960145848563801415044610365697473965739454574633609964901087991590433</span> <span class="o">-</span> <span class="mf">1355.5841259907285571993485598298233938426577514586420332333072677999276513493390612781725856</span><span class="o">*</span><span class="n">I</span>
+<span class="n">iv</span><span class="p">,</span> <span class="n">ct</span> <span class="o">=</span> <span class="p">(</span><span class="s">'b18b71a1768e5a3622e525b805611b72'</span><span class="p">,</span> <span class="s">'60ea6a1a4dbafbc708c65819c7bd1f8304980000700bd018bf385d48fc96937c5b3c0f1076ef0814b227391709f65d6fad071f5ca5d6e22333c1109358a599e4a4288c8be98ecbccae9ed5e21116ab5b'</span><span class="p">)</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">iv</span><span class="p">)</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+
+<span class="c1">##################### RECOVER P #####################
+</span><span class="n">prec</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">CC</span> <span class="o">=</span> <span class="n">ComplexField</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">check_j</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+	<span class="n">D</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="o">-</span><span class="n">D</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ub</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">100</span>
+<span class="n">lb</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">lb</span> <span class="o">&lt;</span> <span class="n">ub</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+	<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">ub</span><span class="o">+</span><span class="n">lb</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+	<span class="c1">#print(p)
+</span>	<span class="n">x</span> <span class="o">=</span> <span class="n">check_j</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">pub_j</span><span class="p">:</span>
+		<span class="n">ub</span> <span class="o">=</span> <span class="n">p</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">lb</span> <span class="o">=</span> <span class="n">p</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"recovered p = </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="c1">#####################################################
+</span>
+<span class="k">def</span> <span class="nf">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
+	<span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">imag</span><span class="p">())).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">()).</span><span class="nb">round</span><span class="p">()</span>
+	<span class="n">K</span> <span class="o">=</span> <span class="n">QuadraticField</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">)</span>
+	<span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">B</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span>
+	<span class="k">return</span> <span class="n">K</span><span class="p">.</span><span class="n">ideal</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">j_to_tau</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">EllipticCurve</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="n">j</span><span class="p">).</span><span class="n">period_lattice</span><span class="p">().</span><span class="n">tau</span><span class="p">()</span>
+	<span class="k">return</span> <span class="n">tau</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">tau</span><span class="p">.</span><span class="n">real</span><span class="p">())</span>
+
+<span class="n">alice_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">alice_j</span><span class="p">)</span>
+<span class="n">alice_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">alice_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">alice_I</span><span class="p">)</span>
+
+<span class="n">bob_j</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_tau</span> <span class="o">=</span> <span class="n">j_to_tau</span><span class="p">(</span><span class="n">bob_j</span><span class="p">)</span>
+<span class="n">bob_I</span> <span class="o">=</span> <span class="n">j_to_ideal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">bob_tau</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ideal_to_j</span><span class="p">(</span><span class="n">I</span><span class="p">):</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">reduce_equiv</span><span class="p">()</span>
+    <span class="n">A</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">I</span><span class="p">.</span><span class="n">basis</span><span class="p">())</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">ZZ</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="n">beta</span><span class="p">.</span><span class="n">galois_conjugate</span><span class="p">()).</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="n">A</span><span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">CC</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="n">CC</span><span class="p">.</span><span class="n">gen</span><span class="p">()</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">p</span><span class="p">).</span><span class="n">sqrt</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">CC</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">elliptic_j</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+
+<span class="n">secret_I</span> <span class="o">=</span> <span class="n">ideal_to_j</span><span class="p">(</span><span class="n">alice_I</span><span class="o">*</span><span class="n">bob_I</span><span class="p">)</span>
+
+<span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha1</span><span class="p">()</span>
+<span class="n">sha1</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">secret_I</span><span class="p">.</span><span class="nb">str</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">))</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">.</span><span class="n">digest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">pt</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Elliptic Curve" /><category term="Complex Multiplication" /><category term="CSIDH" /><category term="Ideal" /><summary type="html"><![CDATA[challenge overview]]></summary></entry><entry><title type="html">Hyperactive (EPT 2025)</title><link href="http://localhost:4000/hyperactive/" rel="alternate" type="text/html" title="Hyperactive (EPT 2025)" /><published>2025-11-09T11:00:00+01:00</published><updated>2025-11-09T11:00:00+01:00</updated><id>http://localhost:4000/hyperactive</id><content type="html" xml:base="http://localhost:4000/hyperactive/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Now that you're an expert in elliptic curves, meet their hyperactive cousin!
 </code></pre></div></div>
@@ -152,7 +536,7 @@
         <span class="n">JP</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">C</span>
         <span class="k">for</span> <span class="n">a_root</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">JP</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">roots</span><span class="p">():</span>
             <span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="n">a_root</span><span class="p">)).</span><span class="n">decode</span><span class="p">())</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Hyperellipic Curve" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Encryptor (EPT 2025)</title><link href="https://zukane.github.io/encryptor/" rel="alternate" type="text/html" title="Encryptor (EPT 2025)" /><published>2025-11-08T11:00:00+01:00</published><updated>2025-11-08T11:00:00+01:00</updated><id>https://zukane.github.io/encryptor</id><content type="html" xml:base="https://zukane.github.io/encryptor/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Hyperellipic Curve" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Encryptor (EPT 2025)</title><link href="http://localhost:4000/encryptor/" rel="alternate" type="text/html" title="Encryptor (EPT 2025)" /><published>2025-11-08T11:00:00+01:00</published><updated>2025-11-08T11:00:00+01:00</updated><id>http://localhost:4000/encryptor</id><content type="html" xml:base="http://localhost:4000/encryptor/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Grab your resident cryptographer and try our shiny new "Encryption-As-A-Service"!
 
@@ -368,7 +752,7 @@ EPT{local_test_flag_because_im_not_waiting_100_years_on_remote_again_:skull:}
 <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="s">"&gt; "</span><span class="p">)</span>
 <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 <span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="RC4" /><category term="Distinguishing Attack" /><category term="Pwn" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Probable Prime 2 (WackAttack CTF 2025)</title><link href="https://zukane.github.io/probable-prime-2/" rel="alternate" type="text/html" title="Probable Prime 2 (WackAttack CTF 2025)" /><published>2025-10-05T16:00:00+02:00</published><updated>2025-10-05T16:00:00+02:00</updated><id>https://zukane.github.io/probable-prime-2</id><content type="html" xml:base="https://zukane.github.io/probable-prime-2/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="RC4" /><category term="Distinguishing Attack" /><category term="Pwn" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Probable Prime 2 (WackAttack CTF 2025)</title><link href="http://localhost:4000/probable-prime-2/" rel="alternate" type="text/html" title="Probable Prime 2 (WackAttack CTF 2025)" /><published>2025-10-05T16:00:00+02:00</published><updated>2025-10-05T16:00:00+02:00</updated><id>http://localhost:4000/probable-prime-2</id><content type="html" xml:base="http://localhost:4000/probable-prime-2/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge, we are given a Linux binary that acts as a simple database for prime numbers. The binary presents a menu with four options:</p>
 
@@ -885,7 +1269,7 @@ Leaked 1024-bit state X = 0x50b9e2235dc0df4117e984772c9c5dbd7d86f2f23316cc7f140c
 <span class="k">print</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">strip</span><span class="p">())</span>
 <span class="n">io</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
 <span class="c1"># wack{7Hi5_7im3_wi7h_4_5i6n3d_c0mP3ri50N}
-</span></code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Miller-Rabin" /><category term="PRNG" /><category term="Pwn" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Secure Agency (WackAttack CTF 2025)</title><link href="https://zukane.github.io/secure-agency/" rel="alternate" type="text/html" title="Secure Agency (WackAttack CTF 2025)" /><published>2025-10-05T12:00:00+02:00</published><updated>2025-10-05T12:00:00+02:00</updated><id>https://zukane.github.io/secure-agency</id><content type="html" xml:base="https://zukane.github.io/secure-agency/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</span></code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Miller-Rabin" /><category term="PRNG" /><category term="Pwn" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Secure Agency (WackAttack CTF 2025)</title><link href="http://localhost:4000/secure-agency/" rel="alternate" type="text/html" title="Secure Agency (WackAttack CTF 2025)" /><published>2025-10-05T12:00:00+02:00</published><updated>2025-10-05T12:00:00+02:00</updated><id>http://localhost:4000/secure-agency</id><content type="html" xml:base="http://localhost:4000/secure-agency/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge we are given the following server source code:</p>
 
@@ -1138,7 +1522,7 @@ Since the next state is computed as $(state_{i} \cdot P).x$, we can substitute f
 <span class="n">pt</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_ECB</span><span class="p">).</span><span class="n">decrypt</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">unpad</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span>
 <span class="n">io</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Elliptic Curve" /><category term="PRNG" /><category term="Hidden Number Problem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Crypto Party (NNS CTF 2025)</title><link href="https://zukane.github.io/crypto-party/" rel="alternate" type="text/html" title="Crypto Party (NNS CTF 2025)" /><published>2025-08-31T12:00:00+02:00</published><updated>2025-08-31T12:00:00+02:00</updated><id>https://zukane.github.io/crypto-party</id><content type="html" xml:base="https://zukane.github.io/crypto-party/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Elliptic Curve" /><category term="PRNG" /><category term="Hidden Number Problem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Crypto Party (NNS CTF 2025)</title><link href="http://localhost:4000/crypto-party/" rel="alternate" type="text/html" title="Crypto Party (NNS CTF 2025)" /><published>2025-08-31T12:00:00+02:00</published><updated>2025-08-31T12:00:00+02:00</updated><id>http://localhost:4000/crypto-party</id><content type="html" xml:base="http://localhost:4000/crypto-party/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge, we are given the source code of a signature service:</p>
 
@@ -1365,7 +1749,7 @@ Since the next state is computed as $(state_{i} \cdot P).x$, we can substitute f
 
 <h5 id="cheese">Cheese</h5>
 
-<p>because of a skill issue on my part, i overlooked the possibility of just reconnecting to the instance to get as many signatures as you want. This means the message $m$ does not need to be bruteforced. This isn’t too big of a cheese though</p>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="ECDSA" /><category term="Biased Nonces" /><category term="Hidden Number Problem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Origami (NNS CTF 2025)</title><link href="https://zukane.github.io/origami/" rel="alternate" type="text/html" title="Origami (NNS CTF 2025)" /><published>2025-08-31T12:00:00+02:00</published><updated>2025-08-31T12:00:00+02:00</updated><id>https://zukane.github.io/origami</id><content type="html" xml:base="https://zukane.github.io/origami/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+<p>because of a skill issue on my part, i overlooked the possibility of just reconnecting to the instance to get as many signatures as you want. This means the message $m$ does not need to be bruteforced. This isn’t too big of a cheese though</p>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="ECDSA" /><category term="Biased Nonces" /><category term="Hidden Number Problem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Origami (NNS CTF 2025)</title><link href="http://localhost:4000/origami/" rel="alternate" type="text/html" title="Origami (NNS CTF 2025)" /><published>2025-08-31T12:00:00+02:00</published><updated>2025-08-31T12:00:00+02:00</updated><id>http://localhost:4000/origami</id><content type="html" xml:base="http://localhost:4000/origami/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Origami is a ntruly marvellous artform
 </code></pre></div></div>
@@ -1672,7 +2056,7 @@ I_{d} &amp; H_{i}-H_{i+d} \\
 <span class="n">sk</span> <span class="o">=</span> <span class="n">attack</span><span class="p">(</span><span class="n">Rqn</span><span class="p">(</span><span class="n">pk</span><span class="p">))</span>
 <span class="n">d</span>  <span class="o">=</span> <span class="n">decrypt</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span><span class="n">Rqn</span><span class="p">(</span><span class="n">ct</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">decode</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="si">:</span><span class="n">x</span><span class="si">}</span><span class="s">').decode()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="NTRU" /><category term="Folding attack" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">dripfeed (DREAM 2025)</title><link href="https://zukane.github.io/dripfeed/" rel="alternate" type="text/html" title="dripfeed (DREAM 2025)" /><published>2025-08-09T13:00:00+02:00</published><updated>2025-08-09T13:00:00+02:00</updated><id>https://zukane.github.io/dripfeed</id><content type="html" xml:base="https://zukane.github.io/dripfeed/"><![CDATA[<h5 id="challenge-source">Challenge source</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="NTRU" /><category term="Folding attack" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">dripfeed (DREAM 2025)</title><link href="http://localhost:4000/dripfeed/" rel="alternate" type="text/html" title="dripfeed (DREAM 2025)" /><published>2025-08-09T13:00:00+02:00</published><updated>2025-08-09T13:00:00+02:00</updated><id>http://localhost:4000/dripfeed</id><content type="html" xml:base="http://localhost:4000/dripfeed/"><![CDATA[<h5 id="challenge-source">Challenge source</h5>
 
 <p>In this CTF challenge we are given the following encryption script:</p>
 
@@ -1784,7 +2168,7 @@ I_{d} &amp; H_{i}-H_{i+d} \\
 
 <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">hint2</span><span class="o">&lt;&lt;</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">roots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="k">print</span><span class="p">(</span><span class="n">long_to_bytes</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">N</span><span class="p">)))</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge source]]></summary></entry><entry><title type="html">L-iptic Curve Gimmick (DREAM 2025)</title><link href="https://zukane.github.io/liptic-curve-gimmick/" rel="alternate" type="text/html" title="L-iptic Curve Gimmick (DREAM 2025)" /><published>2025-08-09T13:00:00+02:00</published><updated>2025-08-09T13:00:00+02:00</updated><id>https://zukane.github.io/liptic-curve-gimmick</id><content type="html" xml:base="https://zukane.github.io/liptic-curve-gimmick/"><![CDATA[<h5 id="challenge-overview">Challenge Overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Coppersmith small roots" /><category term="RSA" /><summary type="html"><![CDATA[Challenge source]]></summary></entry><entry><title type="html">L-iptic Curve Gimmick (DREAM 2025)</title><link href="http://localhost:4000/liptic-curve-gimmick/" rel="alternate" type="text/html" title="L-iptic Curve Gimmick (DREAM 2025)" /><published>2025-08-09T13:00:00+02:00</published><updated>2025-08-09T13:00:00+02:00</updated><id>http://localhost:4000/liptic-curve-gimmick</id><content type="html" xml:base="http://localhost:4000/liptic-curve-gimmick/"><![CDATA[<h5 id="challenge-overview">Challenge Overview</h5>
 
 <p>In this CTF challenge we are given the following encryption script:</p>
 
@@ -2049,7 +2433,7 @@ ct = '081393130914bdd8c625786160f8de0dfd0dd5a4f3c2ca946b803cfe565082849827c9c079
 <span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">iv</span><span class="p">))</span>
 <span class="n">pt</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">)),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">()</span>
 <span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
-</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Elliptic Curve" /><category term="LCG" /><category term="Truncated attack" /><summary type="html"><![CDATA[Challenge Overview]]></summary></entry><entry><title type="html">mvm sum problem (DREAM 2025)</title><link href="https://zukane.github.io/mvm-sum-problem/" rel="alternate" type="text/html" title="mvm sum problem (DREAM 2025)" /><published>2025-08-09T13:00:00+02:00</published><updated>2025-08-09T13:00:00+02:00</updated><id>https://zukane.github.io/mvm-sum-problem</id><content type="html" xml:base="https://zukane.github.io/mvm-sum-problem/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
+</code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="Elliptic Curve" /><category term="LCG" /><category term="Truncated attack" /><summary type="html"><![CDATA[Challenge Overview]]></summary></entry><entry><title type="html">mvm sum problem (DREAM 2025)</title><link href="http://localhost:4000/mvm-sum-problem/" rel="alternate" type="text/html" title="mvm sum problem (DREAM 2025)" /><published>2025-08-09T13:00:00+02:00</published><updated>2025-08-09T13:00:00+02:00</updated><id>http://localhost:4000/mvm-sum-problem</id><content type="html" xml:base="http://localhost:4000/mvm-sum-problem/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
 
 <p>In this CTF challenge, we are given the following encryption script:</p>
 
@@ -2250,226 +2634,4 @@ ct = '081393130914bdd8c625786160f8de0dfd0dd5a4f3c2ca946b803cfe565082849827c9c079
 <span class="n">pt</span> <span class="o">=</span> <span class="n">unpad</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">ct</span><span class="p">.</span><span class="nb">hex</span><span class="p">())),</span><span class="mi">16</span><span class="p">).</span><span class="n">decode</span><span class="p">()</span>
 <span class="k">print</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
 <span class="c1"># DREAM{AGCD_4nd_MvMSSP_2_m4ny_4bbr3v14t10ns_but_pl34s3_d3l3t3_GPT5_n0w}
-</span></code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="AGCD" /><category term="Subset sum problem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry><entry><title type="html">Diamond Ticket (idekCTF 2025)</title><link href="https://zukane.github.io/diamond-ticket/" rel="alternate" type="text/html" title="Diamond Ticket (idekCTF 2025)" /><published>2025-08-02T12:00:00+02:00</published><updated>2025-08-02T12:00:00+02:00</updated><id>https://zukane.github.io/diamond-ticket</id><content type="html" xml:base="https://zukane.github.io/diamond-ticket/"><![CDATA[<h5 id="challenge-overview">Challenge overview</h5>
-
-<p>In this CTF challenge we are given the following encryption script:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="c1">#Some magic from Willy Wonka
-</span><span class="n">p</span> <span class="o">=</span> <span class="mi">170829625398370252501980763763988409583</span>
-<span class="n">a</span> <span class="o">=</span> <span class="mi">164164878498114882034745803752027154293</span>
-<span class="n">b</span> <span class="o">=</span> <span class="mi">125172356708896457197207880391835698381</span>
-
-<span class="k">def</span> <span class="nf">chocolate_generator</span><span class="p">(</span><span class="n">m</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="k">return</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="nb">pow</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="o">%</span> <span class="n">p</span>
-
-<span class="c1">#The diamond ticket is hiding inside chocolate
-</span><span class="n">diamond_ticket</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"flag.txt"</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diamond_ticket</span><span class="p">)</span> <span class="o">==</span> <span class="mi">26</span>
-<span class="k">assert</span> <span class="n">diamond_ticket</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s">"idek{"</span>
-<span class="k">assert</span> <span class="n">diamond_ticket</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="sa">b</span><span class="s">"}"</span>
-<span class="n">diamond_ticket</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="n">diamond_ticket</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-
-<span class="n">flag_chocolate</span> <span class="o">=</span> <span class="n">chocolate_generator</span><span class="p">(</span><span class="n">diamond_ticket</span><span class="p">)</span>
-<span class="n">chocolate_bag</span> <span class="o">=</span> <span class="p">[]</span>
-
-<span class="c1">#Willy Wonka are making chocolates
-</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1337</span><span class="p">):</span> <span class="c1"># 1337 random szám
-</span>    <span class="n">chocolate_bag</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">getRandomRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
-
-<span class="c1">#And he put the golden ticket at the end
-</span><span class="n">chocolate_bag</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag_chocolate</span><span class="p">)</span> <span class="c1"># az utolsó a flag
-</span>
-<span class="c1">#Augustus ate lots of chocolates, but he can't eat all cuz he is full now :D
-</span><span class="n">remain</span> <span class="o">=</span> <span class="n">chocolate_bag</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span> <span class="c1"># az első 4 random szám, az utolsó a flag
-</span>
-<span class="c1">#Compress all remain chocolates into one
-</span><span class="n">remain_bytes</span> <span class="o">=</span> <span class="sa">b</span><span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="n">c</span><span class="p">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">bit_length</span><span class="p">()</span><span class="o">//</span><span class="mi">8</span><span class="p">,</span> <span class="s">"big"</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">remain</span><span class="p">])</span> 
-
-<span class="c1">#The last chocolate is too important, so Willy Wonka did magic again
-</span><span class="n">P</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
-<span class="n">Q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
-<span class="n">N</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="n">Q</span>
-<span class="n">e</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="sa">b</span><span class="s">"idek{this_is_a_fake_flag_lolol}"</span><span class="p">)</span>
-<span class="n">d</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">c1</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">),</span> <span class="n">e</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-<span class="n">c2</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">bytes_to_long</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="c1"># A small gift
-</span>
-<span class="c1">#How can you get it ?
-</span><span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">N</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">c1</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">c2</span> <span class="o">=</span> <span class="si">}</span><span class="s">"</span><span class="p">)</span> 
-</code></pre></div></div>
-
-<p>As well as the output:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>N = 85494791395295332945307239533692379607357839212287019473638934253301452108522067416218735796494842928689545564411909493378925446256067741352255455231566967041733698260315140928382934156213563527493360928094724419798812564716724034316384416100417243844799045176599197680353109658153148874265234750977838548867
-c1 = 27062074196834458670191422120857456217979308440332928563784961101978948466368298802765973020349433121726736536899260504828388992133435359919764627760887966221328744451867771955587357887373143789000307996739905387064272569624412963289163997701702446706106089751532607059085577031825157942847678226256408018301
-c2 = 30493926769307279620402715377825804330944677680927170388776891152831425786788516825687413453427866619728035923364764078434617853754697076732657422609080720944160407383110441379382589644898380399280520469116924641442283645426172683945640914810778133226061767682464112690072473051344933447823488551784450844649
-</code></pre></div></div>
-
-<h5 id="source-code-analysis">Source code analysis</h5>
-
-<p>This challenge consists of multiple parts. Firstly, we are given two RSA ciphertexts of the same message with the same modulus. The encrypted message is <code class="language-plaintext highlighter-rouge">remain_bytes</code>, which consists of five concatenated elements of <code class="language-plaintext highlighter-rouge">chocolate_bag</code>. Four of these are random numbers, while the final element is <code class="language-plaintext highlighter-rouge">flag_chocolate</code>.</p>
-
-<p><code class="language-plaintext highlighter-rouge">flag_chocolate</code> is the flag output of the <code class="language-plaintext highlighter-rouge">chocolate_generator(m)</code> function.</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">chocolate_generator</span><span class="p">(</span><span class="n">m</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="k">return</span> <span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="nb">pow</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="o">%</span> <span class="n">p</span>
-</code></pre></div></div>
-
-<p>We must recover <code class="language-plaintext highlighter-rouge">flag_chocolate</code> from the RSA output, and then recover the message $m$ from the equation</p>
-
-\[\large a^{m} + b^{m} \mod p\]
-
-<p>Where $m$ is the 20-byte plaintext flag</p>
-
-<h5 id="recovering-flag_chocolate">Recovering flag_chocolate</h5>
-
-<p>Like previously mentioned, we are given two RSA samples of the same message, encrypted with different exponents but the same modulus. This makes the plaintext susceptible to an RSA common modulus attack. We can use the implementation from <code class="language-plaintext highlighter-rouge">jvdsn</code>’s repo: https://github.com/jvdsn/crypto-attacks/blob/master/attacks/rsa/common_modulus.py</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">e1</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">e2</span><span class="p">,</span> <span class="n">c2</span><span class="p">):</span>
-    <span class="n">g</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">xgcd</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">)</span>
-    <span class="n">p1</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="o">-</span><span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-    <span class="n">p2</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ZZ</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">p1</span> <span class="o">*</span> <span class="n">p2</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">).</span><span class="n">nth_root</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
-</code></pre></div></div>
-
-<p>We can simply input the parameters from the source code, and we easily recover <code class="language-plaintext highlighter-rouge">flag_chooclate</code></p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">85494791395295332945307239533692379607357839212287019473638934253301452108522067416218735796494842928689545564411909493378925446256067741352255455231566967041733698260315140928382934156213563527493360928094724419798812564716724034316384416100417243844799045176599197680353109658153148874265234750977838548867</span>
-<span class="n">c1</span> <span class="o">=</span> <span class="mi">27062074196834458670191422120857456217979308440332928563784961101978948466368298802765973020349433121726736536899260504828388992133435359919764627760887966221328744451867771955587357887373143789000307996739905387064272569624412963289163997701702446706106089751532607059085577031825157942847678226256408018301</span>
-<span class="n">c2</span> <span class="o">=</span> <span class="mi">30493926769307279620402715377825804330944677680927170388776891152831425786788516825687413453427866619728035923364764078434617853754697076732657422609080720944160407383110441379382589644898380399280520469116924641442283645426172683945640914810778133226061767682464112690072473051344933447823488551784450844649</span>
-<span class="n">e1</span> <span class="o">=</span> <span class="n">bytes_to_long</span><span class="p">(</span><span class="sa">b</span><span class="s">"idek{this_is_a_fake_flag_lolol}"</span><span class="p">)</span>
-<span class="n">e2</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">remain_bytes</span> <span class="o">=</span> <span class="n">long_to_bytes</span><span class="p">(</span><span class="n">attack</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">e1</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">e2</span><span class="p">,</span><span class="n">c2</span><span class="p">))</span>
-<span class="n">remain</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">16</span><span class="p">],</span> <span class="s">"big"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">remain_bytes</span><span class="p">),</span> <span class="mi">16</span><span class="p">)]</span>
-<span class="n">flag_chocolate</span> <span class="o">=</span> <span class="n">remain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="c1"># 99584795316725433978492646071734128819
-</span></code></pre></div></div>
-
-<h5 id="recovering-the-original-m">Recovering the original m</h5>
-
-<p>With <code class="language-plaintext highlighter-rouge">flag_chocolate</code> recovered, we now must recover the original flag from the equation. From here on, we denote <code class="language-plaintext highlighter-rouge">flag_chocolate</code> as $S$.</p>
-
-\[\large S \equiv a^{m} + b^{m} \mod p\]
-
-<p>Firstly, we notice that $p$ is a prime. We therefore work in the finite field $\mathbb{F}_{p}$. In SageMath, we can check the order $r$ of the field:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">p</span>  <span class="o">=</span> <span class="mi">170829625398370252501980763763988409583</span>
-<span class="p">....:</span> <span class="n">a</span>  <span class="o">=</span> <span class="mi">164164878498114882034745803752027154293</span>
-<span class="p">....:</span> <span class="n">b</span>  <span class="o">=</span> <span class="mi">125172356708896457197207880391835698381</span>
-<span class="p">....:</span> <span class="n">F</span>  <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="n">sage</span><span class="p">:</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">).</span><span class="n">multiplicative_order</span><span class="p">()</span>
-<span class="mi">85414812699185126250990381881994204791</span>
-</code></pre></div></div>
-
-<p>It turns out, the order of the field is surprisingly smooth:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">factor</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">).</span><span class="n">multiplicative_order</span><span class="p">())</span>
-<span class="mi">40841</span> <span class="o">*</span> <span class="mi">50119</span> <span class="o">*</span> <span class="mi">51193</span> <span class="o">*</span> <span class="mi">55823</span> <span class="o">*</span> <span class="mi">57809</span> <span class="o">*</span> <span class="mi">61991</span> <span class="o">*</span> <span class="mi">63097</span> <span class="o">*</span> <span class="mi">64577</span>
-</code></pre></div></div>
-
-<p>This means calculating discrete logs is quite easy. We can calculate the discrete log</p>
-
-\[\large b = a^{k} \mod p\]
-
-<p>for some $k$. Afterwards, we can rewrite our equation to:</p>
-
-\[\large S \equiv a^{m} + a^{mk} \mod p\]
-
-<p>The discrete log is easily calculable in SageMath, and since the order is smooth, it is almost instant:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sage</span><span class="p">:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">).</span><span class="n">multiplicative_order</span><span class="p">()</span>
-<span class="n">sage</span><span class="p">:</span> <span class="n">k</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">ord</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
-<span class="c1"># 73331
-</span></code></pre></div></div>
-
-<p>The exponent $k = 73331$, which seems intentional considering it is $13337$ backwards. We denote $a^{m}$ as $x$, and we are now left with the polynomial:</p>
-
-\[\large x + x^{k} - S \equiv 0 \mod p\]
-
-<p>By finding the root of this polynomial, we can find $a^{m} \bmod p$, where we can again solve for the discrete log, retrieving $m$. However, simply attempting <code class="language-plaintext highlighter-rouge">f.roots(multiplicities=False)</code> in SageMath is not enough. I used the <code class="language-plaintext highlighter-rouge">Cantor - Zassnehaus</code> method to find the root:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">R</span><span class="p">.</span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PolynomialRing</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
-<span class="n">f</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">^</span><span class="n">k</span> <span class="o">-</span> <span class="n">flag_chocolate</span>
-
-<span class="k">def</span> <span class="nf">unique_root</span><span class="p">(</span><span class="n">poly</span><span class="p">):</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">F</span><span class="p">.</span><span class="n">characteristic</span><span class="p">()</span>
-    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">random_element</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="n">poly</span><span class="p">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">power_mod</span><span class="p">(</span><span class="n">g</span><span class="p">,(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">poly</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">).</span><span class="n">gcd</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
-        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">h</span><span class="p">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">poly</span><span class="p">.</span><span class="n">degree</span><span class="p">():</span>
-            <span class="n">poly</span> <span class="o">=</span> <span class="n">h</span>  
-            <span class="k">if</span> <span class="n">poly</span><span class="p">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="o">-</span><span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  
-
-<span class="n">root</span> <span class="o">=</span> <span class="n">unique_root</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>  
-<span class="c1"># 126961729658296101306560858021273501485
-</span></code></pre></div></div>
-
-<p>With the root $a^{m} \bmod p$ recovered, we can now recover $m$ using the discrete log:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">m</span> <span class="o">=</span> <span class="n">discrete_log</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">ord</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>  
-<span class="c1"># 4807895356063327854843653048517090061
-</span></code></pre></div></div>
-
-<p>However, the recovered $m$ is not the complete plaintext. The original plaintext is 20 bytes, or rather 159 bits (because of leading 0 bit in ascii) while our modulus $p$ is 128 bits. To recover the complete 160 bit plaintext flag, we must lift the modulus and brute-force the missing factor $k$:</p>
-
-\[\large \text{flag} = m + k \cdot r\]
-
-<p>To verify if the flag is correct (or at least a candidate), we can check whether all flag bytes are printable ascii (between 32 and 126). With a 127 bit modulus $r$ and a 160 bit plaintext, the missing factor $k$ has an upper bound of $2^{33}$. This is doable in python/SageMath, but can be done a lot faster in a low-level language like c++ or rust. I wrote a brute-force code in c++ which iterates over possible values $k$ and prints the flag candidates:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>idek{ cm &amp;d@05 CS*q_[6Xxo}, k = 2164788270
-idek{"pVJWCNmgg59#/c,A1lf}, k = 2301835951
-idek{**}iVY9U:VhDtYv|Z@Un}, k = 2818307047
-idek{+MUks($7Mgr}k^M9EMB0}, k = 2894242741
-idek{,uMCt7xQoGqB+=Vkz"X0}, k = 2971516341
-idek{-'0v|lsh/#JFnY?_!S\S}, k = 3017960554
-idek{-;dC^#LP]I\3ke*iKIzV}, k = 3023235135
-idek{-{=G(2|N955PXau;%,;"}, k = 3039904979
-idek{9nRCVJsLMOij?QU/&amp;Dj4}, k = 3838593233
-idek{=rL&gt;7&gt;`HH?z dwF#\Rsb}, k = 4106985107
-idek{&gt;Xs\C7)bg1"_CB5p('| }, k = 4167075141
-idek{&gt;`6D\-v^1DVo9nAbY{f?}, k = 4169101534
-idek{@cL5&amp;a3iu~~jwMu~?68`}, k = 4303584005
-idek{A-;4;6kR&amp;xjp"ebkaFYf}, k = 4356306351
-idek{ALZ&gt;fE\}Lu,\6ku;5v/S}, k = 4364431722
-idek{Aqcll#(*wLKg{k: 9x!a}, k = 4374101324
-idek{D=7q7ZmjJU+/_SET(k&lt;Z}, k = 4560995163
-idek{DjeT|t!M&amp;o#~TYeKTaL^}, k = 4572790903
-idek{ETJ|+J+~B{q;f1$cJdO?}, k = 4633858014
-idek{F\eth:*"=Oq5qXM0@I(Q}, k = 4702812636
-idek{GGqO`:j0, OVhGk6`QI=}, k = 4764180304
-idek{H+@B~2[q{UtzIEEU+&lt;7r}, k = 4823658243
-idek{J$\Gu~.)Be{/#`@Y@a"7}, k = 4955536038
-idek{L[&amp;RdOPDT2*D}q?Oi^Xu}, k = 5103517656
-idek{N`(&lt;}~b*iHSmtz4'X68g}, k = 5238501878
-idek{OH&amp;F`@GGUpsVMHkX![hM}, k = 5299072192
-idek{P5bxoo)'46];&gt;`])&gt;)pE}, k = 5361011336
-idek{Q.=k;. PCu,q#}OZ}|f6}, k = 5425984351
-idek{TK%_6N?GvA@z.F Vvi$P}, k = 5634046613
-idek{T}bLK\y7=7h"EKU&amp;!@PU}, k = 5647163128
-idek{W)pA[}X(cS&gt;`w16l'cYn}, k = 5825761255
-idek{Y6'g2eA?&lt;DfH$33f}:+@}, k = 5962757925
-idek{YoFMQ?|I!,U'?hAYTwL`}, k = 5977671429
-idek{^Swy+98nqf3F#M5 ZD- }, k = 6304603205
-idek{a_DUV.bwgVg0G5=Q1Z+B}, k = 6508199347
-idek{dX5Z:`_B:w E?2g`A96&gt;}, k = 6706871703
-idek{d}Okl]'GAP^Re#-aPEHM}, k = 6716558528
-idek{hdmhF2o7XO#XIY=&lt;7&amp;a[}, k = 6977415586
-idek{iD(*_@q"aQ 6&gt;H#H' Mw}, k = 7035828582
-idek{kV*_rGI-Q]z8z{+A[-v&lt;}, k = 7174207241
-idek{l=Mt0@&amp;;3]+))wOQxxLW}, k = 7234554246
-idek{n }W~-LJ(qb&lt;\kw4aR,#}, k = 7360708378
-idek{ng0qo1rmR2_jS[;,Q1UM}, k = 7379167168
-idek{o-Z4t_oZ[_.Fng} W0`&lt;}, k = 7430905097
-idek{tks_f0r_ur_t1ck3t_xD}, k = 7781310273 &lt;- our flag
-idek{u]aAv}2(KI~?.yrgmhxS}, k = 7844474986
-idek{w_"knU](04jH_hi*&lt;.xy}, k = 7978609908
-idek{zxZmPiv]iZ,1fSH|9_m,}, k = 8185709465
-idek{~&gt;AkP(C2`p-DWPSe2=_t}, k = 8437894545
-</code></pre></div></div>
-
-<p>With $k = 7781310273$ we recover our flag: <code class="language-plaintext highlighter-rouge">idek{tks_f0r_ur_t1ck3t_xD}</code> !</p>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="RSA" /><category term="Common Modulus attack" /><category term="Diophantine" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry></feed>
+</span></code></pre></div></div>]]></content><author><name>Zukane</name></author><category term="writeups" /><category term="AGCD" /><category term="Subset sum problem" /><summary type="html"><![CDATA[Challenge overview]]></summary></entry></feed>
